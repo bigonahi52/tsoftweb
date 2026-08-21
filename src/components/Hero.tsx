@@ -17,6 +17,17 @@ function Stat({ value, suffix, label }: { value: number; suffix?: string; label:
   );
 }
 
+/** مُهر سالگرد — عدد ۲۰ با قابِ خط‌چین و برچسب خوانا */
+function YearSeal() {
+  const { ref, text } = useCountUp(20);
+  return (
+    <div className="seal-pulse relative flex h-32 w-32 shrink-0 flex-col items-center justify-center rounded-full border-2 border-dashed border-gold-500/90 bg-ink-900/70">
+      <span ref={ref} className="font-display text-5xl leading-none text-gold-400">{text}</span>
+      <span className="mt-1.5 text-sm font-bold tracking-[0.2em] text-ink-100">سال</span>
+    </div>
+  );
+}
+
 /** تصویر شناور محصول داخل فرم نرم ارگانیک */
 function ProductVisual({ index }: { index: number }) {
   const active = products[index] ?? products[0];
@@ -120,10 +131,12 @@ export default function Hero({ nav }: { nav: NavFn }) {
             </button>
           </div>
 
-          <div className="reveal mt-12 grid grid-cols-3 gap-x-6 gap-y-8 border-t border-ink-700/70 pt-8" style={{ "--rv-delay": "450ms" } as React.CSSProperties}>
-            <Stat value={20} label="سال سابقه تخصصی" />
-            <Stat value={5} label="محصول تخصصی" />
-            <Stat value={35} label="استان و شهر — ایران و افغانستان" />
+          <div className="reveal mt-12 flex flex-wrap items-center gap-8 border-t border-ink-700/70 pt-8" style={{ "--rv-delay": "450ms" } as React.CSSProperties}>
+            <YearSeal />
+            <div className="grid min-w-[220px] flex-1 grid-cols-2 gap-x-6 gap-y-6">
+              <Stat value={5} label="محصول تخصصی" />
+              <Stat value={35} label="استان و شهر — ایران و افغانستان" />
+            </div>
           </div>
         </div>
 

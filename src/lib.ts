@@ -119,7 +119,7 @@ export function useTodayDate(): string | null {
   const [d] = useState(() => {
     try {
       const now = new Date();
-      const parts = new Intl.DateTimeFormat("fa-IR-u-nu-latn", {
+      const parts = new Intl.DateTimeFormat("fa-IR-u-nu-fa", {
         weekday: "long",
         day: "numeric",
         month: "long",
