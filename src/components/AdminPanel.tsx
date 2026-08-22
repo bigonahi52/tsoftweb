@@ -1,21 +1,25 @@
 import { useEffect, useRef, useState } from "react";
 import {
   changePassword,
+  closeTicket,
   conversations,
   createInvoice,
   customerUsers,
   getInvoices,
   getMessages,
+  getTickets,
   getUserById,
   invoiceTotal,
   markRead,
+  openTicketsCount,
+  replyTicket,
   sendFileToUser,
   sendMessage,
   setInvoiceStatus,
   totalUnread,
   useStoreTick,
 } from "../store";
-import type { Invoice, InvoiceItem } from "../store";
+import type { Invoice, InvoiceItem, Ticket } from "../store";
 import { currentUser, logout } from "../store";
 import { fa, faDate, faTime, money, useRevealAll } from "../lib";
 import type { NavFn } from "../lib";
@@ -27,18 +31,23 @@ export default function AdminPanel({ nav }: { nav: NavFn }) {
   useStoreTick();
   const me = currentUser();
 
-  const [tab, setTab] = useState<"chats" | "invoices">("chats");
+  const [tab, setTab] = useState<"chats" | "tickets" | "invoices">("chats");
   const [activeId, setActiveId] = useState<string | null>(null);
   const [reply, setReply] = useState("");
   const [fileModal, setFileModal] = useState(false);
   const [invModal, setInvModal] = useState(false);
   const [viewInv, setViewInv] = useState<Invoice | null>(null);
+  const [viewTick, setViewTick] = useState<Ticket | null>(null);
+  const [tickReply, setTickReply] = useState("");
+  const [tickFilter, setTickFilter] = useState<"all" | "open" | "answered" | "closed">("all");
   const endRef = useRef<HTMLDivElement>(null);
 
   const convs = conversations();
   const users = customerUsers();
   const invoices = getInvoices();
+  const tickets = getTickets().filter((t) => tickFilter === "all" || t.status === tickFilter);
   const unread = totalUnread();
+  const openTix = openTicketsCount();
   const paidSum = invoices.filter((i) => i.status === "paid").reduce((s, i) => s + invoiceTotal(i), 0);
   const active = activeId ? getUserById(activeId) : null;
   const msgs = activeId ? getMessages(activeId) : [];
@@ -76,6 +85,7 @@ export default function AdminPanel({ nav }: { nav: NavFn }) {
   const stats = [
     { icon: "users", label: "کاربران", value: fa(users.length) },
     { icon: "chat", label: "پیام نخوانده", value: fa(unread), gold: unread > 0 },
+    { icon: "headset", label: "تیکت باز", value: fa(openTix), gold: openTix > 0 },
     { icon: "invoice", label: "فاکتورها", value: fa(invoices.length) },
     { icon: "coins", label: "مجموع پرداخت‌شده", value: money(paidSum) + " ریال" },
   ];

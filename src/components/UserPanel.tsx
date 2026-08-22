@@ -1,10 +1,14 @@
 import { useEffect, useRef, useState } from "react";
 import {
   changePassword,
+  closeTicket,
+  createTicket,
   getFilesFor,
   getInvoicesFor,
   getMessages,
+  getTicketsFor,
   markRead,
+  replyTicket,
   sendMessage,
   useStoreTick,
 } from "../store";
@@ -15,6 +19,8 @@ import { currentUser, logout } from "../store";
 import { Icon } from "./Icons";
 import InvoiceSheet from "./InvoiceSheet";
 
+const TICKET_TOPICS = ["مشکل فنی", "سوال درباره محصولات", "درخواست دمو", "استعلام قیمت", "سایر"];
+
 export default function UserPanel({ nav }: { nav: NavFn }) {
   const ref = useRevealAll<HTMLDivElement>();
   useStoreTick();
@@ -23,11 +29,17 @@ export default function UserPanel({ nav }: { nav: NavFn }) {
   const [viewInv, setViewInv] = useState<Invoice | null>(null);
   const [pw, setPw] = useState({ p1: "", p2: "" });
   const [pwMsg, setPwMsg] = useState("");
+  const [activeTicket, setActiveTicket] = useState<string | null>(null);
+  const [tickReply, setTickReply] = useState("");
+  const [newTick, setNewTick] = useState({ open: false, subject: "", topic: TICKET_TOPICS[0], priority: "normal" as "normal" | "high", text: "" });
+  const [tickMsg, setTickMsg] = useState("");
   const endRef = useRef<HTMLDivElement>(null);
 
   const msgs = user ? getMessages(user.id) : [];
   const files = user ? getFilesFor(user.id) : [];
   const invoices = user ? getInvoicesFor(user.id) : [];
+  const tickets = user ? getTicketsFor(user.id) : [];
+  const openTick = tickets.find((t) => t.id === activeTicket);
 
   useEffect(() => {
     if (user) markRead(user.id, "user");
@@ -201,11 +213,135 @@ export default function UserPanel({ nav }: { nav: NavFn }) {
                 <button type="submit" className="w-full rounded-xl bg-ink-950 py-3 text-sm font-bold text-white transition-colors hover:bg-teal-600">تغییر رمز عبور</button>
               </form>
             </div>
+
+            {/* تیکت‌های پشتیبانی */}
+            <div className="reveal rounded-3xl border border-ink-100 bg-white p-6" style={{ "--rv-delay": "360ms" } as React.CSSProperties}>
+              <p className="flex items-center gap-2.5 font-display text-xl text-ink-900">
+                <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gold-500/15 text-gold-600"><Icon name="headset" className="h-4.5 w-4.5" /></span>
+                تیکت‌های من
+                <span className="mr-auto rounded-full bg-ink-50 px-3 py-1 text-xs font-bold text-mist-500">{fa(tickets.length)}</span>
+              </p>
+              <button onClick={() => setNewTick({ ...newTick, open: true })} className="btn-shine mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-gold-500 py-3 text-sm font-bold text-ink-950 transition-colors hover:bg-gold-400">
+                <Icon name="send" className="h-4 w-4 -scale-x-100" />
+                ثبت تیکت جدید
+              </button>
+              <div className="mt-4 space-y-3">
+                {tickets.length === 0 && <p className="rounded-xl bg-paper px-4 py-4 text-center text-xs text-mist-500">هنوز تیکتی ثبت نکرده‌اید.</p>}
+                {tickets.map((t) => (
+                  <button key={t.id} onClick={() => setActiveTicket(t.id)} className="card-lift flex w-full items-center gap-3 rounded-2xl border border-ink-100 bg-paper p-4 text-right">
+                    <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${t.status === "closed" ? "bg-ink-100 text-mist-500" : t.status === "answered" ? "bg-teal-500/15 text-teal-600" : "bg-gold-500/15 text-gold-600"}`}>
+                      <Icon name={t.status === "closed" ? "check" : "headset"} className="h-5 w-5" />
+                    </span>
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate text-sm font-bold text-ink-900">{t.subject}</span>
+                      <span className="mt-0.5 block text-[11px] text-mist-500">{t.no} · {t.topic} · {faDate(t.time)}</span>
+                    </span>
+                    <span className={`shrink-0 rounded-full px-2.5 py-1 text-[10px] font-bold ${t.status === "closed" ? "bg-ink-100 text-mist-500" : t.status === "answered" ? "bg-teal-500/15 text-teal-600" : "bg-gold-500/15 text-gold-600"}`}>
+                      {t.status === "closed" ? "بسته" : t.status === "answered" ? "پاسخ‌داده‌شده" : "باز"}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
       {viewInv && <InvoiceSheet inv={viewInv} onClose={() => setViewInv(null)} />}
+
+      {/* ── فرم ثبت تیکت ── */}
+      {newTick.open && (
+        <div className="fixed inset-0 z-[80] flex items-center justify-center p-4" role="dialog" aria-modal="true">
+          <button aria-label="بستن" onClick={() => setNewTick({ ...newTick, open: false })} className="absolute inset-0 cursor-default bg-ink-950/85 backdrop-blur-sm" />
+          <div className="player-pop relative w-full max-w-lg rounded-3xl border border-ink-100 bg-white p-7 sm:p-9">
+            <div className="flex items-center justify-between">
+              <h2 className="font-display text-3xl text-ink-900">ثبت تیکت جدید</h2>
+              <button onClick={() => setNewTick({ ...newTick, open: false })} className="flex h-9 w-9 items-center justify-center rounded-lg border border-ink-100 text-mist-500 transition-colors hover:border-[#e5695e] hover:text-[#ff9d94]"><Icon name="close" className="h-4 w-4" /></button>
+            </div>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                if (!user || !newTick.subject.trim() || !newTick.text.trim()) return setTickMsg("موضوع و شرح تیکت را کامل بنویسید");
+                const t = createTicket(user.id, newTick.subject.trim(), newTick.topic, newTick.priority, newTick.text.trim());
+                setNewTick({ open: false, subject: "", topic: TICKET_TOPICS[0], priority: "normal", text: "" });
+                setTickMsg("");
+                setActiveTicket(t.id);
+              }}
+              className="mt-6 space-y-4"
+            >
+              <label className="block">
+                <span className="mb-1.5 block text-sm font-bold text-ink-900">موضوع تیکت</span>
+                <input value={newTick.subject} onChange={(e) => setNewTick({ ...newTick, subject: e.target.value })} placeholder="مثلاً: مشکل در نصب تیسافت" className="w-full rounded-xl border border-ink-100 bg-paper px-4 py-3 text-sm focus:border-teal-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-teal-500/15" />
+              </label>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <label className="block">
+                  <span className="mb-1.5 block text-sm font-bold text-ink-900">دسته‌بندی</span>
+                  <select value={newTick.topic} onChange={(e) => setNewTick({ ...newTick, topic: e.target.value })} className="w-full rounded-xl border border-ink-100 bg-paper px-4 py-3 text-sm focus:border-teal-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-teal-500/15">
+                    {TICKET_TOPICS.map((tp) => <option key={tp}>{tp}</option>)}
+                  </select>
+                </label>
+                <label className="block">
+                  <span className="mb-1.5 block text-sm font-bold text-ink-900">اولویت</span>
+                  <select value={newTick.priority} onChange={(e) => setNewTick({ ...newTick, priority: e.target.value as "normal" | "high" })} className="w-full rounded-xl border border-ink-100 bg-paper px-4 py-3 text-sm focus:border-teal-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-teal-500/15">
+                    <option value="normal">عادی</option>
+                    <option value="high">فوری</option>
+                  </select>
+                </label>
+              </div>
+              <label className="block">
+                <span className="mb-1.5 block text-sm font-bold text-ink-900">شرح مشکل یا درخواست</span>
+                <textarea rows={5} value={newTick.text} onChange={(e) => setNewTick({ ...newTick, text: e.target.value })} placeholder="جزئیات را بنویسید؛ اگر خطا دارید، متن دقیق آن را کپی کنید…" className="w-full resize-none rounded-xl border border-ink-100 bg-paper px-4 py-3 text-sm focus:border-teal-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-teal-500/15" />
+              </label>
+              {tickMsg && <p className="ticker-in text-xs font-bold text-[#c0443a]">{tickMsg}</p>}
+              <button type="submit" className="btn-shine w-full rounded-xl bg-teal-500 py-3.5 font-bold text-ink-950 transition-colors hover:bg-teal-400">ارسال تیکت</button>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ── نمایش تیکت و پاسخ‌ها ── */}
+      {openTick && (
+        <div className="fixed inset-0 z-[80] flex items-center justify-center p-4" role="dialog" aria-modal="true">
+          <button aria-label="بستن" onClick={() => setActiveTicket(null)} className="absolute inset-0 cursor-default bg-ink-950/85 backdrop-blur-sm" />
+          <div className="player-pop relative flex max-h-[85vh] w-full max-w-xl flex-col rounded-3xl border border-ink-100 bg-white">
+            <div className="flex items-center justify-between border-b border-ink-100 px-7 py-5">
+              <div className="min-w-0">
+                <p className="font-latin text-[10px] tracking-[0.25em] text-teal-600">{openTick.no}</p>
+                <h2 className="truncate font-display text-2xl text-ink-900">{openTick.subject}</h2>
+                <p className="mt-0.5 text-xs text-mist-500">{openTick.topic} · اولویت {openTick.priority === "high" ? "فوری" : "عادی"} · {faDate(openTick.time)}</p>
+              </div>
+              <button onClick={() => setActiveTicket(null)} className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-ink-100 text-mist-500 transition-colors hover:border-[#e5695e] hover:text-[#ff9d94]"><Icon name="close" className="h-4 w-4" /></button>
+            </div>
+            <div className="flex-1 space-y-3 overflow-y-auto bg-paper px-7 py-5">
+              {openTick.replies.map((r) => (
+                <div key={r.id} className={`flex ${r.from === "user" ? "justify-start" : "justify-end"}`}>
+                  <div className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm leading-7 shadow-sm ${r.from === "user" ? "rounded-tr-sm bg-teal-600 text-white" : "rounded-tl-sm bg-ink-800 text-ink-100"}`}>
+                    {r.from === "admin" && <p className="mb-1 text-[10px] font-bold text-gold-400">پاسخ پشتیبانی تیسافت</p>}
+                    <p>{r.text}</p>
+                    <p className={`mt-1 text-[10px] ${r.from === "user" ? "text-teal-400/60" : "text-mist-300/50"}`}>{faTime(r.time)}</p>
+                  </div>
+                </div>
+              ))}
+              {openTick.status === "closed" && <p className="rounded-xl bg-ink-100 px-4 py-3 text-center text-xs font-bold text-mist-500">این تیکت بسته شده است.</p>}
+            </div>
+            {openTick.status !== "closed" && (
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  const t = tickReply.trim();
+                  if (!t) return;
+                  replyTicket(openTick.id, "user", t);
+                  setTickReply("");
+                }}
+                className="flex items-center gap-2 border-t border-ink-100 p-4"
+              >
+                <input value={tickReply} onChange={(e) => setTickReply(e.target.value)} placeholder="پاسخ یا توضیح بیشتر…" className="min-w-0 flex-1 rounded-xl border border-ink-100 bg-paper px-4 py-3 text-sm focus:border-teal-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-teal-500/15" />
+                <button type="submit" disabled={!tickReply.trim()} className="btn-shine flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-teal-500 text-ink-950 transition-colors hover:bg-teal-400 disabled:opacity-40"><Icon name="send" className="h-4.5 w-4.5 -scale-x-100" /></button>
+              </form>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
