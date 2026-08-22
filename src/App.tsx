@@ -11,6 +11,7 @@ import TrainingPage from "./components/TrainingPage";
 import AboutPage from "./components/AboutPage";
 import ContactPage from "./components/ContactPage";
 import Footer from "./components/Footer";
+import ChatWidget from "./components/ChatWidget";
 import { Icon } from "./components/Icons";
 
 /** نوار پیشرفت اسکرول */
@@ -127,6 +128,7 @@ export default function App() {
     <div className="min-h-screen bg-paper font-body text-ink-900">
       <ScrollProgress />
       <BackToTop />
+      <ChatWidget />
       <Nav route={route} nav={nav} />
       <div ref={ref}>
         {route.page === "home" && (

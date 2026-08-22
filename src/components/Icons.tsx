@@ -249,6 +249,11 @@ const paths: Record<string, React.ReactNode> = {
       <path d="m8.5 9.5 1 2.5M12 8.2l1 2.5M15.5 7l1 2.5" strokeLinecap="round" />
     </>
   ),
+  send: (
+    <>
+      <path d="M21 3 10.5 13.5M21 3l-7 18-3.5-7.5L3 10l18-7Z" strokeLinecap="round" strokeLinejoin="round" />
+    </>
+  ),
 };
 
 export function Icon({ name, className = "h-5 w-5" }: { name: string; className?: string }) {
