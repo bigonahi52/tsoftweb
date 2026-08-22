@@ -60,13 +60,47 @@ const pageMeta: Record<string, { title: string; desc: string }> = {
   contact: { title: "تماس با ما | تیسافت (TSOFT)", desc: "تلفن، ایمیل و پیام‌رسان‌های تیسافت — پشتیبانی در سراسر ایران و افغانستان." },
 };
 
+/** آدرس‌های معتبر محصولات برای ساخت URL تمیز */
+const PRODUCT_IDS = ["tisaft", "capital", "shiorder", "sazehyar", "pisoft"];
+
+/** تبدیل مسیر URL (مثل /capital) به مسیر داخلی برنامه */
+function pathToRoute(path: string): Route {
+  const seg = path.replace(/^\/+|\/+$/g, "").toLowerCase();
+  if (!seg) return { page: "home" };
+  if (PRODUCT_IDS.includes(seg)) return { page: "product", id: seg };
+  if (seg === "downloads") return { page: "downloads" };
+  if (seg === "training") return { page: "training" };
+  if (seg === "about") return { page: "about" };
+  if (seg === "contact") return { page: "contact" };
+  return { page: "home" };
+}
+
+/** تبدیل مسیر داخلی برنامه به URL تمیز (مثل /capital) */
+function routeToPath(r: Route): string {
+  if (r.page === "home") return "/";
+  if (r.page === "product") return "/" + r.id;
+  return "/" + r.page;
+}
+
 export default function App() {
-  const [route, setRoute] = useState<Route>({ page: "home" });
+  const [route, setRoute] = useState<Route>(() => pathToRoute(window.location.pathname));
   const ref = useRevealAll<HTMLDivElement>();
 
   const nav: NavFn = useCallback((r) => {
     setRoute(r);
+    try {
+      window.history.pushState(null, "", routeToPath(r));
+    } catch {
+      /* در محیط‌های محدود، فقط صفحه عوض می‌شود */
+    }
     window.scrollTo({ top: 0, behavior: prefersReducedMotion() ? "auto" : "smooth" });
+  }, []);
+
+  /* پشتیبانی از دکمه‌های جلو/عقب مرورگر */
+  useEffect(() => {
+    const onPop = () => setRoute(pathToRoute(window.location.pathname));
+    window.addEventListener("popstate", onPop);
+    return () => window.removeEventListener("popstate", onPop);
   }, []);
 
   /* عنوان و توضیح هر صفحه برای سئو */
