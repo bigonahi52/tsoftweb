@@ -1,6 +1,5 @@
 {
   "rewrites": [
-    { "source": "/Download/:path*", "destination": "http://88.135.68.81/Download/:path*" },
     { "source": "/", "destination": "/index.html" },
     { "source": "/tsoft", "destination": "/index.html" },
     { "source": "/tisaft", "destination": "/index.html" },

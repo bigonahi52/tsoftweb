@@ -223,6 +223,12 @@ const paths: Record<string, React.ReactNode> = {
       <path d="M4.5 19.5h15" strokeLinecap="round" />
     </>
   ),
+  send: (
+    <>
+      <path d="M20.5 3.5 3.5 10l6.5 2.5L12.5 19l8-15.5Z" strokeLinejoin="round" />
+      <path d="m10 12.5 4.5-4.5" strokeLinecap="round" />
+    </>
+  ),
   close: (
     <>
       <path d="m6 6 12 12M18 6 6 18" strokeLinecap="round" />
