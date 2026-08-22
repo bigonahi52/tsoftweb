@@ -234,6 +234,49 @@ const paths: Record<string, React.ReactNode> = {
       <path d="m6 6 12 12M18 6 6 18" strokeLinecap="round" />
     </>
   ),
+  invoice: (
+    <>
+      <path d="M6 3.5h9l3 3V20.5H6z" strokeLinejoin="round" />
+      <path d="M15 3.5v3h3" strokeLinejoin="round" />
+      <path d="M9 10h6M9 13h6M9 16h3.5" strokeLinecap="round" />
+    </>
+  ),
+  file: (
+    <>
+      <path d="M6 3.5h8l4 4v13H6z" strokeLinejoin="round" />
+      <path d="M14 3.5v4h4" strokeLinejoin="round" />
+    </>
+  ),
+  lock: (
+    <>
+      <rect x="5.5" y="10.5" width="13" height="9.5" rx="2" />
+      <path d="M8.5 10.5v-3a3.5 3.5 0 0 1 7 0v3" />
+      <path d="M12 14.5v2" strokeLinecap="round" />
+    </>
+  ),
+  user: (
+    <>
+      <circle cx="12" cy="8" r="3.5" />
+      <path d="M5 20c.8-3.5 3.6-5.5 7-5.5s6.2 2 7 5.5" strokeLinecap="round" />
+    </>
+  ),
+  logout: (
+    <>
+      <path d="M14 4.5H6.5v15H14" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M10.5 12H21m0 0-3.5-3.5M21 12l-3.5 3.5" strokeLinecap="round" strokeLinejoin="round" />
+    </>
+  ),
+  plus: (
+    <>
+      <path d="M12 5v14M5 12h14" strokeLinecap="round" />
+    </>
+  ),
+  trash: (
+    <>
+      <path d="M4.5 6.5h15M9.5 6V4.5h5V6M6.5 6.5l.8 13h9.4l.8-13" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M10 10.5v5.5M14 10.5v5.5" strokeLinecap="round" />
+    </>
+  ),
   menu: (
     <>
       <path d="M4 7h16M4 12h16M4 17h16" strokeLinecap="round" />
