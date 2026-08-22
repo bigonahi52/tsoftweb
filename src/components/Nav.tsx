@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { products } from "../data";
 import { PHONE_FA, PHONE_TEL, useTodayDate } from "../lib";
 import type { NavFn, Route } from "../lib";
+import { currentUser, logout, totalUnread, useStoreTick } from "../store";
+import { fa } from "../lib";
 import { Icon, SiteLogo } from "./Icons";
 
 export default function Nav({ route, nav }: { route: Route; nav: NavFn }) {
@@ -9,6 +11,9 @@ export default function Nav({ route, nav }: { route: Route; nav: NavFn }) {
   const [open, setOpen] = useState(false);
   const [drop, setDrop] = useState(false);
   const today = useTodayDate();
+  useStoreTick();
+  const me = currentUser();
+  const unread = me?.role === "admin" ? totalUnread() : 0;
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 10);
@@ -118,11 +123,45 @@ export default function Nav({ route, nav }: { route: Route; nav: NavFn }) {
             )}
           </nav>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5">
             <button onClick={() => nav({ page: "downloads" })} className="btn-shine hidden items-center gap-2 rounded-xl bg-ink-900 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-teal-600 sm:flex">
               <Icon name="download" className="h-4 w-4" />
               دانلود
             </button>
+
+            {/* حساب کاربری */}
+            {me ? (
+              <div className="hidden items-center gap-2 sm:flex">
+                <button
+                  onClick={() => nav(me.role === "admin" ? { page: "admin" } : { page: "panel" })}
+                  className="relative flex items-center gap-2 rounded-xl border border-teal-500/50 bg-teal-500/10 px-4 py-2.5 text-sm font-bold text-teal-600 transition-all hover:bg-teal-500/20"
+                >
+                  <Icon name={me.role === "admin" ? "shield" : "user"} className="h-4 w-4" />
+                  {me.role === "admin" ? "پنل مدیریت" : "پنل من"}
+                  {me.role === "admin" && unread > 0 && (
+                    <span className="absolute -left-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-gold-500 font-latin text-[10px] font-bold text-ink-950">
+                      {fa(unread)}
+                    </span>
+                  )}
+                </button>
+                <button
+                  onClick={() => { logout(); nav({ page: "home" }); }}
+                  title="خروج از حساب"
+                  className="flex h-10 w-10 items-center justify-center rounded-xl border border-ink-100 bg-white text-mist-500 transition-colors hover:border-[#e5695e]/50 hover:text-[#e5695e]"
+                >
+                  <Icon name="logout" className="h-4.5 w-4.5" />
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={() => nav({ page: "login" })}
+                className="hidden items-center gap-2 rounded-xl border border-ink-100 bg-white px-4 py-2.5 text-sm font-bold text-ink-900 transition-all hover:border-teal-500 hover:text-teal-600 sm:flex"
+              >
+                <Icon name="user" className="h-4 w-4" />
+                ورود / ثبت‌نام
+              </button>
+            )}
+
             <button onClick={() => setOpen(!open)} className="flex h-10 w-10 items-center justify-center rounded-xl border border-ink-100 bg-white text-ink-900 lg:hidden" aria-label="منو">
               <Icon name={open ? "close" : "menu"} className="h-5 w-5" />
             </button>
@@ -151,6 +190,46 @@ export default function Nav({ route, nav }: { route: Route; nav: NavFn }) {
               ))}
             </div>
           </div>
+
+          <div className="mt-8 space-y-2">
+            <p className="font-latin text-[10px] tracking-[0.25em] text-mist-300">ACCOUNT</p>
+            {me ? (
+              <div className="space-y-2">
+                <button
+                  onClick={() => { nav(me.role === "admin" ? { page: "admin" } : { page: "panel" }); setOpen(false); }}
+                  className="flex w-full items-center justify-between rounded-xl border border-teal-500/50 bg-teal-500/10 px-5 py-4 text-right"
+                >
+                  <span className="flex items-center gap-2.5 font-display text-xl text-teal-400">
+                    <Icon name={me.role === "admin" ? "shield" : "user"} className="h-5 w-5" />
+                    {me.role === "admin" ? `پنل مدیریت${unread > 0 ? ` — ${fa(unread)} پیام جدید` : ""}` : "پنل من"}
+                  </span>
+                  <Icon name="arrow" className="h-5 w-5 text-teal-500" />
+                </button>
+                <button
+                  onClick={() => { logout(); nav({ page: "home" }); setOpen(false); }}
+                  className="flex w-full items-center justify-between rounded-xl border border-ink-600 px-5 py-4 text-right"
+                >
+                  <span className="flex items-center gap-2.5 font-display text-xl text-ink-100">
+                    <Icon name="logout" className="h-5 w-5 text-[#ff9d94]" />
+                    خروج از حساب
+                  </span>
+                  <Icon name="arrow" className="h-5 w-5 text-teal-500" />
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={() => { nav({ page: "login" }); setOpen(false); }}
+                className="flex w-full items-center justify-between rounded-xl border border-ink-600 px-5 py-4 text-right"
+              >
+                <span className="flex items-center gap-2.5 font-display text-xl text-ink-100">
+                  <Icon name="user" className="h-5 w-5 text-teal-400" />
+                  ورود / ثبت‌نام
+                </span>
+                <Icon name="arrow" className="h-5 w-5 text-teal-500" />
+              </button>
+            )}
+          </div>
+
           <p className="mt-12 text-center font-display text-lg text-gold-400">۲۰ سالگی‌مان مبارک — ۱۳۸۵ تا ۱۴۰۵</p>
         </div>
       </div>
