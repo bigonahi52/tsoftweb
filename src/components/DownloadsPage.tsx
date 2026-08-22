@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { downloadGroups } from "../data";
 import { fa, PHONE_FA, PHONE_TEL, useRevealAll } from "../lib";
 import { Icon } from "./Icons";
@@ -8,29 +8,6 @@ const formatColor: Record<string, string> = {
 };
 
 function DownloadRow({ name, note, href, format, delay }: { name: string; note: string; href: string; format: string; delay: number }) {
-  const [state, setState] = useState<"idle" | "started" | "done">("idle");
-  const timer = useRef<number | undefined>(undefined);
-  useEffect(() => () => window.clearTimeout(timer.current), []);
-
-  const startDownload = (e: React.MouseEvent) => {
-    e.preventDefault();
-    if (state !== "idle") return;
-    setState("started");
-    try {
-      const f = document.createElement("iframe");
-      f.style.display = "none";
-      f.src = href;
-      document.body.appendChild(f);
-      window.setTimeout(() => f.remove(), 45_000);
-    } catch {
-      window.open(href, "_blank", "noopener");
-    }
-    timer.current = window.setTimeout(() => {
-      setState("done");
-      window.setTimeout(() => setState("idle"), 5000);
-    }, 1200);
-  };
-
   const color = formatColor[format] ?? "#5f7a82";
 
   return (
@@ -42,17 +19,10 @@ function DownloadRow({ name, note, href, format, delay }: { name: string; note: 
       </div>
       <a
         href={href}
-        onClick={startDownload}
-        className={`flex shrink-0 items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-bold transition-all duration-300 ${
-          state === "done"
-            ? "bg-teal-500 text-ink-950"
-            : state === "started"
-              ? "bg-ink-700 text-white"
-              : "btn-shine bg-ink-950 text-white hover:bg-teal-600"
-        }`}
+        className="btn-shine group/dl flex shrink-0 items-center justify-center gap-2 rounded-xl bg-ink-950 px-5 py-3 text-sm font-bold text-white transition-all duration-300 hover:bg-teal-600"
       >
-        <Icon name={state === "done" ? "check" : "download"} className="h-4 w-4" />
-        {state === "done" ? "دانلود شروع شد" : state === "started" ? "در حال دانلود…" : "دانلود فایل"}
+        <Icon name="download" className="h-4 w-4 transition-transform duration-300 group-hover/dl:translate-y-0.5" />
+        دانلود فایل
       </a>
     </div>
   );
