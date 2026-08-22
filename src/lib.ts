@@ -114,8 +114,8 @@ export function useGentleWord(words: string[], hold = 2800) {
   return { word: words[i], index: i, visible };
 }
 
-/** تاریخ امروز به شمسی — «چهارشنبه 28 مرداد 1405» */
-export function useTodayDate(): string | null {
+/** تاریخ امروز — شمسی با اعداد فارسی و میلادی به انگلیسی */
+export function useTodayDate(): { jalali: string; gregory: string } | null {
   const [d] = useState(() => {
     try {
       const now = new Date();
@@ -126,7 +126,13 @@ export function useTodayDate(): string | null {
         year: "numeric",
       }).formatToParts(now);
       const get = (t: string) => parts.find((p) => p.type === t)?.value ?? "";
-      return `${get("weekday")} ${get("day")} ${get("month")} ${get("year")}`;
+      const jalali = `${get("weekday")} ${get("day")} ${get("month")} ${get("year")}`;
+      const gregory = new Intl.DateTimeFormat("en-GB", {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      }).format(now);
+      return { jalali, gregory };
     } catch {
       return null;
     }

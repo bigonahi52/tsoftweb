@@ -60,14 +60,31 @@ const pageMeta: Record<string, { title: string; desc: string }> = {
   contact: { title: "تماس با ما | تیسافت (TSOFT)", desc: "تلفن، ایمیل و پیام‌رسان‌های تیسافت — پشتیبانی در سراسر ایران و افغانستان." },
 };
 
-/** آدرس‌های معتبر محصولات برای ساخت URL تمیز */
-const PRODUCT_IDS = ["tisaft", "capital", "shiorder", "sazehyar", "pisoft"];
+/** نگاشت آدرس URL به شناسه‌ی محصول — تیسافت با tsoft و پیسافت با psoft */
+const SLUG_TO_ID: Record<string, string> = {
+  tsoft: "tisaft",
+  tisaft: "tisaft",
+  capital: "capital",
+  shiorder: "shiorder",
+  sazehyar: "sazehyar",
+  psoft: "pisoft",
+  pisoft: "pisoft",
+};
 
-/** تبدیل مسیر URL (مثل /capital) به مسیر داخلی برنامه */
+/** نگاشت شناسه‌ی محصول به آدرس URL اصلی */
+const ID_TO_SLUG: Record<string, string> = {
+  tisaft: "tsoft",
+  capital: "capital",
+  shiorder: "shiorder",
+  sazehyar: "sazehyar",
+  pisoft: "psoft",
+};
+
+/** تبدیل مسیر URL (مثل /capital یا /tsoft) به مسیر داخلی برنامه */
 function pathToRoute(path: string): Route {
   const seg = path.replace(/^\/+|\/+$/g, "").toLowerCase();
   if (!seg) return { page: "home" };
-  if (PRODUCT_IDS.includes(seg)) return { page: "product", id: seg };
+  if (SLUG_TO_ID[seg]) return { page: "product", id: SLUG_TO_ID[seg] };
   if (seg === "downloads") return { page: "downloads" };
   if (seg === "training") return { page: "training" };
   if (seg === "about") return { page: "about" };
@@ -75,10 +92,10 @@ function pathToRoute(path: string): Route {
   return { page: "home" };
 }
 
-/** تبدیل مسیر داخلی برنامه به URL تمیز (مثل /capital) */
+/** تبدیل مسیر داخلی برنامه به URL تمیز (مثل /capital یا /tsoft) */
 function routeToPath(r: Route): string {
   if (r.page === "home") return "/";
-  if (r.page === "product") return "/" + r.id;
+  if (r.page === "product") return "/" + (ID_TO_SLUG[r.id] ?? r.id);
   return "/" + r.page;
 }
 

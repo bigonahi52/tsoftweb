@@ -62,7 +62,9 @@ export default function Nav({ route, nav }: { route: Route; nav: NavFn }) {
             {today && (
               <span className="hidden items-center gap-2 lg:flex">
                 <Icon name="clock" className="h-3.5 w-3.5 text-gold-400" />
-                <span className="font-medium text-ink-100">{today}</span>
+                <span className="font-medium text-ink-100">{today.jalali}</span>
+                <span className="text-ink-600" aria-hidden>·</span>
+                <span className="font-latin text-[11px] tracking-wide text-mist-300" dir="ltr">{today.gregory}</span>
               </span>
             )}
             <a href={`tel:${PHONE_TEL}`} className="group flex items-center gap-2.5 transition-colors hover:text-gold-400" title="تماس مستقیم با پشتیبانی">
