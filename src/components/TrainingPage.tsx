@@ -46,7 +46,7 @@ function PlayerModal({ playing, onClose }: { playing: Playing; onClose: () => vo
           <iframe key={playing.href} src={aparatEmbed(playing.href)} title={playing.title} className="absolute inset-0 h-full w-full" frameBorder="0" allow="autoplay; fullscreen; encrypted-media; picture-in-picture" allowFullScreen />
         </div>
         <div className="flex items-center justify-between gap-3 border-t border-ink-700/70 px-5 py-3 text-[11px] text-mist-300">
-          <span>برای تمام‌صفحه از دکمه‌ی خودِ پخش‌کننده‌ی آپارات استفاده کنید.</span>
+          <span>برای تمام‌صفحه از دکمه‌ی خودِ پخش‌کننده‌ی آپارات استفاده کنید؛ Esc یا کلیک بیرون، می‌بندد.</span>
           <span className="font-latin tracking-[0.15em]" dir="ltr">16:9 · HD</span>
         </div>
       </div>
@@ -78,7 +78,7 @@ function CourseBlock({ title, subtitle, product, accent, sessions, onPlay }: { t
               <span className="relative flex h-12 w-12 items-center justify-center rounded-full border border-white/25 bg-white/10 backdrop-blur transition-all duration-300 group-hover:scale-110">
                 <Icon name="play" className="h-5 w-5 translate-x-[1px] text-white" />
               </span>
-              <span className="absolute left-3 top-3 rounded-full bg-ink-900/80 px-2.5 py-1 font-latin text-[9px] font-bold tracking-widest text-mist-300" dir="ltr">APARAT</span>
+              <span className="absolute right-3 top-3 rounded-full bg-ink-900/80 px-2.5 py-1 font-latin text-[9px] font-bold tracking-widest text-mist-300" dir="ltr">APARAT</span>
             </div>
             <div className="p-4">
               <p className="flex items-start gap-2.5">
@@ -113,7 +113,7 @@ function ExtraCard({ title, href, delay, onPlay }: { title: string; href: string
 
 const faqs = [
   { q: "آموزش بعد از خرید چگونه است؟", a: "علاوه بر ویدیوهای همین صفحه، یک جلسه آموزش آنلاین رایگان با کارشناس دارید و دفترچه راهنمای فارسی هم همراه نرم‌افزار ارائه می‌شود." },
-  { q: "آیا ویدیوها رایگان هستند؟", a: "بله؛ همه‌ی ویدیوها برای همه — مشتری و غیرمشتری — آزاد است." },
+  { q: "آیا ویدیوها رایگان هستند؟", a: "بله؛ همه‌ی ویدیوها برای همه — مشتری و غیرمشتری — آزاد است. ما باور داریم آموزش، همراهِ محصول است." },
   { q: "پشتیبان‌گیری خودکار است؟", a: "در همه محصولات، زمان‌بندی پشتیبان‌گیری خودکار قابل تنظیم است و می‌توانید نسخه‌ها را در فضای ابری یا با ایمیل ذخیره کنید." },
 ];
 
@@ -135,19 +135,12 @@ export default function TrainingPage() {
             </span>
           </h1>
           <p className="reveal mt-5 max-w-2xl leading-9 text-mist-300">
-            روی هر جلسه کلیک کنید تا ویدیو همین‌جا داخل سایت پخش شود. این صفحه برای همه آزاد است.
+            روی هر جلسه کلیک کنید تا ویدیو همین‌جا داخل سایت پخش شود — این صفحه برای همه آزاد است.
           </p>
           <div className="reveal mt-8 flex flex-wrap gap-x-10 gap-y-4">
-            {[
-              { k: "ویدیوی آموزشی", v: totalVideos },
-              { k: "جلسه‌ی دوره‌ی تیسافت", v: tisaftSessions.length },
-              { k: "جلسه‌ی دوره‌ی کپیتال", v: capitalSessions.length },
-            ].map((x) => (
-              <p key={x.k} className="flex items-baseline gap-2">
-                <span className="font-display text-4xl text-white">{fa(x.v)}</span>
-                <span className="text-sm text-mist-300">{x.k}</span>
-              </p>
-            ))}
+            <p className="flex items-baseline gap-2"><span className="font-display text-4xl text-white">{fa(totalVideos)}</span><span className="text-sm text-mist-300">ویدیوی آموزشی</span></p>
+            <p className="flex items-baseline gap-2"><span className="font-display text-4xl text-white">{fa(tisaftSessions.length)}</span><span className="text-sm text-mist-300">جلسه‌ی تیسافت</span></p>
+            <p className="flex items-baseline gap-2"><span className="font-display text-4xl text-white">{fa(capitalSessions.length)}</span><span className="text-sm text-mist-300">جلسه‌ی کپیتال</span></p>
           </div>
         </div>
       </section>
@@ -162,15 +155,13 @@ export default function TrainingPage() {
             <p className="reveal max-w-sm text-sm leading-8 text-mist-500">همه ویدیوها در کانال آپارات تیسافت منتشر شده‌اند؛ روی هر جلسه کلیک کنید تا همین‌جا پخش شود.</p>
           </div>
 
-          <CourseBlock title="دوره‌ی کامل حسابداری تیسافت" subtitle="از صفر تا گزارش‌گیری — یازده جلسه‌ی پیوسته" product="تیسافت" accent="#6D28D9" sessions={tisaftSessions} onPlay={setPlaying} />
-          <CourseBlock title="دوره‌ی حسابداری چندارزی کپیتال" subtitle="تعریف ارز پایه، نرخ‌دهی روزانه و گزارش‌های ارزی" product="کپیتال" accent="#7C3AED" sessions={capitalSessions} onPlay={setPlaying} />
+          <CourseBlock title="دوره‌ی کامل حسابداری تیسافت" subtitle="از صفر تا گزارش‌گیری — یازده جلسه‌ی پیوسته" product="تیسافت" accent="#17B0A6" sessions={tisaftSessions} onPlay={setPlaying} />
+          <CourseBlock title="دوره‌ی حسابداری چندارزی کپیتال" subtitle="تعریف ارز پایه، نرخ‌دهی روزانه و گزارش‌های ارزی" product="کپیتال" accent="#E5A93D" sessions={capitalSessions} onPlay={setPlaying} />
 
           <div className="reveal mt-16">
             <div className="flex flex-wrap items-end justify-between gap-4 border-b-2 border-ink-100 pb-5">
               <div className="flex items-center gap-4">
-                <span className="flex shrink-0 items-center justify-center rounded-2xl bg-ink-900 px-3.5 py-3 text-teal-400">
-                  <Icon name="cpu" className="h-6 w-6" />
-                </span>
+                <span className="flex shrink-0 items-center justify-center rounded-2xl bg-ink-900 px-3.5 py-3 text-teal-400"><Icon name="cpu" className="h-6 w-6" /></span>
                 <div>
                   <h3 className="font-display text-3xl text-ink-900 sm:text-4xl">نصب، فعال‌سازی و نکات فنی</h3>
                   <p className="mt-1 text-sm text-mist-500">ویدیوهای کوتاه برای راه‌اندازی بی‌دردسر</p>
@@ -193,8 +184,7 @@ export default function TrainingPage() {
             <p className="reveal font-latin text-xs tracking-[0.3em] text-teal-600">NEED HELP?</p>
             <h2 className="reveal mt-3 font-display text-4xl leading-tight text-ink-900 sm:text-5xl">آموزش، همراهِ محصول</h2>
             <p className="reveal mt-5 leading-9 text-mist-500">
-              هیچ مشتری‌ای را پشت منوها تنها نمی‌گذاریم؛ ویدیوهای آموزشی، دفترچه‌ی فارسی و جلسه‌ی شروعِ کار برای همه‌ی
-              محصولات رایگان است — حتی اگر هنوز نخریده باشید.
+              هیچ مشتری‌ای را پشت منوها تنها نمی‌گذاریم؛ ویدیوهای آموزشی، دفترچه‌ی فارسی و جلسه‌ی شروعِ کار برای هر دو محصول رایگان است — حتی اگر هنوز نخریده باشید.
             </p>
           </div>
           <div className="space-y-3">

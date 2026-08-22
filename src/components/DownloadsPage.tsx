@@ -1,51 +1,59 @@
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { downloadGroups } from "../data";
-import type { DownloadItem } from "../data";
-import { fa, useRevealAll } from "../lib";
+import { fa, PHONE_FA, PHONE_TEL, useRevealAll } from "../lib";
 import { Icon } from "./Icons";
 
-function DownloadRow({ item }: { item: DownloadItem }) {
-  const [state, setState] = useState<"idle" | "working" | "done">("idle");
-  const timer = useRef<number | null>(null);
+const formatColor: Record<string, string> = {
+  EXE: "#17B0A6", ZIP: "#E5A93D", RAR: "#E14B4B", MSI: "#8B5CF6", TXT: "#5f7a82", MP4: "#F5820D",
+};
 
-  const startDownload = () => {
+function DownloadRow({ name, note, href, format, delay }: { name: string; note: string; href: string; format: string; delay: number }) {
+  const [state, setState] = useState<"idle" | "started" | "done">("idle");
+  const timer = useRef<number | undefined>(undefined);
+  useEffect(() => () => window.clearTimeout(timer.current), []);
+
+  const startDownload = (e: React.MouseEvent) => {
+    e.preventDefault();
     if (state !== "idle") return;
-    setState("working");
-    /* دانلود با آیفریم مخفی — بدون جابه‌جایی صفحه */
-    const frame = document.createElement("iframe");
-    frame.style.display = "none";
-    frame.src = item.href;
-    document.body.appendChild(frame);
-    window.setTimeout(() => frame.remove(), 8000);
-    /* پشتیبان: باز شدن در تب جدید */
-    window.setTimeout(() => window.open(item.href, "_blank", "noopener"), 1200);
-    if (timer.current) window.clearTimeout(timer.current);
-    timer.current = window.setTimeout(() => setState("done"), 1600);
-    window.setTimeout(() => setState("idle"), 6000);
+    setState("started");
+    try {
+      const f = document.createElement("iframe");
+      f.style.display = "none";
+      f.src = href;
+      document.body.appendChild(f);
+      window.setTimeout(() => f.remove(), 45_000);
+    } catch {
+      window.open(href, "_blank", "noopener");
+    }
+    timer.current = window.setTimeout(() => {
+      setState("done");
+      window.setTimeout(() => setState("idle"), 5000);
+    }, 1200);
   };
 
+  const color = formatColor[format] ?? "#5f7a82";
+
   return (
-    <div className="group flex flex-col gap-3 rounded-2xl border border-ink-100 bg-white p-5 transition-all duration-300 hover:-translate-y-0.5 hover:border-teal-500/60 hover:shadow-[0_18px_40px_-24px_rgba(10,27,33,0.4)] sm:flex-row sm:items-center">
-      <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-ink-50 font-latin text-[10px] font-bold tracking-widest text-ink-800 transition-colors duration-300 group-hover:bg-teal-500 group-hover:text-ink-950">
-        {item.format}
-      </span>
+    <div className="reveal group flex flex-col gap-4 rounded-2xl border border-ink-100 bg-white p-5 transition-all duration-300 hover:-translate-y-1 hover:border-teal-500/50 hover:shadow-[0_20px_44px_-24px_rgba(10,27,33,0.4)] sm:flex-row sm:items-center" style={{ "--rv-delay": `${delay}ms` } as React.CSSProperties}>
+      <span className="flex h-11 w-14 shrink-0 items-center justify-center rounded-xl font-latin text-[10px] font-bold tracking-widest text-[#ffffff]" style={{ background: color }}>{format}</span>
       <div className="min-w-0 flex-1">
-        <a href={item.href} download target="_blank" rel="noopener noreferrer" className="block truncate font-display text-lg text-ink-900 transition-colors hover:text-teal-600">
-          {item.name}
-        </a>
-        <p className="mt-0.5 truncate text-xs text-mist-500">{item.note}</p>
+        <a href={href} className="block truncate font-display text-lg text-ink-900 transition-colors hover:text-teal-600" title={name} dir="ltr" style={{ textAlign: "right" }}>{name}</a>
+        <p className="mt-0.5 truncate text-xs text-mist-500">{note}</p>
       </div>
-      <button
+      <a
+        href={href}
         onClick={startDownload}
-        className={`flex shrink-0 items-center justify-center gap-2 rounded-xl px-5 py-2.5 text-sm font-bold transition-all duration-300 ${
+        className={`flex shrink-0 items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-bold transition-all duration-300 ${
           state === "done"
             ? "bg-teal-500 text-ink-950"
-            : "bg-ink-950 text-white hover:bg-teal-600"
+            : state === "started"
+              ? "bg-ink-700 text-white"
+              : "btn-shine bg-ink-950 text-white hover:bg-teal-600"
         }`}
       >
         <Icon name={state === "done" ? "check" : "download"} className="h-4 w-4" />
-        {state === "working" ? "در حال دانلود…" : state === "done" ? "دانلود شروع شد" : "دانلود فایل"}
-      </button>
+        {state === "done" ? "دانلود شروع شد" : state === "started" ? "در حال دانلود…" : "دانلود فایل"}
+      </a>
     </div>
   );
 }
@@ -56,70 +64,60 @@ export default function DownloadsPage() {
   const [query, setQuery] = useState("");
 
   const total = downloadGroups.reduce((s, g) => s + g.items.length, 0);
-
-  const groups = useMemo(
-    () =>
-      downloadGroups
-        .filter((g) => tab === "all" || g.id === tab)
-        .map((g) => ({
-          ...g,
-          items: g.items.filter(
-            (i) =>
-              i.name.includes(query.trim()) ||
-              i.note.includes(query.trim()) ||
-              i.format.includes(query.trim().toUpperCase())
-          ),
-        }))
-        .filter((g) => g.items.length > 0),
-    [tab, query]
-  );
+  const groups = downloadGroups.map((g) => ({
+    ...g,
+    items: g.items.filter((i) => i.name.toLowerCase().includes(query.trim().toLowerCase()) || i.note.includes(query.trim())),
+  })).filter((g) => g.items.length > 0 && (tab === "all" || g.id === tab));
+  const shown = groups.reduce((s, g) => s + g.items.length, 0);
 
   return (
     <div ref={ref} className="bg-paper">
       <section className="grid-lines grid-lines-fade noise relative overflow-hidden bg-ink-950 pb-16 pt-14 sm:pt-20">
-        <div className="pointer-events-none absolute -right-32 top-0 h-[380px] w-[380px] rounded-full bg-teal-600/12 blur-[120px]" />
+        <div className="pointer-events-none absolute -left-32 top-0 h-[380px] w-[380px] rounded-full bg-teal-600/15 blur-[120px]" />
         <div className="relative mx-auto max-w-7xl px-4 sm:px-6">
           <p className="reveal font-latin text-xs tracking-[0.35em] text-teal-400">DOWNLOAD CENTER</p>
           <h1 className="mt-4">
             <span className="line-mask"><span className="font-display text-6xl leading-none text-white sm:text-7xl">مرکز دانلود</span></span>
           </h1>
           <p className="reveal mt-5 max-w-2xl leading-9 text-mist-300">
-            همه‌ی فایل‌های نصب، به‌روزرسانی و ابزارهای موردنیاز — یک‌جا. نسخه‌ی آزمایشی همه محصولات رایگان است.
+            فایل‌های نصب، آپدیت و ابزارهای پشتیبانی تیسافت و کپیتال — همه با لینک مستقیم و رایگان.
           </p>
-          <p className="reveal mt-4 inline-flex items-center gap-2 rounded-full border border-teal-500/40 bg-teal-500/10 px-4 py-2 text-xs font-medium text-teal-300">
-            <Icon name="box" className="h-3.5 w-3.5" />
-            {fa(total)} فایل آماده دانلود
-          </p>
+          <div className="reveal mt-8 flex flex-wrap gap-x-10 gap-y-4">
+            <p className="flex items-baseline gap-2"><span className="font-display text-4xl text-white">{fa(total)}</span><span className="text-sm text-mist-300">فایل آماده</span></p>
+            <p className="flex items-baseline gap-2"><span className="font-display text-4xl text-white">{fa(downloadGroups.length)}</span><span className="text-sm text-mist-300">دسته‌بندی</span></p>
+          </div>
         </div>
       </section>
 
-      <section className="py-14 sm:py-16">
+      <section className="py-16 sm:py-20">
         <div className="mx-auto max-w-5xl px-4 sm:px-6">
           <div className="reveal mb-4 flex items-center gap-3 rounded-2xl border border-gold-500/40 bg-gold-100/50 px-5 py-4 text-sm text-ink-800">
             <Icon name="spark" className="h-5 w-5 shrink-0 text-gold-600" />
-            <p>فایل‌های چندبخشی (RAR) را کامل دانلود و با WinRAR باز کنید. اگر فایلی بالا نیامد، با پشتیبانی تماس بگیرید.</p>
+            <p>
+              <b>نکته:</b> فایل‌های چندبخشی (RAR) را کامل دانلود و با WinRAR باز کنید. اگر فایلی دانلود نشد، با پشتیبانی
+              <a href={`tel:${PHONE_TEL}`} dir="ltr" className="phone-number mx-1 font-bold text-teal-600 hover:text-teal-500">{PHONE_FA}</a>
+              تماس بگیرید تا مستقیم برایتان ارسال کنیم.
+            </p>
+          </div>
+          <div className="reveal mb-8 flex items-center gap-3 rounded-2xl border border-teal-500/40 bg-teal-100/50 px-5 py-4 text-sm text-ink-800" style={{ "--rv-delay": "120ms" } as React.CSSProperties}>
+            <Icon name="headset" className="h-5 w-5 shrink-0 text-teal-600" />
+            <p><b>همراه هر خرید:</b> یک سال پشتیبانی کامل رایگان — تلفنی و ریموت، مستقیم از خود توسعه‌دهنده؛ ۹ تا ۱۴ و ۱۷ تا ۲۲، روزهای تعطیل هم به‌صورت اضطراری.</p>
           </div>
 
-          <div className="reveal mb-8 flex flex-col gap-4 sm:flex-row sm:items-center">
-            <div className="relative flex-1">
-              <Icon name="search" className="pointer-events-none absolute right-4 top-1/2 h-4.5 w-4.5 -translate-y-1/2 text-mist-300" />
+          <div className="reveal mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="relative flex-1 sm:max-w-sm">
+              <Icon name="search" className="absolute right-4 top-1/2 h-4.5 w-4.5 -translate-y-1/2 text-mist-300" />
               <input
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="جست‌وجوی فایل…"
-                className="w-full rounded-xl border border-ink-100 bg-white py-3.5 pl-4 pr-11 text-sm text-ink-900 transition-all placeholder:text-mist-300 focus:border-teal-500 focus:outline-none focus:ring-4 focus:ring-teal-500/15"
+                className="w-full rounded-xl border border-ink-100 bg-white py-3 pl-4 pr-11 text-sm text-ink-900 transition-all placeholder:text-mist-300 focus:border-teal-500 focus:outline-none focus:ring-4 focus:ring-teal-500/15"
               />
             </div>
             <div className="flex flex-wrap gap-2">
-              {[{ id: "all", title: "همه" }, ...downloadGroups.map((g) => ({ id: g.id, title: g.title.split(" ").slice(0, 2).join(" ") }))].map((t) => (
-                <button
-                  key={t.id}
-                  onClick={() => setTab(t.id)}
-                  className={`rounded-full px-4 py-2 text-xs font-bold transition-colors ${
-                    tab === t.id ? "bg-ink-950 text-white" : "border border-ink-100 bg-white text-mist-500 hover:border-teal-500/60 hover:text-teal-600"
-                  }`}
-                >
-                  {t.title}
+              {[{ id: "all", title: "همه" }, ...downloadGroups].map((g) => (
+                <button key={g.id} onClick={() => setTab(g.id)} className={`rounded-full px-4 py-2 text-xs font-bold transition-all duration-300 ${tab === g.id ? "bg-ink-950 text-white" : "border border-ink-100 bg-white text-mist-500 hover:border-teal-500/50 hover:text-teal-600"}`}>
+                  {g.title}
                 </button>
               ))}
             </div>
@@ -129,28 +127,35 @@ export default function DownloadsPage() {
             <div className="reveal rounded-3xl border border-dashed border-ink-100 bg-white py-20 text-center">
               <Icon name="search" className="mx-auto h-10 w-10 text-mist-300" />
               <p className="mt-4 font-display text-2xl text-ink-900">فایلی پیدا نشد</p>
-              <p className="mt-2 text-sm text-mist-500">عبارت دیگری را امتحان کنید.</p>
+              <p className="mt-2 text-sm text-mist-500">عبارت دیگری جست‌وجو کنید یا با پشتیبانی تماس بگیرید.</p>
             </div>
           ) : (
-            groups.map((g) => (
-              <div key={g.id} className="reveal mb-10">
-                <div className="mb-4 flex items-center gap-3 border-b-2 border-ink-100 pb-3">
-                  <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-ink-950 text-teal-400">
-                    <Icon name={g.icon} className="h-5 w-5" />
-                  </span>
-                  <div>
-                    <h2 className="font-display text-2xl text-ink-900">{g.title}</h2>
-                    <p className="text-xs text-mist-500">{g.desc} — {fa(g.items.length)} فایل</p>
+            <div className="space-y-14">
+              {groups.map((g) => (
+                <div key={g.id}>
+                  <div className="mb-5 flex flex-wrap items-center justify-between gap-3 border-b-2 border-ink-100 pb-4">
+                    <div className="flex items-center gap-3">
+                      <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-ink-950 text-teal-400"><Icon name={g.icon} className="h-5 w-5" /></span>
+                      <div>
+                        <h2 className="font-display text-2xl text-ink-900">{g.title}</h2>
+                        <p className="text-xs text-mist-500">{g.desc}</p>
+                      </div>
+                    </div>
+                    <span className="rounded-full bg-ink-50 px-3.5 py-1.5 text-xs font-bold text-mist-500">{fa(g.items.length)} فایل</span>
+                  </div>
+                  <div className="space-y-3">
+                    {g.items.map((it, i) => (
+                      <DownloadRow key={it.href + it.name} {...it} delay={(i % 4) * 70} />
+                    ))}
                   </div>
                 </div>
-                <div className="grid gap-3">
-                  {g.items.map((it) => (
-                    <DownloadRow key={it.href + it.name} item={it} />
-                  ))}
-                </div>
-              </div>
-            ))
+              ))}
+            </div>
           )}
+
+          <p className="reveal mt-10 text-center text-xs text-mist-500">
+            نمایش {fa(shown)} فایل از {fa(total)} — اگر فایل را نمی‌بینید، روی اسم آن کلیک‌راست و «Save link as» را بزنید.
+          </p>
         </div>
       </section>
     </div>

@@ -6,7 +6,7 @@ import { Icon } from "./Icons";
 const fields = [
   { name: "name", label: "نام و نام خانوادگی", type: "text", placeholder: "مثلاً: علی محمدی" },
   { name: "phone", label: "شماره تماس", type: "tel", placeholder: "۰۹۱۲ ..." },
-  { name: "business", label: "نوع کسب‌وکار", type: "text", placeholder: "فروشگاه، کارخانه، ساختمان…" },
+  { name: "business", label: "نوع کسب‌وکار", type: "text", placeholder: "فروشگاه، بازرگانی…" },
 ] as const;
 
 export default function ContactPage() {
@@ -53,41 +53,20 @@ export default function ContactPage() {
                   {fields.map((f) => (
                     <label key={f.name} className={`block ${f.name === "business" ? "sm:col-span-2" : ""}`}>
                       <span className="mb-2 block text-sm font-bold text-ink-900">{f.label}</span>
-                      <input
-                        required
-                        type={f.type}
-                        placeholder={f.placeholder}
-                        value={form[f.name] ?? ""}
-                        onChange={(e) => setForm({ ...form, [f.name]: e.target.value })}
-                        className="w-full rounded-xl border border-ink-100 bg-paper px-4 py-3.5 text-sm text-ink-900 transition-all placeholder:text-mist-300 focus:border-teal-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-teal-500/15"
-                      />
+                      <input required type={f.type} placeholder={f.placeholder} value={form[f.name] ?? ""} onChange={(e) => setForm({ ...form, [f.name]: e.target.value })} className="w-full rounded-xl border border-ink-100 bg-paper px-4 py-3.5 text-sm text-ink-900 transition-all placeholder:text-mist-300 focus:border-teal-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-teal-500/15" />
                     </label>
                   ))}
                   <label className="block sm:col-span-2">
                     <span className="mb-2 block text-sm font-bold text-ink-900">محصول موردنظر</span>
-                    <select
-                      value={form.product ?? ""}
-                      onChange={(e) => setForm({ ...form, product: e.target.value })}
-                      className="w-full rounded-xl border border-ink-100 bg-paper px-4 py-3.5 text-sm text-ink-900 focus:border-teal-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-teal-500/15"
-                    >
+                    <select value={form.product ?? ""} onChange={(e) => setForm({ ...form, product: e.target.value })} className="w-full rounded-xl border border-ink-100 bg-paper px-4 py-3.5 text-sm text-ink-900 focus:border-teal-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-teal-500/15">
                       <option value="">هنوز مطمئن نیستم — راهنمایی می‌خواهم</option>
                       <option>تیسافت — حسابداری فروشگاهی</option>
                       <option>کپیتال — حسابداری چندارزی</option>
-                      <option>شی‌اوردر — اتوماسیون شیشه و پنجره</option>
-                      <option>سازه‌یار — مدیریت شارژ ساختمان</option>
-                      <option>پیسافت — حسابداری یکپارچه مالی</option>
                     </select>
                   </label>
                   <label className="block sm:col-span-2">
                     <span className="mb-2 block text-sm font-bold text-ink-900">پیام شما</span>
-                    <textarea
-                      required
-                      rows={5}
-                      placeholder="چند خط درباره نیازتان بنویسید…"
-                      value={form.message ?? ""}
-                      onChange={(e) => setForm({ ...form, message: e.target.value })}
-                      className="w-full resize-none rounded-xl border border-ink-100 bg-paper px-4 py-3.5 text-sm text-ink-900 transition-all placeholder:text-mist-300 focus:border-teal-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-teal-500/15"
-                    />
+                    <textarea required rows={5} placeholder="چند خط درباره نیازتان بنویسید…" value={form.message ?? ""} onChange={(e) => setForm({ ...form, message: e.target.value })} className="w-full resize-none rounded-xl border border-ink-100 bg-paper px-4 py-3.5 text-sm text-ink-900 transition-all placeholder:text-mist-300 focus:border-teal-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-teal-500/15" />
                   </label>
                 </div>
                 <button type="submit" className="btn-shine group mt-7 flex w-full items-center justify-center gap-2.5 rounded-xl bg-ink-900 py-4 text-base font-bold text-white transition-colors hover:bg-teal-600">
@@ -100,22 +79,16 @@ export default function ContactPage() {
 
           <div className="space-y-5">
             <div className="reveal card-lift flex gap-5 rounded-3xl border border-ink-100 bg-white p-6">
-              <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-ink-900 text-teal-400">
-                <Icon name="phone" className="h-6 w-6" />
-              </span>
+              <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-ink-950 text-teal-400"><Icon name="phone" className="h-6 w-6" /></span>
               <div>
                 <p className="font-display text-xl text-ink-900">تلفن پشتیبانی و فروش</p>
-                <a href={`tel:${PHONE_TEL}`} dir="ltr" className="phone-number mt-1.5 inline-block text-3xl text-teal-600 transition-colors hover:text-teal-500">
-                  {PHONE_FA}
-                </a>
+                <a href={`tel:${PHONE_TEL}`} dir="ltr" className="phone-number mt-1.5 inline-block text-3xl text-teal-600 transition-colors hover:text-teal-500">{PHONE_FA}</a>
                 <p className="mt-1.5 text-sm text-mist-500">شنبه تا پنجشنبه — ۹ تا ۱۴ و ۱۷ تا ۲۲ · تعطیلات: اضطراری</p>
               </div>
             </div>
 
             <div className="reveal card-lift flex gap-5 rounded-3xl border border-ink-100 bg-white p-6" style={{ "--rv-delay": "90ms" } as React.CSSProperties}>
-              <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-ink-900 text-teal-400">
-                <Icon name="mail" className="h-6 w-6" />
-              </span>
+              <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-ink-950 text-teal-400"><Icon name="mail" className="h-6 w-6" /></span>
               <div>
                 <p className="font-display text-xl text-ink-900">ایمیل</p>
                 <p className="mt-1.5 text-sm text-mist-500"><span className="font-latin">info@tsoft20.ir</span> — <span className="font-latin">sales@tsoft20.ir</span></p>
@@ -123,14 +96,11 @@ export default function ContactPage() {
             </div>
 
             <div className="reveal card-lift flex gap-5 rounded-3xl border border-ink-100 bg-white p-6" style={{ "--rv-delay": "180ms" } as React.CSSProperties}>
-              <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-ink-900 text-gold-400">
-                <Icon name="chat" className="h-6 w-6" />
-              </span>
+              <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-ink-950 text-gold-400"><Icon name="chat" className="h-6 w-6" /></span>
               <div>
                 <p className="font-display text-xl text-ink-900">در پیام‌رسان‌ها هم هستیم</p>
                 <p className="mt-1.5 text-sm leading-7 text-mist-500">
-                  با شماره‌ی <a href={`tel:${PHONE_TEL}`} dir="ltr" className="phone-number text-teal-600">{PHONE_FA}</a> در همه‌ی این پیام‌رسان‌ها در دسترسیم؛
-                  پیام بفرستید، معمولاً همان روز پاسخ می‌دهیم.
+                  با شماره‌ی <a href={`tel:${PHONE_TEL}`} dir="ltr" className="phone-number text-teal-600">{PHONE_FA}</a> در همه‌ی این پیام‌رسان‌ها در دسترسیم؛ پیام بفرستید، معمولاً همان روز پاسخ می‌دهیم.
                 </p>
                 <div className="mt-4 flex flex-wrap gap-2">
                   {messengers.map((m) => (

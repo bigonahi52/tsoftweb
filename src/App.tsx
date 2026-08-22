@@ -6,7 +6,6 @@ import Nav from "./components/Nav";
 import Hero from "./components/Hero";
 import Home from "./components/Home";
 import ProductPage from "./components/ProductPage";
-import ShiOrderSections from "./components/ShiOrderSections";
 import DownloadsPage from "./components/DownloadsPage";
 import TrainingPage from "./components/TrainingPage";
 import AboutPage from "./components/AboutPage";
@@ -43,7 +42,7 @@ function BackToTop() {
       onClick={() => window.scrollTo({ top: 0, behavior: prefersReducedMotion() ? "auto" : "smooth" })}
       aria-label="بازگشت به بالای صفحه"
       title="بازگشت به بالا"
-      className={`group fixed bottom-6 left-6 z-[60] flex h-12 w-12 items-center justify-center rounded-full border border-teal-500/50 bg-ink-950 text-teal-400 shadow-[0_12px_30px_-10px_rgba(10,27,33,0.7)] transition-all duration-400 hover:border-gold-500 hover:bg-gold-500 hover:text-ink-950 ${
+      className={`group fixed bottom-6 left-6 z-[60] flex h-12 w-12 items-center justify-center rounded-full border border-teal-500/50 bg-ink-950 text-teal-400 shadow-[0_12px_30px_-10px_rgba(10,27,33,0.7)] transition-all duration-300 hover:border-gold-500 hover:bg-gold-500 hover:text-ink-950 ${
         visible ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-6 opacity-0"
       }`}
     >
@@ -53,34 +52,25 @@ function BackToTop() {
 }
 
 const pageMeta: Record<string, { title: string; desc: string }> = {
-  home: { title: "تیسافت (TSOFT) | ۲۰ سال حسابِ روشن — نرم‌افزارهای حسابداری و مدیریت کسب‌وکار", desc: "تیسافت؛ ۲۰ سال تجربه در نرم‌افزارهای حسابداری فروشگاهی، چندارزی، اتوماسیون تولید شیشه و پنجره، مدیریت شارژ ساختمان و حسابداری یکپارچه مالی." },
-  downloads: { title: "مرکز دانلود | تیسافت (TSOFT)", desc: "دانلود نرم‌افزارهای تیسافت، کپیتال، شی‌اوردر، سازه‌یار و پیسافت + ابزارهای اتصال از راه دور و SQL Server." },
+  home: { title: "تیسافت (TSOFT) | ۲۰ سال حسابِ روشن — نرم‌افزارهای حسابداری فروشگاهی و چندارزی", desc: "تیسافت؛ ۲۰ سال تجربه در نرم‌افزار حسابداری فروشگاهی و حسابداری چندارزی کپیتال — پشتیبانی در سراسر ایران و افغانستان." },
+  downloads: { title: "مرکز دانلود | تیسافت (TSOFT)", desc: "دانلود نرم‌افزارهای تیسافت و کپیتال + ابزارهای اتصال از راه دور و SQL Server." },
   training: { title: "آموزش رایگان ویدیویی | تیسافت (TSOFT)", desc: "دوره‌های ویدیویی حسابداری تیسافت و کپیتال در آپارات — رایگان برای همه." },
   about: { title: "درباره ما | تیسافت (TSOFT)", desc: "قصه‌ی بیست‌ساله‌ی تیسافت؛ تیمی که خودش می‌سازد و خودش پشتیبانی می‌کند." },
   contact: { title: "تماس با ما | تیسافت (TSOFT)", desc: "تلفن، ایمیل و پیام‌رسان‌های تیسافت — پشتیبانی در سراسر ایران و افغانستان." },
 };
 
-/** نگاشت آدرس URL به شناسه‌ی محصول — تیسافت با tsoft و پیسافت با psoft */
+/** نگاشت آدرس URL به محصول — تیسافت با tsoft و کپیتال با capital */
 const SLUG_TO_ID: Record<string, string> = {
   tsoft: "tisaft",
   tisaft: "tisaft",
   capital: "capital",
-  shiorder: "shiorder",
-  sazehyar: "sazehyar",
-  psoft: "pisoft",
-  pisoft: "pisoft",
 };
 
-/** نگاشت شناسه‌ی محصول به آدرس URL اصلی */
 const ID_TO_SLUG: Record<string, string> = {
   tisaft: "tsoft",
   capital: "capital",
-  shiorder: "shiorder",
-  sazehyar: "sazehyar",
-  pisoft: "psoft",
 };
 
-/** تبدیل مسیر URL (مثل /capital یا /tsoft) به مسیر داخلی برنامه */
 function pathToRoute(path: string): Route {
   const seg = path.replace(/^\/+|\/+$/g, "").toLowerCase();
   if (!seg) return { page: "home" };
@@ -92,7 +82,6 @@ function pathToRoute(path: string): Route {
   return { page: "home" };
 }
 
-/** تبدیل مسیر داخلی برنامه به URL تمیز (مثل /capital یا /tsoft) */
 function routeToPath(r: Route): string {
   if (r.page === "home") return "/";
   if (r.page === "product") return "/" + (ID_TO_SLUG[r.id] ?? r.id);
@@ -108,12 +97,12 @@ export default function App() {
     try {
       window.history.pushState(null, "", routeToPath(r));
     } catch {
-      /* در محیط‌های محدود، فقط صفحه عوض می‌شود */
+      /* محیط‌های محدود */
     }
     window.scrollTo({ top: 0, behavior: prefersReducedMotion() ? "auto" : "smooth" });
   }, []);
 
-  /* پشتیبانی از دکمه‌های جلو/عقب مرورگر */
+  /* دکمه‌های جلو/عقب مرورگر */
   useEffect(() => {
     const onPop = () => setRoute(pathToRoute(window.location.pathname));
     window.addEventListener("popstate", onPop);
@@ -146,12 +135,7 @@ export default function App() {
             <Home nav={nav} />
           </>
         )}
-        {route.page === "product" && (
-          <>
-            <ProductPage id={route.id} nav={nav} />
-            {route.id === "shiorder" && <ShiOrderSections nav={nav} />}
-          </>
-        )}
+        {route.page === "product" && <ProductPage id={route.id} nav={nav} />}
         {route.page === "downloads" && <DownloadsPage />}
         {route.page === "training" && <TrainingPage />}
         {route.page === "about" && <AboutPage nav={nav} />}

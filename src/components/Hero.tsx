@@ -1,29 +1,27 @@
 import { useState } from "react";
 import { products } from "../data";
-import { useCountUp, useGentleWord, useRevealAll } from "../lib";
+import { fa, useCountUp, useGentleWord, useRevealAll } from "../lib";
 import type { NavFn } from "../lib";
 import { Icon } from "./Icons";
 
-function Stat({ value, suffix, label }: { value: number; suffix?: string; label: string }) {
+function Stat({ value, label }: { value: number; label: string }) {
   const { ref, text } = useCountUp(value);
   return (
     <div>
-      <p className="flex items-baseline gap-1">
-        <span ref={ref} className="font-display text-4xl leading-none text-white">{text}</span>
-        {suffix && <span className="font-display text-2xl text-gold-400">{suffix}</span>}
+      <p className="font-display text-4xl leading-none text-white sm:text-[44px]">
+        <span ref={ref}>{text}</span>
       </p>
       <p className="mt-1.5 text-xs text-mist-300 sm:text-sm">{label}</p>
     </div>
   );
 }
 
-/** مُهر سالگرد — عدد ۲۰ با قابِ خط‌چین و برچسب خوانا */
-function YearSeal() {
-  const { ref, text } = useCountUp(20);
+/** مُهر بیست‌سالگی با قاب خط‌چین */
+function AnniversarySeal() {
   return (
-    <div className="seal-pulse relative flex h-32 w-32 shrink-0 flex-col items-center justify-center rounded-full border-2 border-dashed border-gold-500/90 bg-ink-900/70">
-      <span ref={ref} className="font-display text-5xl leading-none text-gold-400">{text}</span>
-      <span className="mt-1.5 text-sm font-bold tracking-[0.2em] text-ink-100">سال</span>
+    <div className="seal-pulse flex h-[104px] w-[104px] flex-col items-center justify-center rounded-full border-2 border-dashed border-gold-500/80 bg-gold-500/10">
+      <span className="font-display text-[42px] leading-none text-gold-400">{fa(20)}</span>
+      <span className="mt-0.5 text-[11px] font-bold tracking-widest text-gold-400">سال</span>
     </div>
   );
 }
@@ -41,13 +39,11 @@ function ProductVisual({ index }: { index: number }) {
         <div className="blob-shape absolute inset-0 overflow-hidden border border-white/10 bg-ink-900 shadow-[0_45px_90px_-35px_rgba(0,0,0,0.85)]">
           {products.map((p, i) =>
             broken[p.id] ? (
-              <div
-                key={p.id}
-                className={`absolute inset-0 flex flex-col items-center justify-center gap-4 transition-all duration-1000 ease-out ${i === index ? "scale-100 opacity-100" : "scale-105 opacity-0"}`}
-                style={{ background: `radial-gradient(circle at 35% 30%, ${p.accent}30, transparent 70%)` }}
-              >
-                <Icon name={p.features[0]?.icon ?? "box"} className="h-28 w-28" />
-                <span className="font-latin text-2xl font-bold tracking-[0.3em] text-white/80">{p.latin}</span>
+              <div key={p.id} className={`absolute inset-0 flex flex-col items-center justify-center gap-4 transition-all duration-1000 ease-out ${i === index ? "opacity-100" : "opacity-0"}`}>
+                <span className="flex h-24 w-24 items-center justify-center rounded-3xl text-white" style={{ background: p.accent }}>
+                  <Icon name={p.features[0]?.icon ?? "box"} className="h-12 w-12" />
+                </span>
+                <span className="font-latin text-lg font-bold tracking-[0.35em] text-white/70">{p.latin}</span>
               </div>
             ) : (
               <img
@@ -56,22 +52,20 @@ function ProductVisual({ index }: { index: number }) {
                 alt={p.name}
                 loading={i === 0 ? "eager" : "lazy"}
                 onError={() => setBroken((b) => ({ ...b, [p.id]: true }))}
-                style={{ objectPosition: (p as any).imgPos ?? "50% 50%" }}
-                className={`absolute inset-0 h-full w-full object-cover transition-all duration-1000 ease-out ${i === index ? "translate-y-0 scale-100 opacity-100" : "translate-y-5 scale-105 opacity-0"}`}
+                style={{ objectPosition: p.imgPos ?? "50% 50%" }}
+                className={`img-key absolute inset-0 h-full w-full object-cover transition-all duration-1000 ease-out ${i === index ? "translate-y-0 scale-100 opacity-100" : "translate-y-5 scale-[1.04] opacity-0"}`}
               />
             )
           )}
-          <div className="pointer-events-none absolute inset-0 mix-blend-screen" style={{ background: "radial-gradient(circle at 50% 120%, rgba(23,176,166,0.28), transparent 65%)" }} />
-          <div className="pointer-events-none absolute inset-0" style={{ background: "linear-gradient(180deg, transparent 62%, rgba(10,27,33,0.35) 100%)" }} />
+          <div className="pointer-events-none absolute inset-0 mix-blend-screen" style={{ background: "linear-gradient(180deg, rgba(23,176,166,0.10), rgba(10,27,33,0.28))" }} aria-hidden />
         </div>
-        <span className="absolute -right-3 top-10 z-10 flex h-14 w-14 items-center justify-center rounded-full border border-white/15 bg-ink-900/90 shadow-xl backdrop-blur transition-colors duration-700" style={{ color: active.accent }}>
-          <Icon name={active.features[0]?.icon ?? "box"} className="h-6 w-6" />
-        </span>
       </div>
 
-      <div className="relative z-10 -mt-12 text-center">
-        <p key={active.id} className="ticker-in mx-auto inline-flex max-w-full flex-col items-center gap-1 rounded-3xl border border-white/10 bg-ink-900/80 px-8 py-4 backdrop-blur-md">
-          <span className="font-latin text-3xl font-bold tracking-[0.35em] text-white" dir="ltr">{active.latin}</span>
+      {/* کپشن — اسم انگلیسی برنامه */}
+      <div className="relative z-10 -mt-16 text-center">
+        <p key={active.id} className="ticker-in mx-auto inline-flex max-w-full flex-wrap items-baseline justify-center gap-x-3 gap-y-1 rounded-full border border-white/10 bg-ink-900/80 px-8 py-3.5 backdrop-blur-md">
+          <span className="font-latin text-2xl font-bold tracking-[0.22em] text-teal-400 drop-shadow-[0_0_14px_rgba(23,176,166,0.45)]" dir="ltr">{active.latin}</span>
+          <span className="inline-block h-4 w-px self-center bg-ink-600" aria-hidden />
           <span className="text-sm leading-6 text-mist-300">{active.tagline}</span>
         </p>
         <div className="mt-6 flex items-center justify-center gap-2.5">
@@ -86,9 +80,8 @@ function ProductVisual({ index }: { index: number }) {
 
 export default function Hero({ nav }: { nav: NavFn }) {
   const ref = useRevealAll<HTMLElement>();
-  const names = products.map((p) => p.name);
-  const { index, visible } = useGentleWord(names);
-  const word = names[index] ?? names[0];
+  const words = products.map((p) => p.name);
+  const { word, index, visible } = useGentleWord(words);
 
   return (
     <section ref={ref} className="grid-lines noise relative overflow-hidden bg-ink-950 pb-24 pt-14 sm:pt-20">
@@ -116,7 +109,7 @@ export default function Hero({ nav }: { nav: NavFn }) {
           </h1>
 
           <p className="reveal mt-6 max-w-xl text-base leading-8 text-mist-300 sm:text-lg sm:leading-9" style={{ "--rv-delay": "250ms" } as React.CSSProperties}>
-            از فروشگاهِ محله تا خط تولید کارخانه؛ پنج محصول، یک استاندارد —
+            از صندوقِ فروشگاه تا حسابداری چندارزیِ بازرگانی؛ دو محصول تخصصی، یک استاندارد —
             ساخته‌شده برای اینکه حسابِ کسب‌وکار شما در هر لحظه روشن باشد.
           </p>
 
@@ -131,10 +124,10 @@ export default function Hero({ nav }: { nav: NavFn }) {
             </button>
           </div>
 
-          <div className="reveal mt-12 flex flex-wrap items-center gap-8 border-t border-ink-700/70 pt-8" style={{ "--rv-delay": "450ms" } as React.CSSProperties}>
-            <YearSeal />
-            <div className="grid min-w-[220px] flex-1 grid-cols-2 gap-x-6 gap-y-6">
-              <Stat value={5} label="محصول تخصصی" />
+          <div className="reveal mt-12 flex items-center gap-8 border-t border-ink-700/70 pt-8" style={{ "--rv-delay": "450ms" } as React.CSSProperties}>
+            <AnniversarySeal />
+            <div className="grid flex-1 grid-cols-2 gap-x-6 gap-y-6">
+              <Stat value={2} label="محصول تخصصی" />
               <Stat value={35} label="استان و شهر — ایران و افغانستان" />
             </div>
           </div>

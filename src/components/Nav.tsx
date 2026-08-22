@@ -2,22 +2,7 @@ import { useEffect, useState } from "react";
 import { products } from "../data";
 import { PHONE_FA, PHONE_TEL, useTodayDate } from "../lib";
 import type { NavFn, Route } from "../lib";
-import { Icon, Logo } from "./Icons";
-
-function ProductMenuItem({ id, name, latin, short, accent, onNav }: { id: string; name: string; latin: string; short: string; accent: string; onNav: NavFn }) {
-  return (
-    <button onClick={() => onNav({ page: "product", id })} className="group flex w-full items-start gap-3.5 rounded-xl px-3.5 py-3 text-right transition-colors hover:bg-ink-50">
-      <span className="mt-1.5 h-9 w-1 shrink-0 rounded-full transition-all group-hover:h-10 group-hover:w-1.5" style={{ background: accent }} />
-      <span>
-        <span className="flex items-baseline gap-2">
-          <span className="font-display text-lg text-ink-900 transition-colors group-hover:text-teal-600">{name}</span>
-          <span className="font-latin text-[10px] tracking-[0.18em] text-mist-300">{latin}</span>
-        </span>
-        <span className="mt-0.5 block text-xs leading-5 text-mist-500">{short}</span>
-      </span>
-    </button>
-  );
-}
+import { Icon, SiteLogo } from "./Icons";
 
 export default function Nav({ route, nav }: { route: Route; nav: NavFn }) {
   const [scrolled, setScrolled] = useState(false);
@@ -43,11 +28,12 @@ export default function Nav({ route, nav }: { route: Route; nav: NavFn }) {
     { label: "تماس", to: { page: "contact" }, key: "contact" },
   ];
 
-  const isActive = (key: string) => (key === "products" ? route.page === "product" : route.page === key);
+  const isActive = (key: string) =>
+    key === "products" ? route.page === "product" : route.page === key;
 
   return (
     <>
-      {/* ── نوار ۲۰ سالگی + تاریخ و تلفن ── */}
+      {/* نوار ۲۰ سالگی + تاریخ و تلفن */}
       <div className="relative z-[60] bg-ink-950 text-ink-100">
         <div className="mx-auto flex max-w-7xl items-center justify-center gap-3 px-4 py-2.5 text-center text-[13px] sm:justify-between sm:text-sm">
           <div className="flex items-center gap-2.5">
@@ -80,14 +66,16 @@ export default function Nav({ route, nav }: { route: Route; nav: NavFn }) {
         </div>
       </div>
 
-      {/* ── هدر چسبان ── */}
+      {/* هدر چسبان */}
       <header className={`sticky top-0 z-50 border-b transition-all duration-300 ${scrolled ? "border-ink-100/60 bg-white/90 shadow-[0_8px_30px_-18px_rgba(10,27,33,0.35)] backdrop-blur-xl" : "border-transparent bg-paper/80 backdrop-blur-sm"}`}>
         <div className="mx-auto flex h-[70px] max-w-7xl items-center justify-between gap-4 px-4 sm:px-6">
           <button onClick={() => nav({ page: "home" })} className="group flex items-center gap-3">
-            <Logo className="h-10 w-10 transition-transform duration-300 group-hover:rotate-6" />
+            <SiteLogo className="h-10 w-10 transition-transform duration-300 group-hover:rotate-6" />
             <span className="text-right">
               <span className="block font-display text-[26px] leading-6 text-ink-900">تیسافت</span>
-              <span className="mt-0.5 block font-latin text-[9px] tracking-[0.3em] text-teal-600">TSOFT <span className="text-mist-300">·</span> SINCE 2006</span>
+              <span className="mt-0.5 block font-latin text-[9px] tracking-[0.3em] text-teal-600">
+                TSOFT <span className="text-mist-300">·</span> SINCE 2006
+              </span>
             </span>
           </button>
 
@@ -104,10 +92,21 @@ export default function Nav({ route, nav }: { route: Route; nav: NavFn }) {
                       <path d="m6 9 6 6 6-6" />
                     </svg>
                   </button>
-                  <div className={`absolute right-0 top-full w-[400px] origin-top pt-3 transition-all duration-200 ${drop ? "visible translate-y-0 opacity-100" : "invisible -translate-y-2 opacity-0"}`}>
+                  <div className={`absolute right-0 top-full w-[380px] origin-top pt-3 transition-all duration-200 ${drop ? "visible translate-y-0 opacity-100" : "invisible -translate-y-2 opacity-0"}`}>
                     <div className="overflow-hidden rounded-2xl border border-ink-100 bg-white p-2 shadow-[0_30px_60px_-20px_rgba(10,27,33,0.3)]">
-                      <p className="px-3.5 pb-1 pt-2 font-latin text-[10px] tracking-[0.25em] text-mist-300">TSOFT FAMILY — ۵ محصول</p>
-                      {products.map((p) => <ProductMenuItem key={p.id} {...p} onNav={nav} />)}
+                      <p className="px-3.5 pb-1 pt-2 font-latin text-[10px] tracking-[0.25em] text-mist-300">TSOFT FAMILY</p>
+                      {products.map((p) => (
+                        <button key={p.id} onClick={() => nav({ page: "product", id: p.id })} className="group flex w-full items-start gap-3.5 rounded-xl px-3.5 py-3 text-right transition-colors hover:bg-ink-50">
+                          <span className="mt-1.5 h-9 w-1 shrink-0 rounded-full transition-all group-hover:h-10 group-hover:w-1.5" style={{ background: p.accent }} />
+                          <span>
+                            <span className="flex items-baseline gap-2">
+                              <span className="font-display text-lg text-ink-900 group-hover:text-teal-600">{p.name}</span>
+                              <span className="font-latin text-[10px] tracking-[0.18em] text-mist-300">{p.latin}</span>
+                            </span>
+                            <span className="mt-0.5 block text-xs leading-5 text-mist-500">{p.short.slice(0, 72)}…</span>
+                          </span>
+                        </button>
+                      ))}
                     </div>
                   </div>
                 </div>
@@ -131,9 +130,9 @@ export default function Nav({ route, nav }: { route: Route; nav: NavFn }) {
         </div>
       </header>
 
-      {/* ── منوی موبایل ── */}
+      {/* منوی موبایل */}
       <div className={`fixed inset-0 z-40 overflow-y-auto bg-ink-950 transition-all duration-300 lg:hidden ${open ? "visible opacity-100" : "invisible opacity-0"}`}>
-        <div className="grid-lines grid-lines-fade noise relative min-h-full px-6 pb-16 pt-28">
+        <div className="grid-lines noise relative min-h-full px-6 pb-16 pt-28">
           <nav className="space-y-1">
             {links.map((l) => (
               <button key={l.key} onClick={() => { nav(l.to); setOpen(false); }} className="flex w-full items-center justify-between border-b border-ink-700/60 py-4 text-right">

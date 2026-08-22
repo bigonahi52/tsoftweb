@@ -13,7 +13,7 @@ export type NavFn = (r: Route) => void;
 const FA_DIGITS = "۰۱۲۳۴۵۶۷۸۹";
 export const fa = (s: string | number): string => String(s).replace(/[0-9]/g, (d) => FA_DIGITS[Number(d)]);
 
-export const PHONE_FA = fa("0915 313 3726");
+export const PHONE_FA = "۰۹۱۵ ۳۱۳ ۳۷۲۶";
 export const PHONE_TEL = "+989153133726";
 
 export function prefersReducedMotion(): boolean {
@@ -22,17 +22,17 @@ export function prefersReducedMotion(): boolean {
 
 /** تبدیل لینک صفحه‌ی آپارات به لینک پخش داخلی */
 export function aparatEmbed(url: string): string {
-  const m = url.match(/aparat\.com\/v\/([A-Za-z0-9]+)/i);
+  const m = url.match(/aparat\.com\/v\/([A-Za-z0-9]+)/);
   return m ? `https://www.aparat.com/video/video/embed/videohash/${m[1]}/vt/frame` : url;
 }
 
-/** فعال‌سازی انیمیشن ورود همه‌ی عناصر .reveal در یک محدوده */
+/** نمایش عناصر هنگام اسکرول */
 export function useRevealAll<T extends HTMLElement>() {
-  const ref = useRef<T | null>(null);
+  const ref = useRef<T>(null);
   useEffect(() => {
     const root = ref.current;
     if (!root) return;
-    const els = root.querySelectorAll<HTMLElement>(".reveal");
+    const els = Array.from(root.querySelectorAll<HTMLElement>(".reveal"));
     if (prefersReducedMotion()) {
       els.forEach((el) => el.classList.add("is-in"));
       return;
@@ -49,7 +49,6 @@ export function useRevealAll<T extends HTMLElement>() {
       { threshold: 0.12, rootMargin: "0px 0px -40px 0px" }
     );
     els.forEach((el) => obs.observe(el));
-    /* عناصری که بعداً اضافه می‌شوند (مثل فیلتر دانلود) هم دیده شوند */
     const mut = new MutationObserver(() => {
       root.querySelectorAll<HTMLElement>(".reveal:not(.is-in)").forEach((el) => obs.observe(el));
     });
@@ -62,37 +61,28 @@ export function useRevealAll<T extends HTMLElement>() {
   return ref;
 }
 
-/** شمارنده‌ی متحرک اعداد */
+/** شمارنده‌ی متحرک با اعداد فارسی */
 export function useCountUp(target: number, duration = 1400, plain = false) {
-  const [val, setVal] = useState(0);
-  const ref = useRef<HTMLSpanElement | null>(null);
-  const started = useRef(false);
+  const ref = useRef<HTMLSpanElement>(null);
+  const [text, setText] = useState(fa(0));
   useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const obs = new IntersectionObserver(
-      (entries) => {
-        if (entries.some((e) => e.isIntersecting) && !started.current) {
-          started.current = true;
-          if (prefersReducedMotion()) {
-            setVal(target);
-            return;
-          }
-          const t0 = performance.now();
-          const tick = (t: number) => {
-            const p = Math.min(1, (t - t0) / duration);
-            setVal(Math.round(target * (1 - Math.pow(1 - p, 3))));
-            if (p < 1) requestAnimationFrame(tick);
-          };
-          requestAnimationFrame(tick);
-        }
-      },
-      { threshold: 0.4 }
-    );
-    obs.observe(el);
-    return () => obs.disconnect();
-  }, [target, duration]);
-  const text = plain ? fa(val) : fa(val.toLocaleString("en-US"));
+    if (prefersReducedMotion()) {
+      setText(plain ? fa(target) : fa(target.toLocaleString("en-US")));
+      return;
+    }
+    let start: number | null = null;
+    let raf = 0;
+    const tick = (t: number) => {
+      if (start === null) start = t;
+      const p = Math.min((t - start) / duration, 1);
+      const eased = 1 - Math.pow(1 - p, 3);
+      const val = Math.round(target * eased);
+      setText(plain ? fa(val) : fa(val.toLocaleString("en-US")));
+      if (p < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [target, duration, plain]);
   return { ref, text };
 }
 

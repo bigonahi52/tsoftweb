@@ -6,7 +6,6 @@
   --font-latin: "Space Grotesk", "Vazirmatn", sans-serif;
   --font-yekan: "Yekan Bakh", "Vazirmatn", "Segoe UI", tahoma, sans-serif;
 
-  /* پالت نفتی-فیروزه‌ای */
   --color-ink-950: #0a1b21;
   --color-ink-900: #0f262e;
   --color-ink-800: #14313a;
@@ -83,43 +82,36 @@ body {
   .border-ink-100 { border-color: var(--color-ink-100); }
   .border-ink-50 { border-color: var(--color-ink-50); }
   .border-gold-500 { border-color: var(--color-gold-500); }
-  .border-teal-500 { border-color: var(--color-teal-500); }
 }
 
-/* شماره تلفن — یکان نازک، چپ‌به‌راست */
 .phone-number {
   font-family: var(--font-yekan);
   font-weight: 300;
   letter-spacing: 0.04em;
   direction: ltr;
-  unicode-bidi: isolate;
 }
 
-/* ماتریس نقطه‌ای دیجیتال */
 .grid-lines {
   background-image: radial-gradient(rgba(127, 169, 181, 0.14) 1px, transparent 1px);
   background-size: 26px 26px;
 }
-.grid-lines-fade { position: relative; }
-.grid-lines-fade::before {
+.grid-lines::before {
   content: "";
   position: absolute;
   inset: 0;
   pointer-events: none;
-  background: radial-gradient(ellipse 75% 70% at 50% 40%, transparent 30%, var(--color-ink-950) 96%);
+  background: radial-gradient(ellipse 75% 70% at 50% 40%, transparent 30%, var(--color-ink-950) 95%);
 }
 
-/* نویز ظریف */
 .noise::after {
   content: "";
   position: absolute;
   inset: 0;
   pointer-events: none;
-  opacity: 0.04;
+  opacity: 0.045;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
-/* ── ورود عناصر هنگام اسکرول ── */
 .reveal {
   opacity: 0;
   transform: translateY(22px);
@@ -132,7 +124,6 @@ body {
 .reveal.rv-scale { transform: scale(0.94); }
 .reveal.rv-scale.is-in { transform: none; }
 
-/* ماسک خطی تیترها */
 .line-mask { display: block; overflow: hidden; }
 .line-mask > span {
   display: inline-block;
@@ -156,17 +147,9 @@ body {
 
 @keyframes seal-pulse {
   0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.05); }
+  50% { transform: scale(1.06); }
 }
 .seal-pulse { animation: seal-pulse 2.6s ease-in-out infinite; }
-
-@keyframes heartbeat {
-  0%, 100% { transform: scale(1); }
-  12% { transform: scale(1.14); }
-  24% { transform: scale(1); }
-  36% { transform: scale(1.1); }
-}
-.heartbeat { animation: heartbeat 2.4s ease-in-out infinite; }
 
 @keyframes marquee {
   from { transform: translateX(0); }
@@ -185,27 +168,48 @@ body {
 }
 .ticker-in { animation: ticker-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) both; }
 
-@keyframes barcode-scan {
-  0% { transform: translateX(0); }
-  50% { transform: translateX(104px); }
-  100% { transform: translateX(0); }
+@keyframes heartbeat {
+  0%, 100% { transform: scale(1); }
+  12% { transform: scale(1.18); }
+  24% { transform: scale(1); }
+  36% { transform: scale(1.12); }
+  48% { transform: scale(1); }
 }
-.barcode-scan { animation: barcode-scan 1.8s ease-in-out infinite; }
+.heartbeat { animation: heartbeat 1.8s ease-in-out infinite; }
 
-@keyframes bar-grow {
-  from { transform: scaleY(0.1); }
-  to { transform: scaleY(1); }
+.card-lift { transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.35s ease, border-color 0.35s ease; }
+.card-lift:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 24px 48px -18px rgba(10, 27, 33, 0.25);
 }
-.bar-grow { transform-origin: bottom; animation: bar-grow 0.9s cubic-bezier(0.22, 1, 0.36, 1) both; }
 
-@keyframes blob-morph {
-  0%, 100% { border-radius: 46% 54% 56% 44% / 48% 46% 54% 52%; }
-  25% { border-radius: 54% 46% 44% 56% / 52% 58% 42% 48%; }
-  50% { border-radius: 48% 52% 58% 42% / 44% 52% 48% 56%; }
-  75% { border-radius: 46% 54% 54% 46% / 58% 46% 44% 56%; }
+.link-underline {
+  background-image: linear-gradient(currentColor, currentColor);
+  background-size: 0% 1.5px;
+  background-repeat: no-repeat;
+  background-position: 100% 100%;
+  transition: background-size 0.35s ease;
+  padding-bottom: 2px;
 }
-.blob-shape { animation: blob-morph 14s ease-in-out infinite; }
-.blob-outline { animation: blob-morph 14s ease-in-out infinite reverse; }
+.link-underline:hover { background-size: 100% 1.5px; }
+
+.nav-link { position: relative; }
+.nav-link::after {
+  content: "";
+  position: absolute;
+  right: 12px;
+  left: 12px;
+  bottom: 5px;
+  height: 2px;
+  border-radius: 99px;
+  background: currentColor;
+  box-shadow: 0 0 8px rgba(23, 176, 166, 0.45);
+  transform: scaleX(0);
+  transform-origin: 100% 50%;
+  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.nav-link:hover::after,
+.nav-link.nav-active::after { transform: scaleX(1); }
 
 @keyframes phone-ring {
   0%, 86%, 100% { transform: rotate(0); }
@@ -225,40 +229,14 @@ a:hover .phone-ring { animation-duration: 1.5s; }
 }
 .phone-ring-pulse { animation: phone-ring-pulse 2.2s cubic-bezier(0.2, 0.6, 0.4, 1) infinite; }
 
-/* خط متحرک زیر منو */
-.nav-link { position: relative; }
-.nav-link::after {
-  content: "";
-  position: absolute;
-  right: 12px;
-  left: 12px;
-  bottom: 5px;
-  height: 2px;
-  border-radius: 99px;
-  background: currentColor;
-  box-shadow: 0 0 8px rgba(23, 176, 166, 0.45);
-  transform: scaleX(0);
-  transform-origin: 100% 50%;
-  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+@keyframes blob-morph {
+  0%, 100% { border-radius: 46% 54% 56% 44% / 48% 46% 54% 52%; }
+  25%      { border-radius: 54% 46% 44% 56% / 52% 58% 42% 48%; }
+  50%      { border-radius: 48% 52% 58% 42% / 44% 52% 48% 56%; }
+  75%      { border-radius: 46% 54% 54% 46% / 58% 46% 44% 56%; }
 }
-.nav-link:hover::after,
-.nav-link.nav-active::after { transform: scaleX(1); }
-
-.card-lift { transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.35s ease, border-color 0.35s ease; }
-.card-lift:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 24px 48px -18px rgba(10, 27, 33, 0.25);
-}
-
-.link-underline {
-  background-image: linear-gradient(currentColor, currentColor);
-  background-size: 0% 1.5px;
-  background-repeat: no-repeat;
-  background-position: 100% 100%;
-  transition: background-size 0.35s ease;
-  padding-bottom: 2px;
-}
-.link-underline:hover { background-size: 100% 1.5px; }
+.blob-shape { animation: blob-morph 14s ease-in-out infinite; }
+.blob-outline { animation: blob-morph 14s ease-in-out infinite reverse; }
 
 ::-webkit-scrollbar { width: 10px; }
 ::-webkit-scrollbar-track { background: var(--color-ink-950); }
@@ -276,8 +254,6 @@ details.faq[open] .faq-chevron { transform: rotate(180deg); }
     transform: none !important;
     transition: none !important;
   }
-  .blob-shape, .blob-outline, .marquee-track, .float-soft, .pulse-dot, .bar-grow,
-  .barcode-scan, .seal-pulse, .ticker-in, .phone-ring, .phone-ring-pulse, .heartbeat {
-    animation: none !important;
-  }
+  .blob-shape, .blob-outline, .marquee-track, .float-soft, .pulse-dot,
+  .heartbeat, .ticker-in, .seal-pulse, .phone-ring, .phone-ring-pulse { animation: none !important; }
 }
