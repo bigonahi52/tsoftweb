@@ -142,6 +142,10 @@ export default function App() {
         {route.page === "training" && <TrainingPage />}
         {route.page === "about" && <AboutPage nav={nav} />}
         {route.page === "contact" && <ContactPage />}
+        {route.page === "login" && <AuthPage mode="login" nav={nav} />}
+        {route.page === "register" && <AuthPage mode="register" nav={nav} />}
+        {route.page === "panel" && <UserPanel nav={nav} />}
+        {route.page === "admin" && <AdminPanel nav={nav} />}
       </div>
       <Footer nav={nav} />
     </div>

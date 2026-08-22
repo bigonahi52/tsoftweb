@@ -6,12 +6,37 @@ export type Route =
   | { page: "downloads" }
   | { page: "training" }
   | { page: "about" }
-  | { page: "contact" };
+  | { page: "contact" }
+  | { page: "login" }
+  | { page: "register" }
+  | { page: "panel" }
+  | { page: "admin" };
 
 export type NavFn = (r: Route) => void;
 
 const FA_DIGITS = "۰۱۲۳۴۵۶۷۸۹";
 export const fa = (s: string | number): string => String(s).replace(/[0-9]/g, (d) => FA_DIGITS[Number(d)]);
+
+/** فرمت مبلغ با جداکننده‌ی هزارگان و اعداد فارسی */
+export const money = (n: number): string => fa(Math.round(n).toLocaleString("en-US"));
+
+/** تاریخ فارسی از timestamp */
+export function faDate(t: number): string {
+  try {
+    return new Intl.DateTimeFormat("fa-IR-u-nu-fa", { day: "numeric", month: "long", year: "numeric" }).format(new Date(t));
+  } catch {
+    return "";
+  }
+}
+
+/** ساعت فارسی از timestamp */
+export function faTime(t: number): string {
+  try {
+    return new Intl.DateTimeFormat("fa-IR-u-nu-fa", { hour: "2-digit", minute: "2-digit", timeZone: "Asia/Tehran" }).format(new Date(t));
+  } catch {
+    return "";
+  }
+}
 
 export const PHONE_FA = "۰۹۱۵ ۳۱۳ ۳۷۲۶";
 export const PHONE_TEL = "+989153133726";
