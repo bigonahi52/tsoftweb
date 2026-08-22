@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { capitalSessions, extraVideos, tisaftSessions } from "../data";
 import type { Session } from "../data";
 import { aparatEmbed, fa, useRevealAll } from "../lib";
@@ -8,29 +8,11 @@ type Playing = { title: string; href: string; accent: string } | null;
 
 function PlayerModal({ playing, onClose }: { playing: Playing; onClose: () => void }) {
   const close = useCallback(onClose, [onClose]);
-  const wrapRef = useRef<HTMLDivElement>(null);
-  const [maxed, setMaxed] = useState(false);
-  const [nativeFs, setNativeFs] = useState(false);
-
-  useEffect(() => setMaxed(false), [playing?.href]);
-
-  useEffect(() => {
-    const sync = () => setNativeFs(Boolean(document.fullscreenElement || (document as any).webkitFullscreenElement));
-    document.addEventListener("fullscreenchange", sync);
-    document.addEventListener("webkitfullscreenchange", sync);
-    return () => {
-      document.removeEventListener("fullscreenchange", sync);
-      document.removeEventListener("webkitfullscreenchange", sync);
-    };
-  }, []);
 
   useEffect(() => {
     if (!playing) return;
     const onKey = (e: KeyboardEvent) => {
-      if (e.key !== "Escape") return;
-      if (document.fullscreenElement || (document as any).webkitFullscreenElement) return;
-      if (maxed) { setMaxed(false); return; }
-      close();
+      if (e.key === "Escape") close();
     };
     window.addEventListener("keydown", onKey);
     document.body.style.overflow = "hidden";
@@ -38,75 +20,36 @@ function PlayerModal({ playing, onClose }: { playing: Playing; onClose: () => vo
       window.removeEventListener("keydown", onKey);
       document.body.style.overflow = "";
     };
-  }, [playing, close, maxed]);
-
-  const toggleFull = useCallback(() => {
-    if (maxed || nativeFs) {
-      setMaxed(false);
-      const exit = (document as any).exitFullscreen ?? (document as any).webkitExitFullscreen;
-      if (document.fullscreenElement || (document as any).webkitFullscreenElement) exit?.call(document);
-      return;
-    }
-    setMaxed(true);
-    const target = wrapRef.current as any;
-    if (!target) return;
-    const req = target.requestFullscreen ?? target.webkitRequestFullscreen ?? target.mozRequestFullScreen ?? target.msRequestFullscreen;
-    try { req?.call(target)?.catch?.(() => undefined); } catch { /* مرورگرهای قدیمی */ }
-  }, [maxed, nativeFs]);
+  }, [playing, close]);
 
   if (!playing) return null;
-  const full = maxed || nativeFs;
 
   return (
-    <div className={`fixed inset-0 z-[80] flex items-center justify-center ${maxed ? "p-0" : "p-4 sm:p-8"}`} role="dialog" aria-modal="true">
+    <div className="fixed inset-0 z-[80] flex items-center justify-center p-4 sm:p-8" role="dialog" aria-modal="true">
       <button aria-label="بستن" onClick={close} className="absolute inset-0 cursor-default bg-ink-950/85 backdrop-blur-sm" />
-      {maxed ? (
-        <div className="relative h-full w-full bg-black">
+      <div className="player-pop relative w-full max-w-4xl overflow-hidden rounded-2xl border border-ink-700/70 bg-ink-900 shadow-[0_50px_120px_-30px_rgba(0,0,0,0.9)]">
+        <div className="flex items-center justify-between gap-4 border-b border-ink-700/70 px-5 py-4">
+          <div className="flex min-w-0 items-center gap-3">
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg" style={{ background: playing.accent }}>
+              <Icon name="play" className="h-4 w-4 translate-x-[1px] text-[#ffffff]" />
+            </span>
+            <div className="min-w-0">
+              <p className="truncate font-display text-lg text-white">{playing.title}</p>
+              <p className="font-latin text-[10px] tracking-[0.2em] text-mist-300">TSOFT ACADEMY · APARAT</p>
+            </div>
+          </div>
+          <button onClick={close} aria-label="بستن" className="flex h-9 w-9 items-center justify-center rounded-lg border border-ink-600 text-ink-100 transition-colors hover:border-[#e5695e] hover:text-[#ff9d94]">
+            <Icon name="close" className="h-4 w-4" />
+          </button>
+        </div>
+        <div className="relative aspect-video w-full bg-black">
           <iframe key={playing.href} src={aparatEmbed(playing.href)} title={playing.title} className="absolute inset-0 h-full w-full" frameBorder="0" allow="autoplay; fullscreen; encrypted-media; picture-in-picture" allowFullScreen />
-          <div className="absolute inset-x-0 top-0 flex items-center justify-between gap-3 bg-gradient-to-b from-ink-950/90 to-transparent px-5 py-4">
-            <p className="truncate font-display text-lg text-white">{playing.title}</p>
-            <div className="flex shrink-0 items-center gap-2">
-              <button onClick={toggleFull} className="flex items-center gap-2 rounded-lg border border-gold-500 bg-gold-500 px-3 py-2 text-xs font-bold text-ink-950">
-                <Icon name="fullscreen" className="h-4 w-4" />
-                خروج از تمام‌صفحه
-              </button>
-              <button onClick={close} aria-label="بستن" className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/40 text-white transition-colors hover:border-[#e5695e] hover:text-[#ff9d94]">
-                <Icon name="close" className="h-4 w-4" />
-              </button>
-            </div>
-          </div>
         </div>
-      ) : (
-        <div className="player-pop relative w-full max-w-4xl overflow-hidden rounded-2xl border border-ink-700/70 bg-ink-900 shadow-[0_50px_120px_-30px_rgba(0,0,0,0.9)]">
-          <div className="flex items-center justify-between gap-4 border-b border-ink-700/70 px-5 py-4">
-            <div className="flex min-w-0 items-center gap-3">
-              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg" style={{ background: playing.accent }}>
-                <Icon name="play" className="h-4 w-4 translate-x-[1px] text-[#ffffff]" />
-              </span>
-              <div className="min-w-0">
-                <p className="truncate font-display text-lg text-white">{playing.title}</p>
-                <p className="font-latin text-[10px] tracking-[0.2em] text-mist-300">TSOFT ACADEMY · APARAT</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-2">
-              <button onClick={toggleFull} aria-label="تمام‌صفحه" title="تمام‌صفحه" className={`flex h-9 items-center justify-center gap-2 rounded-lg border px-2.5 transition-all duration-300 sm:px-3 ${full ? "border-gold-500 bg-gold-500 text-ink-950" : "border-ink-600 text-ink-100 hover:border-gold-500 hover:text-gold-400"}`}>
-                <Icon name="fullscreen" className="h-4 w-4" />
-                <span className="hidden text-xs font-bold sm:inline">تمام‌صفحه</span>
-              </button>
-              <button onClick={close} aria-label="بستن" className="flex h-9 w-9 items-center justify-center rounded-lg border border-ink-600 text-ink-100 transition-colors hover:border-[#e5695e] hover:text-[#ff9d94]">
-                <Icon name="close" className="h-4 w-4" />
-              </button>
-            </div>
-          </div>
-          <div ref={wrapRef} className="relative aspect-video w-full bg-black">
-            <iframe key={playing.href} src={aparatEmbed(playing.href)} title={playing.title} className="absolute inset-0 h-full w-full" frameBorder="0" allow="autoplay; fullscreen; encrypted-media; picture-in-picture" allowFullScreen />
-          </div>
-          <div className="flex items-center justify-between gap-3 border-t border-ink-700/70 px-5 py-3 text-[11px] text-mist-300">
-            <span>Esc یا کلیک بیرون، می‌بندد.</span>
-            <span className="font-latin tracking-[0.15em]" dir="ltr">16:9 · HD</span>
-          </div>
+        <div className="flex items-center justify-between gap-3 border-t border-ink-700/70 px-5 py-3 text-[11px] text-mist-300">
+          <span>برای تمام‌صفحه از دکمه‌ی خودِ پخش‌کننده‌ی آپارات استفاده کنید.</span>
+          <span className="font-latin tracking-[0.15em]" dir="ltr">16:9 · HD</span>
         </div>
-      )}
+      </div>
     </div>
   );
 }
