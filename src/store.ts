@@ -39,11 +39,25 @@ export type Invoice = {
   time: number;
 };
 
+export type TicketReply = { id: string; from: "user" | "admin"; text: string; time: number };
+export type Ticket = {
+  id: string;
+  no: string;
+  userId: string;
+  subject: string;
+  topic: string;
+  priority: "normal" | "high";
+  status: "open" | "answered" | "closed";
+  replies: TicketReply[];
+  time: number;
+};
+
 const K = {
   users: "tsoft_users",
   msgs: "tsoft_msgs",
   files: "tsoft_files",
   inv: "tsoft_invoices",
+  tix: "tsoft_tickets",
   ses: "tsoft_session",
 };
 
@@ -289,3 +303,56 @@ export function setInvoiceStatus(id: string, status: "issued" | "paid") {
 }
 
 export const invoiceTotal = (inv: Invoice) => inv.items.reduce((s, it) => s + (Number(it.amount) || 0), 0);
+
+/* ── تیکت‌ها ── */
+
+export function getTickets(): Ticket[] {
+  return read<Ticket[]>(K.tix, []).sort((a, b) => b.time - a.time);
+}
+export function getTicketsFor(userId: string): Ticket[] {
+  return getTickets().filter((t) => t.userId === userId);
+}
+
+export function createTicket(userId: string, subject: string, topic: string, priority: "normal" | "high", text: string): Ticket {
+  const all = read<Ticket[]>(K.tix, []);
+  const no = "TK-" + String(all.length + 1).padStart(3, "0");
+  const t: Ticket = {
+    id: uid(),
+    no,
+    userId,
+    subject: subject.trim(),
+    topic,
+    priority,
+    status: "open",
+    replies: [{ id: uid(), from: "user", text: text.trim(), time: Date.now() }],
+    time: Date.now(),
+  };
+  all.push(t);
+  write(K.tix, all);
+  fire(DATA_EVENT);
+  return t;
+}
+
+export function replyTicket(ticketId: string, from: "user" | "admin", text: string) {
+  const all = read<Ticket[]>(K.tix, []);
+  const t = all.find((x) => x.id === ticketId);
+  if (!t || !text.trim()) return;
+  t.replies.push({ id: uid(), from, text: text.trim(), time: Date.now() });
+  t.status = from === "admin" ? "answered" : "open";
+  t.time = Date.now();
+  write(K.tix, all);
+  fire(DATA_EVENT);
+}
+
+export function closeTicket(ticketId: string) {
+  const all = read<Ticket[]>(K.tix, []);
+  const t = all.find((x) => x.id === ticketId);
+  if (!t) return;
+  t.status = "closed";
+  write(K.tix, all);
+  fire(DATA_EVENT);
+}
+
+export function openTicketsCount(): number {
+  return read<Ticket[]>(K.tix, []).filter((t) => t.status !== "closed").length;
+}

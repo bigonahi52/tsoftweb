@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { getProduct } from "./data";
 import { prefersReducedMotion, useRevealAll } from "./lib";
 import type { NavFn, Route } from "./lib";
+import { currentUser, seedAdmin } from "./store";
 import Nav from "./components/Nav";
 import Hero from "./components/Hero";
 import Home from "./components/Home";
@@ -10,8 +11,11 @@ import DownloadsPage from "./components/DownloadsPage";
 import TrainingPage from "./components/TrainingPage";
 import AboutPage from "./components/AboutPage";
 import ContactPage from "./components/ContactPage";
-import Footer from "./components/Footer";
+import AuthPage from "./components/AuthPage";
+import UserPanel from "./components/UserPanel";
+import AdminPanel from "./components/AdminPanel";
 import ChatWidget from "./components/ChatWidget";
+import Footer from "./components/Footer";
 import { Icon } from "./components/Icons";
 
 /** نوار پیشرفت اسکرول */
@@ -58,6 +62,10 @@ const pageMeta: Record<string, { title: string; desc: string }> = {
   training: { title: "آموزش رایگان ویدیویی | تیسافت (TSOFT)", desc: "دوره‌های ویدیویی حسابداری تیسافت و کپیتال در آپارات — رایگان برای همه." },
   about: { title: "درباره ما | تیسافت (TSOFT)", desc: "قصه‌ی بیست‌ساله‌ی تیسافت؛ تیمی که خودش می‌سازد و خودش پشتیبانی می‌کند." },
   contact: { title: "تماس با ما | تیسافت (TSOFT)", desc: "تلفن، ایمیل و پیام‌رسان‌های تیسافت — پشتیبانی در سراسر ایران و افغانستان." },
+  login: { title: "ورود به حساب کاربری | تیسافت (TSOFT)", desc: "ورود مشتریان تیسافت برای دریافت فایل، فاکتور و پشتیبانی اختصاصی." },
+  register: { title: "ثبت‌نام | تیسافت (TSOFT)", desc: "ساخت حساب کاربری برای دریافت فایل، فاکتور و گفت‌وگو با پشتیبانی تیسافت." },
+  panel: { title: "پنل کاربری | تیسافت (TSOFT)", desc: "فایل‌های دریافتی، فاکتورها و گفت‌وگو با پشتیبانی تیسافت." },
+  admin: { title: "پنل مدیریت | تیسافت (TSOFT)", desc: "مدیریت پیام‌ها، ارسال فایل و صدور فاکتور برای مشتریان." },
 };
 
 /** نگاشت آدرس URL به محصول — تیسافت با tsoft و کپیتال با capital */
@@ -80,6 +88,10 @@ function pathToRoute(path: string): Route {
   if (seg === "training") return { page: "training" };
   if (seg === "about") return { page: "about" };
   if (seg === "contact") return { page: "contact" };
+  if (seg === "login") return { page: "login" };
+  if (seg === "register") return { page: "register" };
+  if (seg === "panel") return { page: "panel" };
+  if (seg === "admin") return { page: "admin" };
   return { page: "home" };
 }
 
@@ -92,6 +104,11 @@ function routeToPath(r: Route): string {
 export default function App() {
   const [route, setRoute] = useState<Route>(() => pathToRoute(window.location.pathname));
   const ref = useRevealAll<HTMLDivElement>();
+
+  /* ساخت حساب مدیر در اولین اجرا */
+  useEffect(() => {
+    seedAdmin();
+  }, []);
 
   const nav: NavFn = useCallback((r) => {
     setRoute(r);
@@ -124,11 +141,29 @@ export default function App() {
     }
   }, [route]);
 
+  const user = currentUser();
+
+  /* نگهبان دسترسی: پنل کاربر فقط برای ورود‌کرده‌ها، پنل مدیر فقط برای مدیر */
+  const guardedPanel =
+    route.page === "panel" ? (
+      user ? (
+        <UserPanel nav={nav} />
+      ) : (
+        <AuthPage mode="login" nav={nav} />
+      )
+    ) : route.page === "admin" ? (
+      user && user.role === "admin" ? (
+        <AdminPanel nav={nav} />
+      ) : (
+        <AuthPage mode="login" nav={nav} />
+      )
+    ) : null;
+
   return (
     <div className="min-h-screen bg-paper font-body text-ink-900">
       <ScrollProgress />
       <BackToTop />
-      <ChatWidget />
+      <ChatWidget nav={nav} />
       <Nav route={route} nav={nav} />
       <div ref={ref}>
         {route.page === "home" && (
@@ -142,10 +177,8 @@ export default function App() {
         {route.page === "training" && <TrainingPage />}
         {route.page === "about" && <AboutPage nav={nav} />}
         {route.page === "contact" && <ContactPage />}
-        {route.page === "login" && <AuthPage mode="login" nav={nav} />}
-        {route.page === "register" && <AuthPage mode="register" nav={nav} />}
-        {route.page === "panel" && <UserPanel nav={nav} />}
-        {route.page === "admin" && <AdminPanel nav={nav} />}
+        {(route.page === "login" || route.page === "register") && <AuthPage mode={route.page} nav={nav} />}
+        {guardedPanel}
       </div>
       <Footer nav={nav} />
     </div>
