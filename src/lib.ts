@@ -38,8 +38,41 @@ export function faTime(t: number): string {
   }
 }
 
-export const PHONE_FA = "۰۹۱۵ ۳۱۳ ۳۷۲۶";
+export const PHONE_FA = "+۹۸ ۹۱۵ ۳۱۳ ۳۷۲۶";
 export const PHONE_TEL = "+989153133726";
+
+/** مشخصات کارت برای پرداخت کارت‌به‌کارت */
+export const CARD_NUMBER = "6219861807656078";
+export const CARD_NUMBER_FA = "۶۲۱۹ ۸۶۱۸ ۰۷۶۵ ۶۰۷۸";
+export const CARD_HOLDER = "مهدی بیگناهی";
+
+/** کوچک‌سازی تصویر برای ذخیره‌ی سبک (حداکثر عرض ۹۰۰ پیکسل) */
+export function fileToDataURL(file: File, maxW = 900): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = () => reject(new Error("خواندن فایل ناموفق بود"));
+    reader.onload = () => {
+      const img = new Image();
+      img.onerror = () => reject(new Error("فایل تصویر معتبر نیست"));
+      img.onload = () => {
+        try {
+          const scale = Math.min(1, maxW / img.width);
+          const canvas = document.createElement("canvas");
+          canvas.width = Math.round(img.width * scale);
+          canvas.height = Math.round(img.height * scale);
+          const ctx = canvas.getContext("2d");
+          if (!ctx) return resolve(String(reader.result));
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          resolve(canvas.toDataURL("image/jpeg", 0.82));
+        } catch {
+          resolve(String(reader.result));
+        }
+      };
+      img.src = String(reader.result);
+    };
+    reader.readAsDataURL(file);
+  });
+}
 
 export function prefersReducedMotion(): boolean {
   return typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
