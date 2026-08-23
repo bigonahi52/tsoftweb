@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { products } from "../data";
 import { PHONE_FA, PHONE_TEL, useTodayDate } from "../lib";
 import type { NavFn, Route } from "../lib";
-import { Icon, SiteLogo } from "./Icons";
+import { Icon, Logo } from "./Icons";
 
 export default function Nav({ route, nav }: { route: Route; nav: NavFn }) {
   const [scrolled, setScrolled] = useState(false);
@@ -24,7 +24,6 @@ export default function Nav({ route, nav }: { route: Route; nav: NavFn }) {
     { label: "محصولات", to: { page: "home" }, key: "products" },
     { label: "دانلودها", to: { page: "downloads" }, key: "downloads" },
     { label: "آموزش", to: { page: "training" }, key: "training" },
-    { label: "پشتیبانی ریموت", to: { page: "support" }, key: "support" },
     { label: "درباره ما", to: { page: "about" }, key: "about" },
     { label: "تماس", to: { page: "contact" }, key: "contact" },
   ];
@@ -38,7 +37,7 @@ export default function Nav({ route, nav }: { route: Route; nav: NavFn }) {
       <div className="relative z-[60] bg-ink-950 text-ink-100">
         <div className="mx-auto flex max-w-7xl items-center justify-center gap-3 px-4 py-2.5 text-center text-[13px] sm:justify-between sm:text-sm">
           <div className="flex items-center gap-2.5">
-            <span className="seal-pulse inline-flex h-5 w-5 items-center justify-center rounded-full bg-gold-500 font-latin text-[10px] font-bold text-ink-950">۲۰</span>
+            <span className="seal-pulse inline-flex h-5 w-5 items-center justify-center rounded-full bg-gold-500 text-[10px] font-bold text-ink-950">۲۰</span>
             <p className="font-medium tracking-wide">
               <span className="text-gold-400">بیست‌سالگی تیسافت</span>
               <span className="mx-2 hidden text-ink-600 sm:inline">|</span>
@@ -71,7 +70,7 @@ export default function Nav({ route, nav }: { route: Route; nav: NavFn }) {
       <header className={`sticky top-0 z-50 border-b transition-all duration-300 ${scrolled ? "border-ink-100/60 bg-white/90 shadow-[0_8px_30px_-18px_rgba(10,27,33,0.35)] backdrop-blur-xl" : "border-transparent bg-paper/80 backdrop-blur-sm"}`}>
         <div className="mx-auto flex h-[70px] max-w-7xl items-center justify-between gap-4 px-4 sm:px-6">
           <button onClick={() => nav({ page: "home" })} className="group flex items-center gap-3">
-            <SiteLogo className="h-10 w-10 transition-transform duration-300 group-hover:rotate-6" />
+            <Logo className="h-10 w-10 transition-transform duration-300 group-hover:rotate-6" />
             <span className="text-right">
               <span className="block font-display text-[26px] leading-6 text-ink-900">تیسافت</span>
               <span className="mt-0.5 block font-latin text-[9px] tracking-[0.3em] text-teal-600">
@@ -124,7 +123,6 @@ export default function Nav({ route, nav }: { route: Route; nav: NavFn }) {
               <Icon name="download" className="h-4 w-4" />
               دانلود
             </button>
-
             <button onClick={() => setOpen(!open)} className="flex h-10 w-10 items-center justify-center rounded-xl border border-ink-100 bg-white text-ink-900 lg:hidden" aria-label="منو">
               <Icon name={open ? "close" : "menu"} className="h-5 w-5" />
             </button>
@@ -153,8 +151,7 @@ export default function Nav({ route, nav }: { route: Route; nav: NavFn }) {
               ))}
             </div>
           </div>
-
-          <p className="mt-12 text-center font-display text-lg text-gold-400">۲۰ سالگی‌مان مبارک — ۱۳۸۵ تا ۱۴۰۵</p>
+          <p className="mt-12 text-center font-display text-lg text-gold-400">۱۳۸۵ — ۱۴۰۵ · دو دهه حسابِ روشن</p>
         </div>
       </div>
     </>
