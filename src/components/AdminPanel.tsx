@@ -15,6 +15,7 @@ import {
   replyTicket,
   sendFileToUser,
   sendMessage,
+  setInvoicePayUrl,
   setInvoiceStatus,
   totalUnread,
   useStoreTick,
@@ -36,6 +37,7 @@ export default function AdminPanel({ nav }: { nav: NavFn }) {
   const [reply, setReply] = useState("");
   const [fileModal, setFileModal] = useState(false);
   const [invModal, setInvModal] = useState(false);
+  const [payFor, setPayFor] = useState<Invoice | null>(null);
   const [viewInv, setViewInv] = useState<Invoice | null>(null);
   const [viewTick, setViewTick] = useState<Ticket | null>(null);
   const [tickReply, setTickReply] = useState("");
@@ -270,7 +272,17 @@ export default function AdminPanel({ nav }: { nav: NavFn }) {
                             </button>
                           </td>
                           <td className="px-4 py-4">
-                            <button onClick={() => setViewInv(inv)} className="link-underline text-xs font-bold text-teal-600">مشاهده و چاپ</button>
+                            <div className="flex items-center gap-3">
+                              <button onClick={() => setViewInv(inv)} className="link-underline text-xs font-bold text-teal-600">مشاهده و چاپ</button>
+                              <button
+                                onClick={() => setPayFor(inv)}
+                                className={`link-underline flex items-center gap-1 text-xs font-bold ${inv.payUrl ? "text-teal-600" : "text-gold-600"}`}
+                                title={inv.payUrl ? "ویرایش لینک پرداخت" : "افزودن لینک پرداخت"}
+                              >
+                                <Icon name="link" className="h-3.5 w-3.5" />
+                                {inv.payUrl ? "لینک پرداخت ✓" : "لینک پرداخت"}
+                              </button>
+                            </div>
                           </td>
                         </tr>
                       );

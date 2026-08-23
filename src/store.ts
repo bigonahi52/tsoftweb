@@ -38,6 +38,8 @@ export type Invoice = {
   note?: string;
   status: "issued" | "paid";
   time: number;
+  /** لینک درگاه پرداخت برای این فاکتور */
+  payUrl?: string;
 };
 
 export type TicketReply = { id: string; from: "user" | "admin"; text: string; time: number };
@@ -305,6 +307,17 @@ export function setInvoiceStatus(id: string, status: "issued" | "paid") {
   const inv = all.find((i) => i.id === id);
   if (inv) {
     inv.status = status;
+    write(K.inv, all);
+    fire(DATA_EVENT);
+  }
+}
+
+/** ثبت یا حذف لینک درگاه پرداخت برای یک فاکتور */
+export function setInvoicePayUrl(id: string, payUrl?: string) {
+  const all = read<Invoice[]>(K.inv, []);
+  const inv = all.find((i) => i.id === id);
+  if (inv) {
+    inv.payUrl = payUrl && payUrl.trim() ? payUrl.trim() : undefined;
     write(K.inv, all);
     fire(DATA_EVENT);
   }
