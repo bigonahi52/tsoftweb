@@ -5,6 +5,7 @@ export type Route =
   | { page: "product"; id: string }
   | { page: "downloads" }
   | { page: "training" }
+  | { page: "support" }
   | { page: "about" }
   | { page: "contact" };
 
