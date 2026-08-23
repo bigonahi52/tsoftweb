@@ -6,11 +6,7 @@ export type Route =
   | { page: "downloads" }
   | { page: "training" }
   | { page: "about" }
-  | { page: "contact" }
-  | { page: "login" }
-  | { page: "register" }
-  | { page: "panel" }
-  | { page: "admin" };
+  | { page: "contact" };
 
 export type NavFn = (r: Route) => void;
 
