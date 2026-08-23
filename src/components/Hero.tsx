@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { products } from "../data";
-import { fa, prefersReducedMotion, useCountUp, useGentleWord, useRevealAll } from "../lib";
+import { prefersReducedMotion, useCountUp, useGentleWord, useRevealAll } from "../lib";
 import type { NavFn } from "../lib";
 import { Icon } from "./Icons";
 
@@ -16,39 +16,11 @@ function Stat({ value, label }: { value: number; label: string }) {
   );
 }
 
-const fmt = (n: number) => fa(n.toLocaleString("en-US"));
-
-/** اقلام نمونه‌ی رسید — هر چند ثانیه یکی اضافه می‌شود */
-const ITEMS = [
-  { t: "شیر کم‌چرب یک لیتری", p: 48500 },
-  { t: "نان بربری تازه", p: 25000 },
-  { t: "ماست ۹۰۰ گرمی", p: 62000 },
-  { t: "روغن آفتابگردان", p: 185000 },
-  { t: "برنج ایرانی پنج کیلویی", p: 950000 },
-  { t: "چای لاهیجان", p: 320000 },
-  { t: "رب گوجه ۸۰۰ گرمی", p: 88000 },
-  { t: "تن ماهی", p: 145000 },
-  { t: "بیسکویت ساقه طلایی", p: 38000 },
-  { t: "آب معدنی", p: 18000 },
-];
-
-/** رسید فروش زنده — المان اصلی بصری هیرو */
-function LiveReceipt({ latin }: { latin: string }) {
-  const [tick, setTick] = useState(4);
+/** تصویر محصول داخل قاب مینیمال با حرکت نرم — همگام با چرخش نام‌ها */
+function ProductVisual({ index, onPick }: { index: number; onPick: (i: number) => void }) {
+  const active = products[index] ?? products[0];
   const [tilt, setTilt] = useState({ x: 0, y: 0 });
   const reduced = prefersReducedMotion();
-
-  useEffect(() => {
-    if (reduced) return;
-    const id = window.setInterval(() => setTick((t) => t + 1), 2300);
-    return () => window.clearInterval(id);
-  }, [reduced]);
-
-  const rows: { t: string; p: number }[] = [];
-  for (let i = 0; i < 4; i++) {
-    rows.push(ITEMS[((tick - 1 - i) % ITEMS.length + ITEMS.length) % ITEMS.length]);
-  }
-  const total = rows.reduce((s, it) => s + it.p, 0);
 
   const onMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (reduced) return;
@@ -62,65 +34,64 @@ function LiveReceipt({ latin }: { latin: string }) {
   return (
     <div className="[perspective:1100px]" onMouseMove={onMove} onMouseLeave={() => setTilt({ x: 0, y: 0 })}>
       <div
-        className="float-soft relative mx-auto w-full max-w-[360px] transition-transform duration-300 ease-out will-change-transform"
-        style={{ transform: `rotateY(${tilt.x * 5}deg) rotateX(${-tilt.y * 5}deg)` }}
+        className="float-soft relative mx-auto w-full max-w-[420px] transition-transform duration-300 ease-out will-change-transform"
+        style={{ transform: `rotateY(${tilt.x * 4}deg) rotateX(${-tilt.y * 4}deg)` }}
       >
-        {/* هاله‌ی رنگی نرم */}
-        <div className="pointer-events-none absolute -inset-10 rounded-full bg-teal-600/15 blur-[90px]" aria-hidden />
+        {/* هاله‌ی رنگی هم‌رنگ محصول */}
+        <div
+          className="pointer-events-none absolute -inset-12 rounded-full opacity-25 blur-[100px] transition-colors duration-1000"
+          style={{ background: active.accent }}
+          aria-hidden
+        />
 
-        <div className="relative rounded-[22px] border border-ink-100/10 bg-paper text-ink-900 shadow-[0_45px_90px_-30px_rgba(0,0,0,0.75)]">
-          {/* سربرگ رسید */}
-          <div className="flex items-center justify-between border-b border-dashed border-ink-100 px-6 pb-4 pt-6">
-            <div>
-              <p className="font-display text-xl leading-6">فروشگاه آفتاب</p>
-              <p className="font-latin text-[10px] tracking-[0.25em] text-mist-500" dir="ltr">
-                {latin} · POS
-              </p>
-            </div>
-            <span className="flex items-center gap-1.5 rounded-full bg-teal-500/12 px-3 py-1.5 text-[11px] font-bold text-teal-600">
-              <span className="pulse-dot h-1.5 w-1.5 rounded-full bg-teal-500" />
-              صندوق فعال
-            </span>
+        <div className="relative overflow-hidden rounded-[26px] border border-white/10 bg-ink-900 shadow-[0_50px_100px_-35px_rgba(0,0,0,0.85)]">
+          <div className="relative aspect-square">
+            {products.map((p, i) => (
+              <img
+                key={p.id}
+                src={p.image}
+                alt={p.name}
+                loading={i === 0 ? "eager" : "lazy"}
+                className={`absolute inset-0 h-full w-full object-cover transition-all duration-1000 ease-out ${
+                  i === index ? "scale-100 opacity-100" : "scale-[1.05] opacity-0"
+                }`}
+              />
+            ))}
+            {/* ته‌رنگ ملایم برای خوانایی کپشن */}
+            <div className="pointer-events-none absolute inset-x-0 bottom-0 h-36 bg-gradient-to-t from-ink-950/90 to-transparent" aria-hidden />
           </div>
 
-          {/* اقلام */}
-          <div className="space-y-3 px-6 py-5">
-            {rows.map((it, i) => (
-              <div
-                key={`${it.t}-${tick}-${i}`}
-                className={`flex items-baseline justify-between gap-3 ${i === 0 ? "ticker-in" : ""}`}
+          {/* کپشن محصول */}
+          <div className="absolute inset-x-0 bottom-0 px-7 pb-6">
+            <p key={active.id} className="ticker-in flex flex-wrap items-baseline gap-x-3 gap-y-1">
+              <span
+                className="font-latin text-3xl font-bold tracking-[0.18em] drop-shadow-[0_0_16px_rgba(23,176,166,0.4)]"
+                style={{ color: active.accent }}
+                dir="ltr"
               >
-                <span className={`text-sm ${i === 0 ? "font-bold" : "text-mist-500"}`}>{it.t}</span>
-                <span className={`font-latin text-sm ${i === 0 ? "font-bold text-ink-900" : "text-mist-500"}`} dir="ltr">
-                  {fmt(it.p)}
-                </span>
-              </div>
-            ))}
-          </div>
-
-          {/* جمع کل */}
-          <div className="border-t border-dashed border-ink-100 px-6 py-4">
-            <div className="flex items-baseline justify-between">
-              <span className="font-display text-lg">جمع قابل پرداخت</span>
-              <span key={total} className="ticker-in font-latin text-xl font-bold text-teal-600" dir="ltr">
-                {fmt(total)} <span className="text-[11px] font-medium text-mist-500">ریال</span>
+                {active.latin}
               </span>
-            </div>
-            <div className="mt-3 flex items-center justify-between">
-              <span className="flex items-center gap-1.5 text-[11px] font-bold text-gold-600">
-                <Icon name="check" className="h-3.5 w-3.5" />
-                پرداخت شد
-              </span>
-              <span className="text-[11px] text-mist-500">یک سال پشتیبانی رایگان</span>
-            </div>
+              <span className="text-sm leading-6 text-mist-300">{active.tagline}</span>
+            </p>
           </div>
+        </div>
 
-          {/* بارکد */}
-          <div className="flex items-end justify-center gap-[3px] border-t border-dashed border-ink-100 px-6 pb-6 pt-4" aria-hidden>
-            {[3, 1, 2, 1, 3, 2, 1, 3, 1, 2, 3, 1, 2, 1, 3, 2, 1, 1, 3, 2, 1, 3, 2].map((w, i) => (
-              <span key={i} className="bg-ink-900" style={{ width: `${w}px`, height: i % 3 === 0 ? "26px" : "18px" }} />
-            ))}
-          </div>
+        {/* نشانگرهای محصول — قابل کلیک */}
+        <div className="mt-7 flex items-center justify-center gap-3">
+          {products.map((p, i) => (
+            <button
+              key={p.id}
+              onClick={() => onPick(i)}
+              aria-label={p.name}
+              title={p.name}
+              className="group flex h-6 items-center"
+            >
+              <span
+                className="h-1.5 rounded-full transition-all duration-500 ease-out"
+                style={{ width: i === index ? 32 : 7, background: i === index ? p.accent : "rgba(91,139,153,0.45)" }}
+              />
+            </button>
+          ))}
         </div>
       </div>
     </div>
@@ -130,7 +101,7 @@ function LiveReceipt({ latin }: { latin: string }) {
 export default function Hero({ nav }: { nav: NavFn }) {
   const ref = useRevealAll<HTMLElement>();
   const words = products.map((p) => p.name);
-  const { word, index, visible } = useGentleWord(words);
+  const { word, index, visible, setIndex } = useGentleWord(words);
   const active = products[index] ?? products[0];
 
   return (
@@ -190,9 +161,9 @@ export default function Hero({ nav }: { nav: NavFn }) {
           </div>
         </div>
 
-        {/* رسید زنده */}
+        {/* تصویر محصول */}
         <div className="reveal rv-scale hidden md:block" style={{ "--rv-delay": "200ms" } as React.CSSProperties}>
-          <LiveReceipt latin={active.latin} />
+          <ProductVisual index={index} onPick={setIndex} />
         </div>
       </div>
     </section>
