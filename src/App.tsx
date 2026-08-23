@@ -10,6 +10,7 @@ import DownloadsPage from "./components/DownloadsPage";
 import TrainingPage from "./components/TrainingPage";
 import AboutPage from "./components/AboutPage";
 import ContactPage from "./components/ContactPage";
+import RemoteSupportPage from "./components/RemoteSupportPage";
 import Footer from "./components/Footer";
 import { Icon } from "./components/Icons";
 
@@ -77,6 +78,7 @@ function pathToRoute(path: string): Route {
   if (SLUG_TO_ID[seg]) return { page: "product", id: SLUG_TO_ID[seg] };
   if (seg === "downloads") return { page: "downloads" };
   if (seg === "training") return { page: "training" };
+  if (seg === "support" || seg === "remote") return { page: "support" };
   if (seg === "about") return { page: "about" };
   if (seg === "contact") return { page: "contact" };
   return { page: "home" };

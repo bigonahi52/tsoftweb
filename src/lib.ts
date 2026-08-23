@@ -5,6 +5,7 @@ export type Route =
   | { page: "product"; id: string }
   | { page: "downloads" }
   | { page: "training" }
+  | { page: "support" }
   | { page: "about" }
   | { page: "contact" };
 
@@ -155,7 +156,16 @@ export function useGentleWord(words: string[], hold = 2800) {
     }, hold);
     return () => window.clearInterval(id);
   }, [words.length, hold]);
-  return { word: words[i], index: i, visible };
+  /** انتخاب دستی محصول (کلیک روی نشانگرها) */
+  const goTo = (n: number) => {
+    if (n === i) return;
+    setVisible(false);
+    window.setTimeout(() => {
+      setI(n);
+      setVisible(true);
+    }, 260);
+  };
+  return { word: words[i], index: i, visible, goTo };
 }
 
 /** تاریخ امروز — شمسی با اعداد فارسی و میلادی به انگلیسی */
