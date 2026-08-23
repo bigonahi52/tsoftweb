@@ -3,6 +3,7 @@ import { products } from "../data";
 import { prefersReducedMotion, useCountUp, useGentleWord, useRevealAll } from "../lib";
 import type { NavFn } from "../lib";
 import { Icon } from "./Icons";
+import { SkyScene } from "./Skyline";
 
 function Stat({ value, label }: { value: number; label: string }) {
   const { ref, text } = useCountUp(value);
@@ -16,9 +17,8 @@ function Stat({ value, label }: { value: number; label: string }) {
   );
 }
 
-/** تصویر محصول داخل قاب مینیمال با حرکت نرم — همگام با چرخش نام‌ها */
-function ProductVisual({ index, onPick }: { index: number; onPick: (i: number) => void }) {
-  const active = products[index] ?? products[0];
+/** قاب نمایش صحنه‌ی شهر — با پارالاکس نرمِ موس */
+function CityFrame({ variant, latin }: { variant: "tehran" | "dubai"; latin: string }) {
   const [tilt, setTilt] = useState({ x: 0, y: 0 });
   const reduced = prefersReducedMotion();
 
@@ -32,66 +32,35 @@ function ProductVisual({ index, onPick }: { index: number; onPick: (i: number) =
   };
 
   return (
-    <div className="[perspective:1100px]" onMouseMove={onMove} onMouseLeave={() => setTilt({ x: 0, y: 0 })}>
+    <div className="[perspective:1200px]" onMouseMove={onMove} onMouseLeave={() => setTilt({ x: 0, y: 0 })}>
       <div
-        className="float-soft relative mx-auto w-full max-w-[420px] transition-transform duration-300 ease-out will-change-transform"
-        style={{ transform: `rotateY(${tilt.x * 4}deg) rotateX(${-tilt.y * 4}deg)` }}
+        className="relative transition-transform duration-300 ease-out will-change-transform"
+        style={{ transform: `rotateY(${tilt.x * 3.5}deg) rotateX(${-tilt.y * 3}deg)` }}
       >
-        {/* هاله‌ی رنگی هم‌رنگ محصول */}
+        {/* هاله‌ی رنگی پشت قاب */}
         <div
-          className="pointer-events-none absolute -inset-12 rounded-full opacity-25 blur-[100px] transition-colors duration-1000"
-          style={{ background: active.accent }}
+          className={`pointer-events-none absolute -inset-12 rounded-full blur-[110px] transition-colors duration-1000 ${
+            variant === "tehran" ? "bg-teal-600/18" : "bg-gold-500/16"
+          }`}
           aria-hidden
         />
 
-        <div className="relative overflow-hidden rounded-[26px] border border-white/10 bg-ink-900 shadow-[0_50px_100px_-35px_rgba(0,0,0,0.85)]">
-          <div className="relative aspect-square">
-            {products.map((p, i) => (
-              <img
-                key={p.id}
-                src={p.image}
-                alt={p.name}
-                loading={i === 0 ? "eager" : "lazy"}
-                className={`absolute inset-0 h-full w-full object-cover transition-all duration-1000 ease-out ${
-                  i === index ? "scale-100 opacity-100" : "scale-[1.05] opacity-0"
-                }`}
-              />
-            ))}
-            {/* ته‌رنگ ملایم برای خوانایی کپشن */}
-            <div className="pointer-events-none absolute inset-x-0 bottom-0 h-36 bg-gradient-to-t from-ink-950/90 to-transparent" aria-hidden />
+        <div className="relative overflow-hidden rounded-[26px] border border-white/10 bg-ink-900/70 shadow-[0_50px_100px_-35px_rgba(0,0,0,0.85)]">
+          {/* نوار پنجره */}
+          <div className="flex items-center justify-between border-b border-white/8 px-5 py-3.5">
+            <div className="flex items-center gap-2">
+              <span className="h-2.5 w-2.5 rounded-full bg-[#e5695e]" />
+              <span className="h-2.5 w-2.5 rounded-full bg-gold-500" />
+              <span className="h-2.5 w-2.5 rounded-full bg-teal-500" />
+            </div>
+            <span className="flex items-center gap-2 font-latin text-[10px] tracking-[0.28em] text-mist-300">
+              <span className="pulse-dot h-1.5 w-1.5 rounded-full bg-teal-500" />
+              {latin} · LIVE
+            </span>
           </div>
 
-          {/* کپشن محصول */}
-          <div className="absolute inset-x-0 bottom-0 px-7 pb-6">
-            <p key={active.id} className="ticker-in flex flex-wrap items-baseline gap-x-3 gap-y-1">
-              <span
-                className="font-latin text-3xl font-bold tracking-[0.18em] drop-shadow-[0_0_16px_rgba(23,176,166,0.4)]"
-                style={{ color: active.accent }}
-                dir="ltr"
-              >
-                {active.latin}
-              </span>
-              <span className="text-sm leading-6 text-mist-300">{active.tagline}</span>
-            </p>
-          </div>
-        </div>
-
-        {/* نشانگرهای محصول — قابل کلیک */}
-        <div className="mt-7 flex items-center justify-center gap-3">
-          {products.map((p, i) => (
-            <button
-              key={p.id}
-              onClick={() => onPick(i)}
-              aria-label={p.name}
-              title={p.name}
-              className="group flex h-6 items-center"
-            >
-              <span
-                className="h-1.5 rounded-full transition-all duration-500 ease-out"
-                style={{ width: i === index ? 32 : 7, background: i === index ? p.accent : "rgba(91,139,153,0.45)" }}
-              />
-            </button>
-          ))}
+          {/* صحنه */}
+          <SkyScene variant={variant} className="aspect-[16/11] w-full" />
         </div>
       </div>
     </div>
@@ -101,15 +70,16 @@ function ProductVisual({ index, onPick }: { index: number; onPick: (i: number) =
 export default function Hero({ nav }: { nav: NavFn }) {
   const ref = useRevealAll<HTMLElement>();
   const words = products.map((p) => p.name);
-  const { word, index, visible, setIndex } = useGentleWord(words);
+  const { word, index, visible } = useGentleWord(words);
   const active = products[index] ?? products[0];
+  const variant = active.id === "capital" ? "dubai" : "tehran";
 
   return (
     <section ref={ref} className="grid-lines noise relative overflow-hidden bg-ink-950 pb-24 pt-16 sm:pt-24">
       <div className="pointer-events-none absolute -left-40 top-10 h-[480px] w-[480px] rounded-full bg-teal-600/15 blur-[130px]" />
       <div className="pointer-events-none absolute -right-24 bottom-0 h-[380px] w-[380px] rounded-full bg-gold-500/10 blur-[120px]" />
 
-      <div className="relative mx-auto grid max-w-7xl items-center gap-16 px-4 sm:px-6 lg:grid-cols-[1.1fr_0.9fr] lg:gap-10">
+      <div className="relative mx-auto grid max-w-7xl items-center gap-16 px-4 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:gap-12">
         {/* متن */}
         <div>
           <p className="reveal inline-flex items-center gap-2.5 rounded-full border border-teal-500/35 bg-teal-500/10 px-5 py-2 text-xs font-medium tracking-wide text-teal-400">
@@ -153,7 +123,7 @@ export default function Hero({ nav }: { nav: NavFn }) {
             </button>
           </div>
 
-          {/* آمار مینیمال */}
+          {/* آمار */}
           <div className="reveal mt-12 grid max-w-md grid-cols-3 gap-6 border-t border-ink-700/70 pt-8" style={{ "--rv-delay": "450ms" } as React.CSSProperties}>
             <Stat value={20} label="سال سابقه" />
             <Stat value={2} label="محصول تخصصی" />
@@ -161,9 +131,30 @@ export default function Hero({ nav }: { nav: NavFn }) {
           </div>
         </div>
 
-        {/* تصویر محصول */}
-        <div className="reveal rv-scale hidden md:block" style={{ "--rv-delay": "200ms" } as React.CSSProperties}>
-          <ProductVisual index={index} onPick={setIndex} />
+        {/* صحنه‌ی شهر */}
+        <div className="reveal rv-scale" style={{ "--rv-delay": "200ms" } as React.CSSProperties}>
+          <CityFrame variant={variant} latin={active.latin} />
+
+          {/* کپشن و نشانگرها */}
+          <div className="mt-7 text-center">
+            <p key={active.id} className="ticker-in mx-auto inline-flex max-w-full flex-wrap items-baseline justify-center gap-x-3 gap-y-1 rounded-full border border-white/10 bg-ink-900/80 px-7 py-3 backdrop-blur-md">
+              <span className="font-latin text-xl font-bold tracking-[0.22em] text-teal-400 drop-shadow-[0_0_12px_rgba(23,176,166,0.4)]" dir="ltr">
+                {active.latin}
+              </span>
+              <span className="inline-block h-4 w-px self-center bg-ink-600" aria-hidden />
+              <span className="text-sm leading-6 text-mist-300">{active.tagline}</span>
+            </p>
+            <div className="mt-5 flex items-center justify-center gap-2.5">
+              {products.map((p, i) => (
+                <span
+                  key={p.id}
+                  className="h-1.5 rounded-full transition-all duration-500 ease-out"
+                  style={{ width: i === index ? 30 : 6, background: i === index ? p.accent : "rgba(91,139,153,0.45)" }}
+                  aria-hidden
+                />
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     </section>
