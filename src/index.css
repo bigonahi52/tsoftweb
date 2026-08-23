@@ -144,6 +144,20 @@ body {
 .float-soft { animation: float-soft 5.5s ease-in-out infinite; }
 .float-soft-late { animation: float-soft 6.5s ease-in-out 1.2s infinite; }
 
+/* چشمک پنجره‌های روشن در صحنه‌های شهری */
+@keyframes tw {
+  0%, 100% { opacity: 0.25; }
+  50% { opacity: 1; }
+}
+.tw { animation: tw 3.2s ease-in-out infinite; }
+
+/* چراغ قرمز هشدار روی دکل برج‌ها */
+@keyframes blink-red {
+  0%, 70%, 100% { opacity: 0.15; }
+  76%, 88% { opacity: 1; }
+}
+.blink-red { animation: blink-red 2.8s linear infinite; }
+
 @keyframes pulse-dot {
   0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(23, 176, 166, 0.5); }
   50% { opacity: 0.7; box-shadow: 0 0 0 7px rgba(23, 176, 166, 0); }
