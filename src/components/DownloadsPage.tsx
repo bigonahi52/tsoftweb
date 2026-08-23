@@ -105,7 +105,7 @@ export default function DownloadsPage() {
                 <div key={g.id}>
                   <div className="mb-5 flex flex-wrap items-center justify-between gap-3 border-b-2 border-ink-100 pb-4">
                     <div className="flex items-center gap-3">
-                      <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-ink-950 text-teal-400"><Icon name={g.icon} className="h-5 w-5" /></span>
+                      <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-ink-950 text-teal-400"><Icon name={{ install: "download", remote: "monitor", sql: "server", tools: "wrench" }[g.id] ?? "box"} className="h-5 w-5" /></span>
                       <div>
                         <h2 className="font-display text-2xl text-ink-900">{g.title}</h2>
                         <p className="text-xs text-mist-500">{g.desc}</p>

@@ -115,9 +115,12 @@ export default function ProductPage({ id, nav }: { id: string; nav: NavFn }) {
             </div>
 
             <div className="reveal rv-scale relative hidden lg:block" style={{ "--rv-delay": "150ms" } as React.CSSProperties}>
-              <div className="float-soft relative overflow-hidden rounded-[2.5rem] border border-ink-700/60">
-                <img src={p.image} alt={p.name} className="h-full w-full object-cover" style={{ objectPosition: p.imgPos ?? "50% 40%" }} />
-                <div className="pointer-events-none absolute inset-0" style={{ background: `linear-gradient(180deg, transparent 55%, ${p.accent}33 100%)` }} />
+              <div className="float-soft relative flex aspect-square items-center justify-center overflow-hidden rounded-[2.5rem] border border-ink-700/60 bg-ink-900/60">
+                <div className="pointer-events-none absolute -inset-10 rounded-full opacity-25 blur-[90px]" style={{ background: p.accent }} aria-hidden />
+                <span className="relative flex h-36 w-36 items-center justify-center rounded-[2rem] text-[#ffffff] shadow-2xl" style={{ background: p.accent }}>
+                  <Icon name={p.features[0]?.icon ?? "box"} className="h-16 w-16" />
+                </span>
+                <span className="absolute bottom-6 font-latin text-sm font-bold tracking-[0.4em] text-white/60" dir="ltr">{p.latin}</span>
               </div>
             </div>
           </div>
