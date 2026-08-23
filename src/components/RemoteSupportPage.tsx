@@ -22,6 +22,162 @@ function genPass(): string {
 
 type ChatMsg = { from: "me" | "them"; text: string; time: string };
 
+/* ── پروتکل انتقال فایل (تکه‌تکه روی DataChannel) ── */
+const CHUNK = 64 * 1024; // ۶۴ کیلوبایت
+
+export type IncomingFile = {
+  fid: string;
+  name: string;
+  size: number;
+  received: number;
+  parts: Blob[];
+  url?: string;
+};
+
+function saveBlob(url: string, name: string) {
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = name;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+}
+
+/** پنل انتقال فایل — ارسال با پیشرفت، دریافت با ذخیره‌ی خودکار */
+function FilePanel({
+  send,
+  files,
+  progress,
+  busy,
+  disabled,
+  onPick,
+}: {
+  send: (f: File) => void;
+  files: IncomingFile[];
+  progress: { name: string; pct: number } | null;
+  busy: boolean;
+  disabled: boolean;
+  onPick: (f: File) => void;
+}) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  return (
+    <div className="overflow-hidden rounded-2xl border border-ink-100 bg-white">
+      <p className="border-b border-ink-100 px-4 py-3 font-display text-base text-ink-900">انتقال فایل</p>
+      <div className="space-y-3 p-4">
+        <input
+          ref={inputRef}
+          type="file"
+          className="hidden"
+          onChange={(e) => {
+            const f = e.target.files?.[0];
+            if (f) onPick(f);
+            e.target.value = "";
+          }}
+        />
+        <button
+          onClick={() => inputRef.current?.click()}
+          disabled={disabled || busy}
+          className="btn-shine flex w-full items-center justify-center gap-2.5 rounded-xl bg-ink-950 px-5 py-3.5 text-sm font-bold text-white transition-colors hover:bg-teal-600 disabled:opacity-40"
+        >
+          <Icon name="file" className="h-4.5 w-4.5" />
+          {busy ? "در حال ارسال…" : "ارسال فایل به طرف مقابل"}
+        </button>
+
+        {progress && (
+          <div className="ticker-in rounded-xl bg-paper p-3">
+            <p className="flex justify-between text-[11px] font-bold text-ink-900">
+              <span className="truncate">{progress.name}</span>
+              <span className="font-latin" dir="ltr">{Math.round(progress.pct)}%</span>
+            </p>
+            <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-ink-100">
+              <div className="h-full rounded-full bg-teal-500 transition-all duration-200" style={{ width: `${progress.pct}%` }} />
+            </div>
+          </div>
+        )}
+
+        {files.length > 0 && (
+          <ul className="space-y-2">
+            {files.map((f) => {
+              const pct = f.size ? Math.min(100, (f.received / f.size) * 100) : 0;
+              return (
+                <li key={f.fid} className="ticker-in rounded-xl border border-ink-100 bg-paper p-3">
+                  <p className="flex items-center justify-between gap-2 text-[11px] font-bold text-ink-900">
+                    <span className="flex min-w-0 items-center gap-1.5">
+                      <Icon name="download" className="h-3.5 w-3.5 shrink-0 text-teal-600" />
+                      <span className="truncate">{f.name}</span>
+                    </span>
+                    {f.url ? (
+                      <button onClick={() => saveBlob(f.url!, f.name)} className="shrink-0 rounded-lg bg-teal-500 px-2.5 py-1 text-[10px] font-bold text-ink-950 transition-colors hover:bg-teal-400">
+                        ذخیره
+                      </button>
+                    ) : (
+                      <span className="shrink-0 font-latin text-mist-500" dir="ltr">{Math.round(pct)}%</span>
+                    )}
+                  </p>
+                  {!f.url && (
+                    <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-ink-100">
+                      <div className="h-full rounded-full bg-gold-500 transition-all duration-200" style={{ width: `${pct}%` }} />
+                    </div>
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+        )}
+
+        {files.length === 0 && !progress && (
+          <p className="text-center text-[11px] leading-6 text-mist-500">فایل‌های دریافتی اینجا ذخیره و نمایش داده می‌شوند.</p>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/** ارسال یک فایل به‌صورت تکه‌تکه + گزارش پیشرفت */
+async function streamFile(conn: { send: (d: unknown) => void; open: boolean }, f: File, onProgress: (pct: number) => void): Promise<boolean> {
+  if (!conn.open) return false;
+  const fid = Math.random().toString(36).slice(2, 10);
+  conn.send({ type: "file-meta", fid, name: f.name, size: f.size });
+  let offset = 0;
+  while (offset < f.size) {
+    const slice = f.slice(offset, offset + CHUNK);
+    const buf = await slice.arrayBuffer();
+    try {
+      conn.send({ type: "file-chunk", fid, buf });
+    } catch {
+      return false;
+    }
+    offset += buf.byteLength;
+    onProgress((offset / f.size) * 100);
+    await new Promise((r) => setTimeout(r, 15)); // جلوگیری از اشباع بافر
+  }
+  conn.send({ type: "file-done", fid });
+  return true;
+}
+
+/** پردازش پیام‌های فایل دریافتی */
+function handleFileMessage(d: any, filesRef: { current: IncomingFile[] }, setFiles: (fn: (p: IncomingFile[]) => IncomingFile[]) => void, log: (m: string) => void) {
+  if (d?.type === "file-meta") {
+    filesRef.current = [...filesRef.current, { fid: d.fid, name: d.name, size: d.size, received: 0, parts: [] }];
+    setFiles(() => filesRef.current);
+    log(`دریافت فایل شروع شد: ${d.name}`);
+  } else if (d?.type === "file-chunk") {
+    const f = filesRef.current.find((x) => x.fid === d.fid);
+    if (f) {
+      f.parts.push(new Blob([d.buf]));
+      f.received += d.buf.byteLength ?? 0;
+      setFiles(() => [...filesRef.current]);
+    }
+  } else if (d?.type === "file-done") {
+    const f = filesRef.current.find((x) => x.fid === d.fid);
+    if (f) {
+      f.url = URL.createObjectURL(new Blob(f.parts));
+      setFiles(() => [...filesRef.current]);
+      log(`فایل دریافت شد: ${f.name}`);
+    }
+  }
+}
+
 /** فیلد نمایش کد/رمز با دکمه‌ی کپی */
 function CopyField({ label, value, accent }: { label: string; value: string; accent: string }) {
   const [copied, setCopied] = useState(false);
@@ -127,14 +283,28 @@ function CustomerSession({ onBack }: { onBack: () => void }) {
   const [status, setStatus] = useState<"idle" | "ready" | "sharing" | "connected">("idle");
   const [log, setLog] = useState<string[]>([]);
   const [chat, setChat] = useState<ChatMsg[]>([]);
+  const [files, setFiles] = useState<IncomingFile[]>([]);
+  const [progress, setProgress] = useState<{ name: string; pct: number } | null>(null);
+  const [cursor, setCursor] = useState<{ x: number; y: number } | null>(null);
+  const [click, setClick] = useState<{ x: number; y: number; key: number } | null>(null);
   const peer = useRef<any>(null);
   const conn = useRef<any>(null);
   const stream = useRef<MediaStream | null>(null);
   const passRef = useRef("");
   const supportPeer = useRef<string | null>(null);
   const localVideo = useRef<HTMLVideoElement>(null);
+  const filesRef = useRef<IncomingFile[]>([]);
 
   const pushLog = (m: string) => setLog((l) => [...l, `${nowTime()} — ${m}`]);
+
+  const sendFile = (f: File) => {
+    if (!conn.current) return;
+    setProgress({ name: f.name, pct: 0 });
+    streamFile(conn.current, f, (pct) => setProgress({ name: f.name, pct })).then((ok) => {
+      setProgress(null);
+      pushLog(ok ? `فایل ارسال شد: ${f.name}` : "ارسال فایل ناموفق بود");
+    });
+  };
 
   const startCall = useCallback((supportPeerId: string) => {
     if (!peer.current || !stream.current || !supportPeerId) return;
@@ -183,9 +353,15 @@ function CustomerSession({ onBack }: { onBack: () => void }) {
           }
         } else if (d?.type === "chat") {
           setChat((m) => [...m, { from: "them", text: d.text, time: nowTime() }]);
+        } else if (d?.type === "file-meta" || d?.type === "file-chunk" || d?.type === "file-done") {
+          handleFileMessage(d, filesRef, setFiles, pushLog);
+        } else if (d?.type === "cursor") {
+          setCursor({ x: d.x, y: d.y });
+        } else if (d?.type === "click") {
+          setClick({ x: d.x, y: d.y, key: Date.now() });
         }
       });
-      c.on("close", () => { setStatus((s) => (s === "connected" ? "sharing" : s)); pushLog("اتصال پشتیبانی قطع شد"); });
+      c.on("close", () => { setStatus((s) => (s === "connected" ? "sharing" : s)); setCursor(null); pushLog("اتصال پشتیبانی قطع شد"); });
     });
     p.on("error", (e: any) => { pushLog("خطا در اتصال: " + (e?.type || e)); setStatus("idle"); });
     setStatus("ready");
@@ -286,7 +462,30 @@ function CustomerSession({ onBack }: { onBack: () => void }) {
                       </p>
                       <span className="font-latin text-[10px] tracking-[0.2em] text-mist-300" dir="ltr">LIVE PREVIEW</span>
                     </div>
-                    <video ref={localVideo} autoPlay muted playsInline className="aspect-video w-full bg-black object-contain" />
+                    <div className="relative aspect-video bg-black">
+                      <video ref={localVideo} autoPlay muted playsInline className="h-full w-full object-contain" />
+                      {/* نشانگر زنده‌ی پشتیبانی روی صفحه‌ی شما */}
+                      {cursor && (
+                        <span
+                          className="pointer-events-none absolute z-10 -translate-x-1/2 -translate-y-1/2 transition-all duration-75"
+                          style={{ left: `${cursor.x * 100}%`, top: `${cursor.y * 100}%` }}
+                          aria-hidden
+                        >
+                          <svg viewBox="0 0 24 24" className="h-7 w-7 drop-shadow-[0_2px_6px_rgba(0,0,0,0.7)]">
+                            <path d="M4 3l14 7.5-6.2 1.6L8.5 18 4 3z" fill="#E5A93D" stroke="#1a1430" strokeWidth="1.4" strokeLinejoin="round" />
+                          </svg>
+                          <span className="absolute -bottom-5 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-gold-500 px-2 py-0.5 text-[9px] font-bold text-ink-950">پشتیبانی</span>
+                        </span>
+                      )}
+                      {click && (
+                        <span
+                          key={click.key}
+                          className="pointer-events-none absolute z-10 h-8 w-8 -translate-x-1/2 -translate-y-1/2 animate-ping rounded-full border-2 border-gold-400"
+                          style={{ left: `${click.x * 100}%`, top: `${click.y * 100}%` }}
+                          aria-hidden
+                        />
+                      )}
+                    </div>
                   </div>
                 )}
               </>
@@ -297,6 +496,14 @@ function CustomerSession({ onBack }: { onBack: () => void }) {
           <div className="space-y-5">
             <LogList items={log} empty="رویدادهای نشست اینجا نمایش داده می‌شود." />
             <ChatBox messages={chat} onSend={sendChat} disabled={status !== "connected"} />
+            <FilePanel
+              send={sendFile}
+              onPick={sendFile}
+              files={files}
+              progress={progress}
+              busy={!!progress}
+              disabled={status !== "connected"}
+            />
             <div className="rounded-2xl border border-gold-500/40 bg-gold-100/40 p-5 text-xs leading-7 text-ink-800">
               <p className="flex items-center gap-2 font-bold"><Icon name="shield" className="h-4 w-4 text-gold-600" /> امنیت نشست</p>
               <p className="mt-1.5 text-mist-500">
@@ -318,12 +525,37 @@ function SupportSession({ onBack }: { onBack: () => void }) {
   const [log, setLog] = useState<string[]>([]);
   const [chat, setChat] = useState<ChatMsg[]>([]);
   const [err, setErr] = useState("");
+  const [files, setFiles] = useState<IncomingFile[]>([]);
+  const [progress, setProgress] = useState<{ name: string; pct: number } | null>(null);
   const peer = useRef<any>(null);
   const conn = useRef<any>(null);
   const remoteVideo = useRef<HTMLVideoElement>(null);
   const viewerWrap = useRef<HTMLDivElement>(null);
+  const videoBox = useRef<HTMLDivElement>(null);
+  const filesRef = useRef<IncomingFile[]>([]);
+  const lastCursor = useRef(0);
 
   const pushLog = (m: string) => setLog((l) => [...l, `${nowTime()} — ${m}`]);
+
+  const sendFile = (f: File) => {
+    if (!conn.current) return;
+    setProgress({ name: f.name, pct: 0 });
+    streamFile(conn.current, f, (pct) => setProgress({ name: f.name, pct })).then((ok) => {
+      setProgress(null);
+      pushLog(ok ? `فایل ارسال شد: ${f.name}` : "ارسال فایل ناموفق بود");
+    });
+  };
+
+  /** ارسال موقعیت نشانگر به صفحه‌ی مشتری (راهنمایی زنده) */
+  const relayCursor = (e: React.MouseEvent, kind: "cursor" | "click") => {
+    if (!conn.current?.open || status !== "live" || !videoBox.current) return;
+    if (kind === "cursor" && Date.now() - lastCursor.current < 40) return; // حداکثر ۲۵ بار در ثانیه
+    lastCursor.current = Date.now();
+    const r = videoBox.current.getBoundingClientRect();
+    const x = Math.min(1, Math.max(0, (e.clientX - r.left) / r.width));
+    const y = Math.min(1, Math.max(0, (e.clientY - r.top) / r.height));
+    conn.current.send({ type: kind, x, y });
+  };
 
   const end = useCallback(() => {
     try { conn.current?.close(); } catch { /* ignore */ }
@@ -356,6 +588,7 @@ function SupportSession({ onBack }: { onBack: () => void }) {
         else if (d?.type === "auth-ok-wait") { setStatus("wait"); pushLog("ورود موفق — مشتری هنوز اشتراک صفحه را شروع نکرده…"); }
         else if (d?.type === "auth-fail") { setErr("رمز اشتباه است"); setStatus("idle"); pushLog("رمز اشتباه بود — ورود رد شد"); }
         else if (d?.type === "chat") { setChat((m) => [...m, { from: "them", text: d.text, time: nowTime() }]); }
+        else if (d?.type === "file-meta" || d?.type === "file-chunk" || d?.type === "file-done") { handleFileMessage(d, filesRef, setFiles, pushLog); }
       });
       c.on("close", () => { setStatus("idle"); pushLog("اتصال بسته شد"); });
     });
@@ -450,8 +683,18 @@ function SupportSession({ onBack }: { onBack: () => void }) {
                     تمام‌صفحه
                   </button>
                 </div>
-                <div className="relative aspect-video bg-black">
+                <div
+                  ref={videoBox}
+                  className={`relative aspect-video bg-black ${status === "live" ? "cursor-crosshair" : ""}`}
+                  onMouseMove={(e) => relayCursor(e, "cursor")}
+                  onClick={(e) => relayCursor(e, "click")}
+                >
                   <video ref={remoteVideo} autoPlay playsInline className="h-full w-full object-contain" />
+                  {status === "live" && (
+                    <span className="pointer-events-none absolute bottom-3 right-3 rounded-full bg-ink-950/70 px-3 py-1.5 text-[10px] font-bold text-gold-400 backdrop-blur">
+                      راهنمایی زنده: حرکت موس شما روی صفحه‌ی مشتری دیده می‌شود
+                    </span>
+                  )}
                   {status !== "live" && (
                     <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 text-center">
                       <span className="seal-pulse flex h-14 w-14 items-center justify-center rounded-full border-2 border-dashed border-gold-500/70 text-gold-400"><Icon name="clock" className="h-6 w-6" /></span>
@@ -467,9 +710,17 @@ function SupportSession({ onBack }: { onBack: () => void }) {
           <div className="space-y-5">
             <LogList items={log} empty="رویدادهای اتصال اینجا نمایش داده می‌شود." />
             <ChatBox messages={chat} onSend={sendChat} disabled={status !== "live" && status !== "wait"} />
+            <FilePanel
+              send={sendFile}
+              onPick={sendFile}
+              files={files}
+              progress={progress}
+              busy={!!progress}
+              disabled={status === "idle" || status === "connecting"}
+            />
             <div className="rounded-2xl border border-ink-100 bg-white p-5 text-xs leading-7 text-mist-500">
               <p className="flex items-center gap-2 font-bold text-ink-900"><Icon name="shield" className="h-4 w-4 text-teal-600" /> یادآوری</p>
-              <p className="mt-1.5">شما فقط صفحه‌ای را می‌بینید که مشتری با اجازه‌ی خودش به اشتراک گذاشته است. برای راهنمایی از گفت‌وگوی متنی یا تماس تلفنی استفاده کنید.</p>
+              <p className="mt-1.5">شما فقط صفحه‌ای را می‌بینید که مشتری با اجازه‌ی خودش به اشتراک گذاشته است. با حرکت موس می‌توانید روی صفحه‌ی او اشاره کنید و با گفت‌وگوی متنی یا انتقال فایل، راهنمایی‌اش کنید.</p>
             </div>
           </div>
         </div>
@@ -583,13 +834,21 @@ export default function RemoteSupportPage() {
             </ul>
           </div>
           <div className="reveal rounded-3xl border border-ink-100 bg-white p-8" style={{ "--rv-delay": "120ms" } as React.CSSProperties}>
-            <p className="flex items-center gap-3 font-display text-2xl text-ink-900"><Icon name="wrench" className="h-6 w-6 text-gold-600" /> محدوده‌ی این ابزار</p>
-            <p className="mt-4 text-sm leading-8 text-mist-500">
-              این ابزار برای <b className="text-ink-900">دیدن هم‌زمان صفحه‌ی مشتری و راهنمایی او</b> ساخته شده است —
-              همان کاری که در بیشتر تماس‌های پشتیبانی لازم است. حرکت موس و تایپِ مستقیم روی سیستم مشتری (کنترل کامل)،
-              به یک برنامه‌ی نصبی نیاز دارد؛ برای آن موارد می‌توانید از ابزارهای بخش دانلود استفاده کنید.
+            <p className="flex items-center gap-3 font-display text-2xl text-ink-900"><Icon name="wrench" className="h-6 w-6 text-gold-600" /> چه کارهایی می‌توان کرد؟</p>
+            <ul className="mt-4 space-y-2.5 text-sm leading-7 text-mist-500">
+              {[
+                "دیدن زنده‌ی صفحه‌ای که مشتری به اشتراک گذاشته است",
+                "اشاره‌ی زنده با نشانگر موس روی صفحه‌ی مشتری",
+                "گفت‌وگوی متنی دوطرفه در حین نشست",
+                "ارسال و دریافت فایل با نوار پیشرفت",
+              ].map((t) => (
+                <li key={t} className="flex items-start gap-2.5"><Icon name="check" className="mt-1.5 h-4 w-4 shrink-0 text-gold-600" />{t}</li>
+              ))}
+            </ul>
+            <p className="mt-4 rounded-xl bg-paper p-3.5 text-xs leading-6 text-mist-500">
+              کنترل مستقیم موس و کیبوردِ سیستم مشتری (مثل کار از پشت سیستم خودتان) به یک برنامه‌ی نصبی نیاز دارد؛ برای آن موارد از ابزارهای بخش دانلود استفاده کنید.
             </p>
-            <a href="/downloads" className="link-underline mt-5 inline-flex items-center gap-2 text-sm font-bold text-teal-600">
+            <a href="/downloads" className="link-underline mt-4 inline-flex items-center gap-2 text-sm font-bold text-teal-600">
               مشاهده‌ی ابزارهای اتصال از راه دور <Icon name="arrow" className="h-4 w-4" />
             </a>
           </div>
