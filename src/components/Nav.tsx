@@ -24,6 +24,7 @@ export default function Nav({ route, nav }: { route: Route; nav: NavFn }) {
     { label: "محصولات", to: { page: "home" }, key: "products" },
     { label: "دانلودها", to: { page: "downloads" }, key: "downloads" },
     { label: "آموزش", to: { page: "training" }, key: "training" },
+    { label: "پشتیبانی ریموت", to: { page: "support" }, key: "support" },
     { label: "درباره ما", to: { page: "about" }, key: "about" },
     { label: "تماس", to: { page: "contact" }, key: "contact" },
   ];

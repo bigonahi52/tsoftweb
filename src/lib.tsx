@@ -5,6 +5,7 @@ export type Route =
   | { page: "product"; id: string }
   | { page: "downloads" }
   | { page: "training" }
+  | { page: "support" }
   | { page: "about" }
   | { page: "contact" };
 
@@ -29,6 +30,12 @@ export const PHONE_TEL = "+989153133726";
 
 export function prefersReducedMotion(): boolean {
   return typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
+
+/** تبدیل لینک صفحه‌ی آپارات به لینک پخش داخلی */
+export function aparatEmbed(url: string): string {
+  const m = url.match(/aparat\.com\/v\/([A-Za-z0-9]+)/);
+  return m ? `https://www.aparat.com/video/video/embed/videohash/${m[1]}/vt/frame` : url;
 }
 
 /** نمایش عناصر هنگام اسکرول */
