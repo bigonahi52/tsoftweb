@@ -1,8 +1,9 @@
 /*
-  لایه‌ی داده‌ی دمو — ذخیره در مرورگر (localStorage)
-  ساختار آماده است؛ برای پیام‌رسانیِ بین‌دستگاهی واقعی باید به بک‌اند (مثل Firebase یا Supabase) وصل شود.
+  لایه‌ی داده — ذخیره در مرورگر (localStorage) + هماهنگ‌سازی زنده با ابر (Firebase)
+  اگر Firebase در فایل firebase.ts پیکربندی شده باشد، اطلاعات پاک نمی‌شود و بین همه‌ی دستگاه‌ها هماهنگ است.
 */
 import { useEffect, useState } from "react";
+import { initCloudSync, pushCollection, CLOUD_MAP } from "./cloud";
 
 export type User = {
   id: string;
@@ -78,6 +79,10 @@ function write(key: string, val: unknown) {
   } catch {
     /* ignore */
   }
+  /* اگر Firebase وصل باشد، آرایه‌ها به ابر هم فرستاده می‌شوند تا پاک نشوند */
+  if (CLOUD_MAP[key] && Array.isArray(val)) {
+    pushCollection(key, val as { id: string }[]);
+  }
 }
 const fire = (name: string) => window.dispatchEvent(new Event(name));
 const uid = () => Math.random().toString(36).slice(2, 9) + Date.now().toString(36);
@@ -90,6 +95,9 @@ const hash = (s: string) => {
 };
 const normalizePhone = (p: string) =>
   p.trim().replace(/[۰-۹]/g, (d) => String("۰۱۲۳۴۵۶۷۸۹".indexOf(d))).replace(/[\s-]/g, "");
+
+/* اگر Firebase پیکربندی شده باشد، شنونده‌های زنده را فعال کن */
+initCloudSync();
 
 /** ساخت حساب مدیر در اولین اجرا */
 export function seedAdmin() {
