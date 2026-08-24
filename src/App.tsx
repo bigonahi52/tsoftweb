@@ -11,7 +11,55 @@ import TrainingPage from "./components/TrainingPage";
 import AboutPage from "./components/AboutPage";
 import ContactPage from "./components/ContactPage";
 import Footer from "./components/Footer";
-import { Icon } from "./components/Icons";
+import { Icon, Logo } from "./components/Icons";
+
+/** لودینگ اولیه — لوگو + نوار نور + نام برند */
+function Splash() {
+  const [leaving, setLeaving] = useState(false);
+  const [gone, setGone] = useState(false);
+
+  useEffect(() => {
+    const t1 = window.setTimeout(() => setLeaving(true), 1150);
+    const t2 = window.setTimeout(() => setGone(true), 1700);
+    return () => {
+      window.clearTimeout(t1);
+      window.clearTimeout(t2);
+    };
+  }, []);
+
+  if (gone) return null;
+
+  return (
+    <div
+      className={`fixed inset-0 z-[90] flex flex-col items-center justify-center bg-ink-950 ${leaving ? "splash-out" : ""}`}
+      aria-hidden="true"
+    >
+      <div className="grid-lines grid-lines-fade noise pointer-events-none absolute inset-0" />
+      <div className="pointer-events-none absolute h-[340px] w-[340px] rounded-full bg-teal-600/14 blur-[110px]" />
+
+      <div className="splash-logo-in relative">
+        <Logo className="h-20 w-20 drop-shadow-[0_0_28px_rgba(23,176,166,0.45)]" />
+      </div>
+
+      {/* نوار نور متحرک */}
+      <div className="relative mt-9 h-[3px] w-44 overflow-hidden rounded-full bg-ink-700/60">
+        <span className="splash-bar absolute inset-y-0 w-1/3 rounded-full bg-teal-500" />
+      </div>
+
+      {/* نام برند حرف‌به‌حرف */}
+      <p className="relative mt-5 font-latin text-xl font-bold tracking-[0.5em] text-ink-100" dir="ltr">
+        {"TSOFT".split("").map((ch, i) => (
+          <span key={i} className="splash-letter" style={{ animationDelay: `${i * 0.12}s` }}>
+            {ch}
+          </span>
+        ))}
+      </p>
+      <p className="splash-logo-in relative mt-3 text-xs tracking-wide text-mist-300" style={{ animationDelay: "0.25s" }}>
+        ۲۰ سال حسابِ روشن
+      </p>
+    </div>
+  );
+}
 
 /** نوار پیشرفت اسکرول */
 function ScrollProgress() {
@@ -129,6 +177,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-paper font-body text-ink-900">
+      <Splash />
       <ScrollProgress />
       <BackToTop />
       <Nav route={route} nav={nav} />
