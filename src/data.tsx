@@ -140,7 +140,7 @@ export function getProduct(id: string): Product | undefined {
 export type DownloadItem = { name: string; note: string; href: string; format: string };
 export type DownloadGroup = { id: string; title: string; desc: string; items: DownloadItem[] };
 
-const D = "https://tsoft20.ir/Download/";
+const D = "https://dl.tsoft20.ir/Download/";
 export const downloadGroups: DownloadGroup[] = [
   {
     id: "install",
