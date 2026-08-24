@@ -3,7 +3,7 @@ import { products } from "../data";
 import { prefersReducedMotion, useCountUp, useGentleWord, useRevealAll } from "../lib";
 import type { NavFn } from "../lib";
 import { Icon } from "./Icons";
-import { SkyScene } from "./Skyline";
+import { StoreScene } from "./Skyline";
 
 function Stat({ value, label }: { value: number; label: string }) {
   const { ref, text } = useCountUp(value);
@@ -17,8 +17,8 @@ function Stat({ value, label }: { value: number; label: string }) {
   );
 }
 
-/** قاب نمایش صحنه‌ی شهر — با پارالاکس نرمِ موس */
-function CityFrame({ variant, latin }: { variant: "tehran" | "dubai"; latin: string }) {
+/** قاب نمایش صحنه‌ی فروشگاه — با پارالاکس نرمِ موس */
+function CityFrame({ kind, latin }: { kind: "tisaft" | "capital"; latin: string }) {
   const [tilt, setTilt] = useState({ x: 0, y: 0 });
   const reduced = prefersReducedMotion();
 
@@ -40,7 +40,7 @@ function CityFrame({ variant, latin }: { variant: "tehran" | "dubai"; latin: str
         {/* هاله‌ی رنگی پشت قاب */}
         <div
           className={`pointer-events-none absolute -inset-12 rounded-full blur-[110px] transition-colors duration-1000 ${
-            variant === "tehran" ? "bg-teal-600/18" : "bg-gold-500/16"
+            kind === "tisaft" ? "bg-teal-600/18" : "bg-gold-500/16"
           }`}
           aria-hidden
         />
@@ -59,8 +59,10 @@ function CityFrame({ variant, latin }: { variant: "tehran" | "dubai"; latin: str
             </span>
           </div>
 
-          {/* صحنه */}
-          <SkyScene variant={variant} className="aspect-[16/11] w-full" />
+          {/* صحنه‌ی فروشگاه */}
+          <div className="aspect-[16/11] w-full">
+            <StoreScene kind={kind} />
+          </div>
         </div>
       </div>
     </div>
@@ -72,7 +74,7 @@ export default function Hero({ nav }: { nav: NavFn }) {
   const words = products.map((p) => p.name);
   const { word, index, visible } = useGentleWord(words);
   const active = products[index] ?? products[0];
-  const variant = active.id === "capital" ? "dubai" : "tehran";
+  const kind = active.id === "capital" ? "capital" : "tisaft";
 
   return (
     <section ref={ref} className="grid-lines noise relative overflow-hidden bg-ink-950 pb-24 pt-16 sm:pt-24">
@@ -131,9 +133,9 @@ export default function Hero({ nav }: { nav: NavFn }) {
           </div>
         </div>
 
-        {/* صحنه‌ی شهر */}
+        {/* صحنه‌ی فروشگاه */}
         <div className="reveal rv-scale" style={{ "--rv-delay": "200ms" } as React.CSSProperties}>
-          <CityFrame variant={variant} latin={active.latin} />
+          <CityFrame kind={kind} latin={active.latin} />
 
           {/* کپشن و نشانگرها */}
           <div className="mt-7 text-center">

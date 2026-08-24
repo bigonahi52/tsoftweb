@@ -8,7 +8,6 @@ import Home from "./components/Home";
 import ProductPage from "./components/ProductPage";
 import DownloadsPage from "./components/DownloadsPage";
 import TrainingPage from "./components/TrainingPage";
-import RemoteSupportPage from "./components/RemoteSupportPage";
 import AboutPage from "./components/AboutPage";
 import ContactPage from "./components/ContactPage";
 import Footer from "./components/Footer";
@@ -59,7 +58,7 @@ const pageMeta: Record<string, { title: string; desc: string }> = {
   },
   downloads: { title: "مرکز دانلود | تیسافت (TSOFT)", desc: "دانلود نرم‌افزارهای تیسافت و کپیتال + ابزارهای اتصال از راه دور و SQL Server." },
   training: { title: "آموزش رایگان ویدیویی | تیسافت (TSOFT)", desc: "دوره‌های ویدیویی حسابداری تیسافت و کپیتال در آپارات — رایگان برای همه." },
-  support: { title: "پشتیبانی از راه دور | تیسافت (TSOFT)", desc: "اتصال امن و مستقیم از مرورگر برای رفع مشکل — با کد جلسه و رمز، بدون نصب برنامه." },
+
   about: { title: "درباره ما | تیسافت (TSOFT)", desc: "قصه‌ی بیست‌ساله‌ی تیسافت؛ تیمی که خودش می‌سازد و خودش پشتیبانی می‌کند." },
   contact: { title: "تماس با ما | تیسافت (TSOFT)", desc: "تلفن، ایمیل و پیام‌رسان‌های تیسافت — پشتیبانی در سراسر ایران و افغانستان." },
 };
@@ -82,7 +81,6 @@ function pathToRoute(path: string): Route {
   if (SLUG_TO_ID[seg]) return { page: "product", id: SLUG_TO_ID[seg] };
   if (seg === "downloads") return { page: "downloads" };
   if (seg === "training") return { page: "training" };
-  if (seg === "support" || seg === "remote") return { page: "support" };
   if (seg === "about") return { page: "about" };
   if (seg === "contact") return { page: "contact" };
   return { page: "home" };
@@ -144,7 +142,6 @@ export default function App() {
         {route.page === "product" && <ProductPage id={route.id} nav={nav} />}
         {route.page === "downloads" && <DownloadsPage />}
         {route.page === "training" && <TrainingPage />}
-        {route.page === "support" && <RemoteSupportPage />}
         {route.page === "about" && <AboutPage nav={nav} />}
         {route.page === "contact" && <ContactPage />}
       </div>
