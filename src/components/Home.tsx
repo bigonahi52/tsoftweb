@@ -131,7 +131,7 @@ function WhyTisaft() {
               <p className="mt-1 text-xs text-mist-500">۹ تا ۱۴ و ۱۷ تا ۲۲ — تعطیلات: اضطراری</p>
             </div>
           </div>
-          <div className="grid gap-5 sm:grid-cols-2">
+          <div className="grid gap-8 sm:grid-cols-2 sm:gap-x-8 sm:gap-y-14">
             {reasons.map((r, i) => (
               <div key={r.title} className={`reveal card-lift rounded-3xl border border-ink-100 bg-white p-8 ${i % 3 === 0 ? "sm:translate-y-6" : ""}`} style={{ "--rv-delay": `${(i % 2) * 110}ms` } as React.CSSProperties}>
                 <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-ink-950 text-teal-400 transition-transform duration-300 hover:-rotate-6 hover:scale-110">
