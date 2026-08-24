@@ -160,15 +160,7 @@ body {
 
 /* ── مدارِ خورشید و ماه دورِ تصویر هیرو ── */
 @keyframes orbit-cw { to { transform: rotate(360deg); } }
-@keyframes orbit-ccw { to { transform: rotate(-360deg); } }
 
-/* مدار هم‌جهت (خورشید) */
-.orbit-a { animation: orbit-cw 26s linear infinite; }
-.orbit-a .orbit-keep { animation: orbit-ccw 26s linear infinite; }
-
-/* مدار مخالف‌جهت و آرام‌تر (ماه) */
-.orbit-b { animation: orbit-ccw 42s linear infinite; }
-.orbit-b .orbit-keep { animation: orbit-cw 42s linear infinite; }
 
 /* حلقه‌ی خط‌چینِ چرخان */
 .ring-spin { animation: orbit-cw 70s linear infinite; }
@@ -318,5 +310,5 @@ details.faq[open] .faq-chevron { transform: rotate(180deg); }
   }
   .blob-shape, .blob-outline, .marquee-track, .float-soft, .float-soft-late,
   .pulse-dot, .seal-pulse, .ticker-in, .phone-ring, .phone-ring-pulse,
-  .orbit-a, .orbit-b, .orbit-keep, .ring-spin, .tw, .blink-red { animation: none !important; }
+  .ring-spin, .tw, .blink-red { animation: none !important; }
 }

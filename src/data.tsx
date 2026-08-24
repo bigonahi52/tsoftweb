@@ -35,7 +35,7 @@ export const products: Product[] = [
     en: "TSOFT Retail",
     tagline: "حسابِ فروشگاه، در مشتِ شما",
     accent: "#17b0a6",
-    image: "https://image.qwenlm.ai/generated-images/b549ce21-1b6e-49d0-8fda-11d47fc468a2/_result.png",
+    image: "https://image.qwenlm.ai/generated-images/5337cf2a-7e31-4b15-be58-ac1a0df7eb02/_result.png",
     short:
       "نرم‌افزار حسابداری فروشگاهی تیسافت، به‌صورت تک‌کاربره و تحت شبکه روی ویندوز کار می‌کند و در دو ماژول نقره‌ای و طلایی ارائه می‌شود. نسخه‌ی طلایی حسابداری کامل دارد: کدینگ دلخواه، ترازنامه، کارت حساب و گزارش سود و زیان.",
     overview: [

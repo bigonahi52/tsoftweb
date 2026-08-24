@@ -16,27 +16,28 @@ function Stat({ value, label }: { value: number; label: string }) {
   );
 }
 
-/* ── خورشید و ماه ── */
-function SunGlyph() {
-  return (
-    <svg viewBox="0 0 40 40" className="h-9 w-9 drop-shadow-[0_0_16px_rgba(229,169,61,0.7)]" aria-hidden>
-      <circle cx="20" cy="20" r="8" fill="#e5a93d" />
-      <g stroke="#f0c066" strokeWidth="2.4" strokeLinecap="round">
-        <path d="M20 4.5v4.5" /><path d="M20 31v4.5" /><path d="M4.5 20H9" /><path d="M31 20h4.5" />
-        <path d="m9 9 3.2 3.2" /><path d="m27.8 27.8 3.2 3.2" /><path d="m31 9-3.2 3.2" /><path d="m12.2 27.8-3.2 3.2" />
-      </g>
-    </svg>
-  );
-}
+/* ── برچسب‌های شناورِ مرتبط با هر محصول — ظریف و بدون شلوغی ── */
+const CHIPS: Record<string, { icon: string; label: string; pos: string; delay?: string }[]> = {
+  tisaft: [
+    { icon: "receipt", label: "فاکتور ثبت شد", pos: "top-6 -left-4 sm:-left-10" },
+    { icon: "coins", label: "۱۲٬۵۰۰٬۰۰۰ ریال", pos: "top-1/3 -right-4 sm:-right-12", delay: "1.1s" },
+    { icon: "barcode", label: "کالا اسکن شد", pos: "bottom-14 -left-3 sm:-left-8", delay: "2s" },
+  ],
+  capital: [
+    { icon: "update", label: "نرخ ارز به‌روز شد", pos: "top-6 -right-4 sm:-right-10" },
+    { icon: "coins", label: "USD · ۶۳٬۰۰۰", pos: "top-1/3 -left-4 sm:-left-12", delay: "1.1s" },
+    { icon: "globe", label: "۷ ارز فعال", pos: "bottom-14 -right-3 sm:-right-8", delay: "2s" },
+  ],
+};
 
-function MoonGlyph() {
+function FloatChip({ icon, label, pos, delay }: { icon: string; label: string; pos: string; delay?: string }) {
   return (
-    <svg viewBox="0 0 40 40" className="h-8 w-8 drop-shadow-[0_0_13px_rgba(201,239,236,0.55)]" aria-hidden>
-      <path d="M26.8 31.6A13.6 13.6 0 1 1 20.7 6.6a10.6 10.6 0 0 0 6.1 25Z" fill="#c9efec" />
-      <circle cx="29.5" cy="12" r="1.6" fill="#c9efec" opacity="0.75" />
-      <circle cx="33.5" cy="19.5" r="1.1" fill="#c9efec" opacity="0.5" />
-      <circle cx="28.5" cy="26" r="0.9" fill="#c9efec" opacity="0.4" />
-    </svg>
+    <div className={`float-soft absolute ${pos}`} style={delay ? { animationDelay: delay } : undefined}>
+      <span className="ticker-in flex items-center gap-2 whitespace-nowrap rounded-full border border-white/12 bg-ink-900/85 py-2 pl-4 pr-3 shadow-[0_10px_28px_-12px_rgba(0,0,0,0.65)] backdrop-blur-md">
+        <Icon name={icon} className="h-3.5 w-3.5 text-teal-400" />
+        <span className="text-[11px] font-medium text-ink-100">{label}</span>
+      </span>
+    </div>
   );
 }
 
@@ -72,18 +73,11 @@ function OrbVisual({ index }: { index: number }) {
         <div className="ring-spin pointer-events-none absolute -inset-5 rounded-full border-2 border-dashed border-white/12" aria-hidden />
         <div className="pointer-events-none absolute -inset-10 rounded-full border border-white/5" aria-hidden />
 
-        {/* مدار خورشید — هم‌جهت */}
-        <div className="orbit-a pointer-events-none absolute -inset-9" aria-hidden>
-          <span className="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/2">
-            <span className="orbit-keep block"><SunGlyph /></span>
-          </span>
-        </div>
-
-        {/* مدار ماه — مخالف‌جهت و آرام‌تر */}
-        <div className="orbit-b pointer-events-none absolute -inset-16" aria-hidden>
-          <span className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2">
-            <span className="orbit-keep block"><MoonGlyph /></span>
-          </span>
+        {/* برچسب‌های شناورِ مرتبط با محصول فعال */}
+        <div key={active.id} className="pointer-events-none absolute inset-0 z-10" aria-hidden>
+          {(CHIPS[active.id] ?? CHIPS.tisaft).map((c) => (
+            <FloatChip key={c.label} {...c} />
+          ))}
         </div>
 
         {/* تصویر گرد */}
