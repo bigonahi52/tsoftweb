@@ -127,22 +127,28 @@ export function useGentleWord(words: string[], hold = 2800) {
   return { word: words[i], index: i, visible };
 }
 
-/** تاریخ امروز — شمسی با اعداد فارسی و میلادی به انگلیسی */
+/** تاریخ امروز — شمسی به ترتیب «روز هفته + روز + ماه + سال» و میلادی به انگلیسی */
 export function useTodayDate(): { jalali: string; gregory: string } | null {
   const [d] = useState(() => {
     try {
       const now = new Date();
-      const jalali = new Intl.DateTimeFormat("fa-IR-u-nu-fa", {
+      const parts = new Intl.DateTimeFormat("fa-IR-u-nu-fa", {
         weekday: "long",
         day: "numeric",
         month: "long",
         year: "numeric",
-      }).format(now);
-      const gregory = new Intl.DateTimeFormat("en-GB", {
+      }).formatToParts(now);
+      const get = (t: string) => parts.find((p) => p.type === t)?.value ?? "";
+      const jalali = `${get("weekday")} ${get("day")} ${get("month")} ${get("year")}`.trim();
+
+      const gparts = new Intl.DateTimeFormat("en-GB", {
         day: "numeric",
         month: "long",
         year: "numeric",
-      }).format(now);
+      }).formatToParts(now);
+      const gget = (t: string) => gparts.find((p) => p.type === t)?.value ?? "";
+      const gregory = `${gget("day")} ${gget("month")} ${gget("year")}`.trim();
+
       return { jalali, gregory };
     } catch {
       return null;
