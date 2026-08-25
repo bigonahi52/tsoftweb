@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { currencies, products } from "../data";
-import { PHONE_FA, PHONE_TEL, prefersReducedMotion, useRevealAll } from "../lib";
+import { prefersReducedMotion, useRevealAll } from "../lib";
 import type { NavFn } from "../lib";
 import { Flag, Icon } from "./Icons";
 import SupportBand from "./SupportBand";
@@ -108,7 +108,7 @@ function ProductsShowcase({ nav }: { nav: NavFn }) {
 /* چرا تیسافت */
 function WhyTisaft() {
   const reasons = [
-    { icon: "shield", title: "داده‌ی شما، امانت ماست", desc: "پشتیبان‌گیری خودکار، بکاپ ابری و ایمیلی — خیال‌تان از بابت اطلاعات راحت باشد." },
+    { icon: "spark", title: "ساده و روان", desc: "رابطی که خودش راه را نشان می‌دهد؛ بدون آموزش‌های طولانی، از روز اول با آن کار کنید." },
     { icon: "headset", title: "پشتیبانی واقعی", desc: "تلفن را خود توسعه‌دهنده جواب می‌دهد؛ با یک سال پشتیبانی رایگان همراه هر خرید." },
     { icon: "update", title: "همیشه به‌روز", desc: "آپدیت‌ها رایگان‌اند و نرخ‌ها و قوانین مالیاتی در آن‌ها لحاظ می‌شود." },
     { icon: "key", title: "بدون قفل سخت‌افزاری", desc: "فعال‌سازی همه محصولات با پین‌کد نرم‌افزاری است — نه دانگل، نه دردسر." },
@@ -125,15 +125,10 @@ function WhyTisaft() {
             <p className="reveal mt-6 max-w-md leading-9 text-mist-500">
               چون نرم‌افزار حسابداری فقط یک ابزار نیست؛ شریکِ هر روزِ کسب‌وکار شماست. و شریک، باید قابل اعتماد باشد.
             </p>
-            <div className="reveal mt-8 rounded-2xl bg-ink-50/70 p-5">
-              <p className="font-latin text-[10px] tracking-[0.25em] text-teal-600">SUPPORT LINE</p>
-              <a href={`tel:${PHONE_TEL}`} dir="ltr" className="phone-number mt-1 inline-block text-2xl text-ink-900 transition-colors hover:text-teal-600">{PHONE_FA}</a>
-              <p className="mt-1 text-xs text-mist-500">۹ تا ۱۴ و ۱۷ تا ۲۲ — تعطیلات: اضطراری</p>
-            </div>
           </div>
-          <div className="grid gap-8 sm:grid-cols-2 sm:gap-x-8 sm:gap-y-14">
+          <div className="grid gap-6 sm:grid-cols-2">
             {reasons.map((r, i) => (
-              <div key={r.title} className={`reveal card-lift rounded-3xl border border-ink-100 bg-white p-8 ${i % 3 === 0 ? "sm:translate-y-6" : ""}`} style={{ "--rv-delay": `${(i % 2) * 110}ms` } as React.CSSProperties}>
+              <div key={r.title} className="reveal card-lift rounded-3xl border border-ink-100 bg-white p-8" style={{ "--rv-delay": `${(i % 2) * 110}ms` } as React.CSSProperties}>
                 <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-ink-950 text-teal-400 transition-transform duration-300 hover:-rotate-6 hover:scale-110">
                   <Icon name={r.icon} className="h-7 w-7" />
                 </span>
