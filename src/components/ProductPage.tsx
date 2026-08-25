@@ -182,12 +182,17 @@ export default function ProductPage({ id, nav }: { id: string; nav: NavFn }) {
             <div className="mt-12 grid gap-6 md:grid-cols-2">
               {p.modules.map((m, i) => (
                 <div key={m.name} className={`reveal card-lift relative overflow-hidden rounded-3xl border-2 p-8 sm:p-10 ${m.featured ? "border-gold-500 bg-ink-950" : "border-ink-100 bg-paper"}`} style={{ "--rv-delay": `${i * 120}ms` } as React.CSSProperties}>
-                  {m.badge && <span className="absolute left-6 top-0 -translate-y-1/2 rounded-full bg-gold-500 px-4 py-1.5 text-xs font-bold text-ink-950">{m.badge}</span>}
-                  <div className="flex items-center gap-3">
+                  <div className="flex flex-wrap items-center gap-3">
                     <span className={`flex h-12 w-12 items-center justify-center rounded-2xl ${m.featured ? "bg-gold-500 text-ink-950" : "bg-ink-950 text-teal-400"}`}>
                       <Icon name={m.featured ? "spark" : "box"} className="h-6 w-6" />
                     </span>
                     <h3 className={`font-display text-3xl ${m.featured ? "text-white" : "text-ink-900"}`}>{m.name}</h3>
+                    {m.badge && (
+                      <span className="mr-auto flex items-center gap-1.5 rounded-full bg-gold-500 px-4 py-1.5 text-xs font-bold text-ink-950 shadow-[0_6px_16px_-6px_rgba(229,169,61,0.7)]">
+                        <Icon name="spark" className="h-3.5 w-3.5" />
+                        {m.badge}
+                      </span>
+                    )}
                   </div>
                   <ul className="mt-6 space-y-3">
                     {m.items.map((it) => (
