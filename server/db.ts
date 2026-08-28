@@ -1,42 +1,13 @@
-/* لایه‌ی داده — Vercel KV (Upstash Redis) */
+/* لایه‌ی داده — Vercel KV (Redis)
+   همه‌ی داده‌ها روی هاست Vercel ذخیره می‌شوند و بین همه‌ی دستگاه‌ها مشترک‌اند. */
 import { kv } from "@vercel/kv";
-
-export const kvOk = () =>
-  Boolean(process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN);
-
-export async function jget<T>(key: string, fallback: T): Promise<T> {
-  try {
-    const v = await kv.get<T>(key);
-    return (v ?? fallback) as T;
-  } catch {
-    return fallback;
-  }
-}
-
-export async function jset(key: string, val: unknown, exSeconds?: number) {
-  try {
-    if (exSeconds) await kv.set(key, val as never, { ex: exSeconds });
-    else await kv.set(key, val as never);
-  } catch {
-    /* ignore */
-  }
-}
-
-export async function jdel(key: string) {
-  try {
-    await kv.del(key);
-  } catch {
-    /* ignore */
-  }
-}
-
-/* ── کاربران ── */
 
 export type DbUser = {
   id: string;
   firstName: string;
   lastName: string;
   phone: string;
+  email?: string;
   salt: string;
   passHash: string;
   role: "user" | "admin";
@@ -50,58 +21,78 @@ export const pub = (u: DbUser): PubUser => ({
   firstName: u.firstName,
   lastName: u.lastName,
   phone: u.phone,
+  email: u.email,
   role: u.role,
   createdAt: u.createdAt,
 });
 
-export async function userByPhone(phone: string): Promise<DbUser | null> {
-  const id = await jget<string>(`phone:${phone}`, "");
-  if (!id) return null;
-  return jget<DbUser | null>(`u:${id}`, null);
-}
+/** بررسی فعال بودن Vercel KV */
+export const kvOk = () =>
+  Boolean(process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN);
 
-export async function saveUser(u: DbUser) {
-  await jset(`u:${u.id}`, u);
-  await jset(`phone:${u.phone}`, u.id);
-  const ids = await allUserIds();
-  if (!ids.includes(u.id)) {
-    ids.push(u.id);
-    await jset("allusers", ids);
+/* ── ابزارهای JSON ── */
+export async function jget<T>(key: string, fallback: T): Promise<T> {
+  try {
+    const v = await kv.get<T>(key);
+    return v === null || v === undefined ? fallback : v;
+  } catch {
+    return fallback;
+  }
+}
+export async function jset(key: string, value: unknown, ttlSec?: number) {
+  try {
+    if (ttlSec) await kv.set(key, value, { ex: ttlSec });
+    else await kv.set(key, value);
+  } catch {
+    /* ignore */
+  }
+}
+export async function jdel(key: string) {
+  try {
+    await kv.del(key);
+  } catch {
+    /* ignore */
   }
 }
 
-export async function allUserIds(): Promise<string[]> {
-  return jget<string[]>("allusers", []);
-}
-
-export async function allUsers(): Promise<DbUser[]> {
+/* ── کاربران ── */
+export const allUserIds = () => jget<string[]>("users", []);
+export const getUser = (id: string) => jget<DbUser | null>(`u:${id}`, null);
+export const userByPhone = async (phone: string): Promise<DbUser | null> => {
   const ids = await allUserIds();
-  const out: DbUser[] = [];
   for (const id of ids) {
-    const u = await jget<DbUser | null>(`u:${id}`, null);
-    if (u) out.push(u);
+    const u = await getUser(id);
+    if (u && u.phone === phone) return u;
   }
-  return out;
-}
+  return null;
+};
+export const saveUser = async (u: DbUser) => {
+  const ids = await allUserIds();
+  if (!ids.includes(u.id)) await jset("users", [...ids, u.id]);
+  await jset(`u:${u.id}`, u);
+};
 
-/* ── نشست‌ها ── */
-
-export async function newSession(userId: string): Promise<string> {
-  const { randomBytes } = await import("crypto");
-  const token = randomBytes(24).toString("hex");
-  await jset(`s:${token}`, userId, 60 * 60 * 24 * 30);
+/* ── نشست‌ها (توکن) ── */
+const SESSION_TTL = 60 * 60 * 24 * 30; // ۳۰ روز
+export const newSession = async (userId: string) => {
+  const token = Array.from({ length: 32 }, () =>
+    "abcdefghijklmnopqrstuvwxyz0123456789"[Math.floor(Math.random() * 36)]
+  ).join("") + Date.now().toString(36);
+  await jset(`s:${token}`, userId, SESSION_TTL);
   return token;
-}
-
-export async function sessionUser(req: Request): Promise<DbUser | null> {
-  const token = (req.headers.get("authorization") || "").replace(/^Bearer\s+/i, "");
+};
+export const sessionUser = async (req: Request): Promise<DbUser | null> => {
+  const auth = req.headers.get("authorization") || "";
+  const token = auth.replace(/^Bearer\s+/i, "").trim();
   if (!token) return null;
-  const id = await jget<string>(`s:${token}`, "");
-  if (!id) return null;
-  return jget<DbUser | null>(`u:${id}`, null);
-}
-
-export async function endSession(req: Request) {
-  const token = (req.headers.get("authorization") || "").replace(/^Bearer\s+/i, "");
+  const userId = await jget<string | null>(`s:${token}`, null);
+  if (!userId) return null;
+  return getUser(userId);
+};
+export const endSession = async (req: Request) => {
+  const auth = req.headers.get("authorization") || "";
+  const token = auth.replace(/^Bearer\s+/i, "").trim();
   if (token) await jdel(`s:${token}`);
-}
+};
+
+export const ok = ( unknown) => Response.json(data);

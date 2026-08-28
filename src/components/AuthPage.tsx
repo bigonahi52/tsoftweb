@@ -7,16 +7,33 @@ import { Icon } from "./Icons";
 const inputCls =
   "w-full rounded-xl border border-ink-100 bg-paper px-4 py-3.5 text-sm text-ink-900 transition-all placeholder:text-mist-300 focus:border-teal-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-teal-500/15";
 
+type Tab = "login" | "register" | "forgot";
+
 export default function AuthPage({ mode, nav, onAuth }: { mode: "login" | "register"; nav: NavFn; onAuth: (u: PubUser) => void }) {
   const ref = useRevealAll<HTMLDivElement>();
-  const [tab, setTab] = useState<"login" | "register">(mode);
+  const [tab, setTab] = useState<Tab>(mode);
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
   const [errMsg, setErrMsg] = useState("");
   const [notice, setNotice] = useState("");
+
+  /* فراموشی رمز */
+  const [forgotStep, setForgotStep] = useState<1 | 2>(1);
+  const [resetCode, setResetCode] = useState("");
+  const [newPass, setNewPass] = useState("");
+
+  const switchTab = (t: Tab) => {
+    setTab(t);
+    setErrMsg("");
+    setNotice("");
+    setForgotStep(1);
+    setResetCode("");
+    setNewPass("");
+  };
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,16 +41,26 @@ export default function AuthPage({ mode, nav, onAuth }: { mode: "login" | "regis
     setBusy(true);
     try {
       if (tab === "register") {
-        const d = await api.register({ firstName, lastName, phone, password });
+        const d = await api.register({ firstName, lastName, phone, email: email.trim() || undefined, password });
         setToken(d.token);
         onAuth(d.user);
         setNotice(d.first ? "حساب شما به‌عنوان مدیر ساخته شد — به پنل مدیریت خوش آمدید!" : "");
         nav({ page: d.user.role === "admin" ? "admin" : "panel" });
-      } else {
+      } else if (tab === "login") {
         const d = await api.login({ phone, password });
         setToken(d.token);
         onAuth(d.user);
         nav({ page: d.user.role === "admin" ? "admin" : "panel" });
+      } else if (tab === "forgot") {
+        if (forgotStep === 1) {
+          await api.forgot(phone);
+          setNotice("اگر این شماره ثبت شده باشد و ایمیل داشته باشد، کد بازیابی برایتان ارسال شد.");
+          setForgotStep(2);
+        } else {
+          await api.reset({ phone, code: resetCode, newPass });
+          setTab("login");
+          setNotice("رمز عبور شما بازنشانی شد — حالا وارد شوید.");
+        }
       }
     } catch (ex) {
       setErrMsg(ex instanceof ApiError ? ex.message : "خطایی رخ داد");
@@ -64,41 +91,77 @@ export default function AuthPage({ mode, nav, onAuth }: { mode: "login" | "regis
         <div className="mx-auto max-w-lg px-4 sm:px-6">
           <div className="reveal overflow-hidden rounded-3xl border border-ink-100 bg-white shadow-[0_30px_70px_-30px_rgba(10,27,33,0.25)]">
             {/* تب‌ها */}
-            <div className="grid grid-cols-2 border-b border-ink-100">
-              {(["login", "register"] as const).map((t) => (
-                <button
-                  key={t}
-                  onClick={() => { setTab(t); setErrMsg(""); }}
-                  className={`py-4 font-display text-xl transition-all ${
-                    tab === t ? "bg-paper text-teal-600 shadow-[inset_0_-3px_0_var(--color-teal-500)]" : "text-mist-500 hover:text-ink-900"
-                  }`}
-                >
-                  {t === "login" ? "ورود" : "ثبت‌نام"}
+            {tab !== "forgot" && (
+              <div className="grid grid-cols-2 border-b border-ink-100">
+                {(["login", "register"] as const).map((t) => (
+                  <button
+                    key={t}
+                    onClick={() => switchTab(t)}
+                    className={`py-4 font-display text-xl transition-all ${
+                      tab === t ? "bg-paper text-teal-600 shadow-[inset_0_-3px_0_var(--color-teal-500)]" : "text-mist-500 hover:text-ink-900"
+                    }`}
+                  >
+                    {t === "login" ? "ورود" : "ثبت‌نام"}
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {tab === "forgot" && (
+              <div className="flex items-center justify-between border-b border-ink-100 bg-paper px-6 py-4">
+                <p className="font-display text-xl text-teal-600">
+                  {forgotStep === 1 ? "فراموشی رمز عبور" : "کد بازیابی"}
+                </p>
+                <button onClick={() => switchTab("login")} className="text-xs font-bold text-mist-500 transition-colors hover:text-teal-600">
+                  بازگشت به ورود ←
                 </button>
-              ))}
-            </div>
+              </div>
+            )}
 
             <form onSubmit={submit} className="space-y-5 p-8">
               {tab === "register" && (
-                <div className="grid grid-cols-2 gap-4">
+                <>
+                  <div className="grid grid-cols-2 gap-4">
+                    <label className="block">
+                      <span className="mb-2 block text-sm font-bold text-ink-900">نام</span>
+                      <input required value={firstName} onChange={(e) => setFirstName(e.target.value)} placeholder="مثلاً: مهدی" className={inputCls} />
+                    </label>
+                    <label className="block">
+                      <span className="mb-2 block text-sm font-bold text-ink-900">نام خانوادگی</span>
+                      <input required value={lastName} onChange={(e) => setLastName(e.target.value)} placeholder="مثلاً: بیگناهی" className={inputCls} />
+                    </label>
+                  </div>
                   <label className="block">
-                    <span className="mb-2 block text-sm font-bold text-ink-900">نام</span>
-                    <input required value={firstName} onChange={(e) => setFirstName(e.target.value)} placeholder="مثلاً: مهدی" className={inputCls} />
+                    <span className="mb-2 block text-sm font-bold text-ink-900">ایمیل (برای بازیابی رمز)</span>
+                    <input dir="ltr" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" className={inputCls + " text-left"} />
                   </label>
-                  <label className="block">
-                    <span className="mb-2 block text-sm font-bold text-ink-900">نام خانوادگی</span>
-                    <input required value={lastName} onChange={(e) => setLastName(e.target.value)} placeholder="مثلاً: بیگناهی" className={inputCls} />
-                  </label>
-                </div>
+                </>
               )}
+
               <label className="block">
                 <span className="mb-2 block text-sm font-bold text-ink-900">شماره موبایل</span>
                 <input required dir="ltr" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="0915 ..." className={inputCls + " text-left"} />
               </label>
-              <label className="block">
-                <span className="mb-2 block text-sm font-bold text-ink-900">رمز عبور</span>
-                <input required type="password" dir="ltr" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••" className={inputCls + " text-left"} />
-              </label>
+
+              {tab !== "forgot" && (
+                <label className="block">
+                  <span className="mb-2 block text-sm font-bold text-ink-900">رمز عبور</span>
+                  <input required type="password" dir="ltr" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••" className={inputCls + " text-left"} />
+                </label>
+              )}
+
+              {tab === "forgot" && forgotStep === 2 && (
+                <>
+                  <label className="block">
+                    <span className="mb-2 block text-sm font-bold text-ink-900">کد بازیابی (ارسال‌شده به ایمیل)</span>
+                    <input required dir="ltr" value={resetCode} onChange={(e) => setResetCode(e.target.value)} placeholder="6 رقم" className={inputCls + " text-center font-latin tracking-[0.5em]"} />
+                  </label>
+                  <label className="block">
+                    <span className="mb-2 block text-sm font-bold text-ink-900">رمز عبور جدید</span>
+                    <input required type="password" dir="ltr" value={newPass} onChange={(e) => setNewPass(e.target.value)} placeholder="••••••" className={inputCls + " text-left"} />
+                  </label>
+                </>
+              )}
 
               {errMsg && (
                 <p className="ticker-in flex items-start gap-2 rounded-xl bg-[#E14B4B]/10 px-4 py-3 text-sm font-bold text-[#E14B4B]">
@@ -118,14 +181,32 @@ export default function AuthPage({ mode, nav, onAuth }: { mode: "login" | "regis
                 disabled={busy}
                 className="btn-shine flex w-full items-center justify-center gap-2.5 rounded-xl bg-ink-900 py-4 text-base font-bold text-white transition-colors hover:bg-teal-600 disabled:opacity-60"
               >
-                {busy ? "در حال پردازش…" : tab === "login" ? "ورود به حساب" : "ساخت حساب"}
-                {!busy && <Icon name="arrow" className="h-4 w-4 transition-transform group-hover:-translate-x-1" />}
+                {busy
+                  ? "در حال پردازش…"
+                  : tab === "login"
+                    ? "ورود به حساب"
+                    : tab === "register"
+                      ? "ساخت حساب"
+                      : forgotStep === 1
+                        ? "ارسال کد بازیابی"
+                        : "بازنشانی رمز عبور"}
+                {!busy && <Icon name="arrow" className="h-4 w-4" />}
               </button>
+
+              {tab === "login" && (
+                <button type="button" onClick={() => switchTab("forgot")} className="link-underline block w-full text-center text-xs font-bold text-mist-500 transition-colors hover:text-teal-600">
+                  رمز عبور را فراموش کرده‌اید؟
+                </button>
+              )}
 
               <p className="text-center text-xs leading-6 text-mist-500">
                 {tab === "register"
                   ? "اولین حسابی که ساخته شود، دسترسی مدیر خواهد داشت."
-                  : "حساب ندارید؟ از تب «ثبت‌نام» یک حساب بسازید."}
+                  : tab === "login"
+                    ? "حساب ندارید؟ از تب «ثبت‌نام» یک حساب بسازید."
+                    : forgotStep === 1
+                      ? "شماره‌ی خود را وارد کنید تا کد بازیابی به ایمیل‌تان ارسال شود."
+                      : "کد ارسال‌شده تا ۱۰ دقیقه اعتبار دارد."}
               </p>
             </form>
           </div>

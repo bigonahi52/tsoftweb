@@ -7,6 +7,7 @@ export type PubUser = {
   firstName: string;
   lastName: string;
   phone: string;
+  email?: string;
   role: "user" | "admin";
   createdAt: number;
 };
@@ -69,18 +70,24 @@ async function call<T = unknown>(path: string, init?: RequestInit): Promise<T> {
 
 export const api = {
   me: () => call<{ user: PubUser }>("/api/auth"),
-  register: (b: { firstName: string; lastName: string; phone: string; password: string }) =>
+  register: (b: { firstName: string; lastName: string; phone: string; email?: string; password: string }) =>
     call<{ token: string; user: PubUser; first: boolean }>("/api/auth", {
       method: "POST",
       body: JSON.stringify({ action: "register", ...b }),
     }),
+  forgot: (phone: string) =>
+    call<{ ok: boolean }>("/api/forgot", { method: "POST", body: JSON.stringify({ action: "forgot", phone }) }),
+  reset: (b: { phone: string; code: string; newPass: string }) =>
+    call<{ ok: boolean }>("/api/forgot", { method: "POST", body: JSON.stringify({ action: "reset", ...b }) }),
+  contact: (b: { name: string; phone?: string; business?: string; product?: string; message: string }) =>
+    call<{ ok: boolean }>("/api/contact", { method: "POST", body: JSON.stringify(b) }),
   login: (b: { phone: string; password: string }) =>
     call<{ token: string; user: PubUser }>("/api/auth", {
       method: "POST",
       body: JSON.stringify({ action: "login", ...b }),
     }),
   logout: () => call("/api/auth", { method: "POST", body: JSON.stringify({ action: "logout" }) }),
-  update: (b: { firstName: string; lastName: string }) =>
+  update: (b: { firstName: string; lastName: string; email?: string }) =>
     call<{ user: PubUser }>("/api/auth", { method: "POST", body: JSON.stringify({ action: "update", ...b }) }),
   changePassword: (b: { oldPass: string; newPass: string }) =>
     call("/api/auth", { method: "POST", body: JSON.stringify({ action: "password", ...b }) }),

@@ -2,8 +2,6 @@
 import {
   allUserIds,
   endSession,
-  jdel,
-  jset,
   kvOk,
   newSession,
   pub,
@@ -16,7 +14,10 @@ import { err, hashPass, normPhone, ok, uid, verifyPass } from "../server/auth";
 
 export default async function handler(req: Request) {
   if (!kvOk())
-    return err("بک‌اند فعال نیست — لطفاً در داشبورد Vercel یک فروشگاه KV (Redis) اضافه کنید تا متغیرهای KV_REST_API_URL و KV_REST_API_TOKEN ساخته شوند.", 503);
+    return err(
+      "بک‌اند فعال نیست — در داشبورد Vercel یک فروشگاه KV (Redis) اضافه کنید تا متغیرهای KV_REST_API_URL و KV_REST_API_TOKEN ساخته شوند.",
+      503
+    );
 
   /* جلسه‌ی فعلی */
   if (req.method === "GET") {
@@ -32,10 +33,12 @@ export default async function handler(req: Request) {
     const firstName = (body.firstName || "").trim();
     const lastName = (body.lastName || "").trim();
     const phone = normPhone(body.phone);
+    const email = (body.email || "").trim().toLowerCase() || undefined;
     const password = String(body.password || "");
     if (!firstName || !lastName) return err("نام و نام خانوادگی را کامل وارد کنید");
     if (phone.length < 6) return err("شماره تماس معتبر نیست");
     if (password.length < 4) return err("رمز عبور باید حداقل ۴ حرف باشد");
+    if (email && !/^\S+@\S+\.\S+$/.test(email)) return err("ایمیل معتبر نیست");
     if (await userByPhone(phone)) return err("این شماره قبلاً ثبت شده — وارد شوید");
 
     const ids = await allUserIds();
@@ -46,8 +49,10 @@ export default async function handler(req: Request) {
       firstName,
       lastName,
       phone,
+      email,
       salt,
       passHash: hashPass(password, salt),
+      /* اولین کاربر ثبت‌نام‌کننده، مدیر می‌شود */
       role: isFirst || phone === (process.env.ADMIN_PHONE || "") ? "admin" : "user",
       createdAt: Date.now(),
     };
@@ -75,9 +80,12 @@ export default async function handler(req: Request) {
     if (!u) return err("وارد نشده‌اید", 401);
     const firstName = (body.firstName || "").trim();
     const lastName = (body.lastName || "").trim();
+    const email = (body.email || "").trim().toLowerCase() || undefined;
     if (!firstName || !lastName) return err("نام و نام خانوادگی را کامل وارد کنید");
+    if (email && !/^\S+@\S+\.\S+$/.test(email)) return err("ایمیل معتبر نیست");
     u.firstName = firstName;
     u.lastName = lastName;
+    u.email = email;
     await saveUser(u);
     return ok({ user: pub(u) });
   }
@@ -85,8 +93,7 @@ export default async function handler(req: Request) {
   if (action === "password") {
     const u = await sessionUser(req);
     if (!u) return err("وارد نشده‌اید", 401);
-    if (!verifyPass(String(body.oldPass || ""), u.salt, u.passHash))
-      return err("رمز فعلی اشتباه است");
+    if (!verifyPass(String(body.oldPass || ""), u.salt, u.passHash)) return err("رمز فعلی اشتباه است");
     const newPass = String(body.newPass || "");
     if (newPass.length < 4) return err("رمز جدید باید حداقل ۴ حرف باشد");
     u.salt = uid().slice(0, 12);

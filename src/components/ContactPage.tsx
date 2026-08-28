@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { api, ApiError } from "../api";
 import { messengers } from "../data";
 import { PHONE_FA, PHONE_TEL, useRevealAll } from "../lib";
 import { Icon } from "./Icons";
@@ -12,7 +13,29 @@ const fields = [
 export default function ContactPage() {
   const ref = useRevealAll<HTMLDivElement>();
   const [sent, setSent] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [errMsg, setErrMsg] = useState("");
   const [form, setForm] = useState<Record<string, string>>({});
+
+  const submit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrMsg("");
+    setBusy(true);
+    try {
+      await api.contact({
+        name: form.name || "",
+        phone: form.phone,
+        business: form.business,
+        product: form.product,
+        message: form.message || "",
+      });
+      setSent(true);
+    } catch (ex) {
+      setErrMsg(ex instanceof ApiError ? ex.message : "خطا در ارسال پیام — مستقیم تماس بگیرید.");
+    } finally {
+      setBusy(false);
+    }
+  };
 
   return (
     <div ref={ref} className="bg-paper">
@@ -47,7 +70,7 @@ export default function ContactPage() {
                 <button onClick={() => setSent(false)} className="link-underline mt-8 text-sm font-bold text-teal-600">ارسال پیام دیگر</button>
               </div>
             ) : (
-              <form onSubmit={(e) => { e.preventDefault(); setSent(true); }}>
+              <form onSubmit={submit}>
                 <h2 className="font-display text-3xl text-ink-900">فرم تماس</h2>
                 <div className="mt-7 grid gap-5 sm:grid-cols-2">
                   {fields.map((f) => (
@@ -69,10 +92,23 @@ export default function ContactPage() {
                     <textarea required rows={5} placeholder="چند خط درباره نیازتان بنویسید…" value={form.message ?? ""} onChange={(e) => setForm({ ...form, message: e.target.value })} className="w-full resize-none rounded-xl border border-ink-100 bg-paper px-4 py-3.5 text-sm text-ink-900 transition-all placeholder:text-mist-300 focus:border-teal-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-teal-500/15" />
                   </label>
                 </div>
-                <button type="submit" className="btn-shine group mt-7 flex w-full items-center justify-center gap-2.5 rounded-xl bg-ink-900 py-4 text-base font-bold text-white transition-colors hover:bg-teal-600">
-                  ارسال پیام
-                  <Icon name="arrow" className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
+                {errMsg && (
+                  <p className="ticker-in mt-5 flex items-start gap-2 rounded-xl bg-[#E14B4B]/10 px-4 py-3 text-sm font-bold text-[#E14B4B]">
+                    <Icon name="bell" className="mt-0.5 h-4 w-4 shrink-0" />
+                    {errMsg}
+                  </p>
+                )}
+                <button
+                  type="submit"
+                  disabled={busy}
+                  className="btn-shine group mt-7 flex w-full items-center justify-center gap-2.5 rounded-xl bg-ink-900 py-4 text-base font-bold text-white transition-colors hover:bg-teal-600 disabled:opacity-60"
+                >
+                  {busy ? "در حال ارسال…" : "ارسال پیام"}
+                  {!busy && <Icon name="arrow" className="h-4 w-4 transition-transform group-hover:-translate-x-1" />}
                 </button>
+                <p className="mt-3 text-center text-[11px] leading-6 text-mist-500">
+                  پیام شما مستقیم به ایمیل پشتیبانی ارسال می‌شود و در اولین فرصت پاسخ می‌دهیم.
+                </p>
               </form>
             )}
           </div>

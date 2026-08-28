@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { api, getToken, setToken, type PubUser } from "./api";
 import { getProduct } from "./data";
 import { prefersReducedMotion, useRevealAll } from "./lib";
 import type { NavFn, Route } from "./lib";
@@ -10,6 +11,9 @@ import DownloadsPage from "./components/DownloadsPage";
 import TrainingPage from "./components/TrainingPage";
 import AboutPage from "./components/AboutPage";
 import ContactPage from "./components/ContactPage";
+import AuthPage from "./components/AuthPage";
+import UserPanel from "./components/UserPanel";
+import AdminPanel from "./components/AdminPanel";
 import Footer from "./components/Footer";
 import { Icon, Logo } from "./components/Icons";
 
@@ -109,6 +113,10 @@ const pageMeta: Record<string, { title: string; desc: string }> = {
 
   about: { title: "درباره ما | تیسافت (TSOFT)", desc: "قصه‌ی بیست‌ساله‌ی تیسافت؛ تیمی که خودش می‌سازد و خودش پشتیبانی می‌کند." },
   contact: { title: "تماس با ما | تیسافت (TSOFT)", desc: "تلفن، ایمیل و پیام‌رسان‌های تیسافت — پشتیبانی در سراسر ایران و افغانستان." },
+  login: { title: "ورود | تیسافت (TSOFT)", desc: "ورود به حساب کاربری تیسافت برای تیکت و چت پشتیبانی." },
+  register: { title: "ثبت‌نام | تیسافت (TSOFT)", desc: "ساخت حساب کاربری تیسافت برای تیکت و چت پشتیبانی." },
+  panel: { title: "پنل کاربری | تیسافت (TSOFT)", desc: "پنل کاربری تیسافت — تیکت‌ها، چت با پشتیبانی و حساب کاربری." },
+  admin: { title: "پنل مدیریت | تیسافت (TSOFT)", desc: "پنل مدیریت تیسافت — کاربران، تیکت‌ها و گفتگوها." },
 };
 
 /** نگاشت آدرس URL به محصول — تیسافت با tsoft و کپیتال با capital */
@@ -131,6 +139,10 @@ function pathToRoute(path: string): Route {
   if (seg === "training") return { page: "training" };
   if (seg === "about") return { page: "about" };
   if (seg === "contact") return { page: "contact" };
+  if (seg === "login") return { page: "login" };
+  if (seg === "register") return { page: "register" };
+  if (seg === "panel") return { page: "panel" };
+  if (seg === "admin") return { page: "admin" };
   return { page: "home" };
 }
 
@@ -142,7 +154,32 @@ function routeToPath(r: Route): string {
 
 export default function App() {
   const [route, setRoute] = useState<Route>(() => pathToRoute(window.location.pathname));
+  const [user, setUser] = useState<PubUser | null>(null);
   const ref = useRevealAll<HTMLDivElement>();
+
+  /* بازیابی نشست کاربر هنگام بارگذاری */
+  useEffect(() => {
+    if (!getToken()) return;
+    api.me().then((d) => setUser(d.user)).catch(() => setToken(null));
+  }, []);
+
+  const handleAuth = useCallback((u: PubUser) => setUser(u), []);
+  const handleUserUpdate = useCallback((u: PubUser) => setUser(u), []);
+  const handleLogout = useCallback(async () => {
+    try {
+      await api.logout();
+    } catch {
+      /* ignore */
+    }
+    setToken(null);
+    setUser(null);
+    setRoute({ page: "home" });
+    try {
+      window.history.pushState(null, "", "/");
+    } catch {
+      /* ignore */
+    }
+  }, []);
 
   const nav: NavFn = useCallback((r) => {
     setRoute(r);
@@ -180,7 +217,7 @@ export default function App() {
       <Splash />
       <ScrollProgress />
       <BackToTop />
-      <Nav route={route} nav={nav} />
+      <Nav route={route} nav={nav} user={user} onLogout={handleLogout} />
       <div ref={ref}>
         {route.page === "home" && (
           <>
@@ -193,6 +230,21 @@ export default function App() {
         {route.page === "training" && <TrainingPage />}
         {route.page === "about" && <AboutPage nav={nav} />}
         {route.page === "contact" && <ContactPage />}
+        {(route.page === "login" || route.page === "register") && (
+          <AuthPage mode={route.page} nav={nav} onAuth={handleAuth} />
+        )}
+        {route.page === "panel" &&
+          (user ? (
+            <UserPanel user={user} onUser={handleUserUpdate} nav={nav} onLogout={handleLogout} />
+          ) : (
+            <AuthPage mode="login" nav={nav} onAuth={handleAuth} />
+          ))}
+        {route.page === "admin" &&
+          (user && user.role === "admin" ? (
+            <AdminPanel user={user} nav={nav} onLogout={handleLogout} />
+          ) : (
+            <AuthPage mode="login" nav={nav} onAuth={handleAuth} />
+          ))}
       </div>
       <Footer nav={nav} />
     </div>

@@ -1,28 +1,27 @@
-/* چت آنلاین: گفتگوی کاربر با پشتیبانی */
+/* چت آنلاین کاربر با پشتیبانی:
+   GET  → پیام‌های کاربر (و علامت‌گذاری پیام‌های پشتیبانی به‌عنوان خوانده‌شده)
+   POST → ارسال پیام {text} */
 import { jget, jset, kvOk, sessionUser } from "../server/db";
 import { err, ok, uid } from "../server/auth";
 
-export type ChatMsg = {
-  id: string;
-  from: "user" | "admin";
-  text: string;
-  time: number;
-  read: boolean;
-};
+export type ChatMsg = { id: string; from: "user" | "admin"; text: string; time: number; read: boolean };
 
 export default async function handler(req: Request) {
   if (!kvOk()) return err("بک‌اند فعال نیست — Vercel KV را فعال کنید.", 503);
   const user = await sessionUser(req);
   if (!user) return err("ابتدا وارد شوید", 401);
 
-  /* حضور آنلاین */
+  /* حضور آنلاین — هر ۹۰ ثانیه تمدید می‌شود */
   await jset(`p:${user.id}`, Date.now(), 90);
 
   if (req.method === "GET") {
     const msgs = await jget<ChatMsg[]>(`chat:${user.id}`, []);
-    /* پیام‌های پشتیبانی که کاربر دید، خوانده شوند */
     let dirty = false;
-    for (const m of msgs) if (m.from === "admin" && !m.read) (m.read = true), (dirty = true);
+    for (const m of msgs)
+      if (m.from === "admin" && !m.read) {
+        m.read = true;
+        dirty = true;
+      }
     if (dirty) await jset(`chat:${user.id}`, msgs);
     return ok({ messages: msgs, online: true });
   }
