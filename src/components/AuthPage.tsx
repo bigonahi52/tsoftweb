@@ -7,6 +7,35 @@ import { Icon } from "./Icons";
 const inputCls =
   "w-full rounded-xl border border-ink-100 bg-paper px-4 py-3.5 text-sm text-ink-900 transition-all placeholder:text-mist-300 focus:border-teal-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-teal-500/15";
 
+/** فیلد رمز عبور با دکمه‌ی چشم برای نمایش/پنهان کردن */
+function PassInput({ value, onChange, placeholder = "••••••" }: { value: string; onChange: (v: string) => void; placeholder?: string }) {
+  const [show, setShow] = useState(false);
+  return (
+    <div className="relative">
+      <input
+        required
+        type={show ? "text" : "password"}
+        dir="ltr"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        className={inputCls + " text-left pl-12"}
+      />
+      <button
+        type="button"
+        onClick={() => setShow((s) => !s)}
+        aria-label={show ? "پنهان کردن رمز" : "نمایش رمز"}
+        title={show ? "پنهان کردن رمز" : "نمایش رمز"}
+        className={`absolute left-2.5 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-lg transition-all duration-200 ${
+          show ? "bg-teal-500/12 text-teal-600" : "text-mist-500 hover:bg-ink-50 hover:text-teal-600"
+        }`}
+      >
+        <Icon name={show ? "eyeoff" : "eye"} className="h-5 w-5" />
+      </button>
+    </div>
+  );
+}
+
 type Tab = "login" | "register" | "forgot";
 
 export default function AuthPage({ mode, nav, onAuth }: { mode: "login" | "register"; nav: NavFn; onAuth: (u: PubUser) => void }) {
@@ -53,8 +82,12 @@ export default function AuthPage({ mode, nav, onAuth }: { mode: "login" | "regis
         nav({ page: d.user.role === "admin" ? "admin" : "panel" });
       } else if (tab === "forgot") {
         if (forgotStep === 1) {
-          await api.forgot(phone);
-          setNotice("اگر این شماره ثبت شده باشد و ایمیل داشته باشد، کد بازیابی برایتان ارسال شد.");
+          const d = await api.forgot(phone);
+          setNotice(
+            d.demoCode
+              ? `حالت نمایشی — کد بازیابی شما: ${d.demoCode} (بعد از فعال‌سازی ایمیل، کد به ایمیل‌تان ارسال می‌شود)`
+              : "اگر این شماره ثبت شده باشد و ایمیل داشته باشد، کد بازیابی برایتان ارسال شد."
+          );
           setForgotStep(2);
         } else {
           await api.reset({ phone, code: resetCode, newPass });
@@ -146,7 +179,7 @@ export default function AuthPage({ mode, nav, onAuth }: { mode: "login" | "regis
               {tab !== "forgot" && (
                 <label className="block">
                   <span className="mb-2 block text-sm font-bold text-ink-900">رمز عبور</span>
-                  <input required type="password" dir="ltr" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••" className={inputCls + " text-left"} />
+                  <PassInput value={password} onChange={setPassword} />
                 </label>
               )}
 
@@ -158,7 +191,7 @@ export default function AuthPage({ mode, nav, onAuth }: { mode: "login" | "regis
                   </label>
                   <label className="block">
                     <span className="mb-2 block text-sm font-bold text-ink-900">رمز عبور جدید</span>
-                    <input required type="password" dir="ltr" value={newPass} onChange={(e) => setNewPass(e.target.value)} placeholder="••••••" className={inputCls + " text-left"} />
+                    <PassInput value={newPass} onChange={setNewPass} />
                   </label>
                 </>
               )}

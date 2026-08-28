@@ -15,6 +15,34 @@ const STATUS_FA: Record<string, { label: string; cls: string }> = {
   closed: { label: "بسته", cls: "bg-ink-100/70 text-mist-500" },
 };
 
+/** فیلد رمز با دکمه‌ی چشم */
+function PassField({ value, onChange, placeholder, cls }: { value: string; onChange: (v: string) => void; placeholder: string; cls: string }) {
+  const [show, setShow] = useState(false);
+  return (
+    <div className="relative">
+      <input
+        type={show ? "text" : "password"}
+        dir="ltr"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        className={cls + " text-left pl-11"}
+      />
+      <button
+        type="button"
+        onClick={() => setShow((s) => !s)}
+        aria-label={show ? "پنهان کردن رمز" : "نمایش رمز"}
+        title={show ? "پنهان کردن رمز" : "نمایش رمز"}
+        className={`absolute left-2 top-1/2 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-lg transition-all duration-200 ${
+          show ? "bg-teal-500/12 text-teal-600" : "text-mist-500 hover:bg-ink-50 hover:text-teal-600"
+        }`}
+      >
+        <Icon name={show ? "eyeoff" : "eye"} className="h-4.5 w-4.5" />
+      </button>
+    </div>
+  );
+}
+
 /* ───────── چت با پشتیبانی ───────── */
 function ChatPane() {
   const [msgs, setMsgs] = useState<ChatMsg[]>([]);
@@ -330,8 +358,8 @@ function AccountPane({ user, onUser }: { user: PubUser; onUser: (u: PubUser) => 
       <div className="rounded-3xl border border-ink-100 bg-white p-7">
         <p className="font-display text-2xl text-ink-900">تغییر رمز عبور</p>
         <div className="mt-5 space-y-4">
-          <input type="password" dir="ltr" value={oldPass} onChange={(e) => setOldPass(e.target.value)} placeholder="رمز فعلی" className={cls + " text-left"} />
-          <input type="password" dir="ltr" value={newPass} onChange={(e) => setNewPass(e.target.value)} placeholder="رمز جدید (حداقل ۴ حرف)" className={cls + " text-left"} />
+          <PassField value={oldPass} onChange={setOldPass} placeholder="رمز فعلی" cls={cls} />
+          <PassField value={newPass} onChange={setNewPass} placeholder="رمز جدید (حداقل ۴ حرف)" cls={cls} />
           <button onClick={savePass} disabled={busy} className="btn-shine w-full rounded-xl bg-ink-900 py-3.5 text-sm font-bold text-white transition-colors hover:bg-teal-600 disabled:opacity-60">تغییر رمز</button>
         </div>
       </div>
