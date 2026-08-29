@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
+import type { PubUser } from "../api";
 import { products } from "../data";
 import { PHONE_FA, PHONE_TEL, useTodayDate } from "../lib";
 import type { NavFn, Route } from "../lib";
 import { Icon, Logo } from "./Icons";
 
-export default function Nav({ route, nav }: { route: Route; nav: NavFn }) {
+export default function Nav({ route, nav, user, onLogout }: { route: Route; nav: NavFn; user: PubUser | null; onLogout: () => void }) {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const [drop, setDrop] = useState(false);
@@ -123,6 +124,29 @@ export default function Nav({ route, nav }: { route: Route; nav: NavFn }) {
               <Icon name="download" className="h-4 w-4" />
               دانلود
             </button>
+            {user ? (
+              <div className="hidden items-center gap-1.5 sm:flex">
+                <button
+                  onClick={() => nav({ page: user.role === "admin" ? "admin" : "panel" })}
+                  className={`flex items-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-semibold transition-colors ${
+                    user.role === "admin"
+                      ? "border-gold-500/60 bg-gold-500/10 text-gold-600 hover:bg-gold-500/20"
+                      : "border-teal-500/50 bg-teal-500/10 text-teal-600 hover:bg-teal-500/20"
+                  }`}
+                >
+                  <Icon name="users" className="h-4 w-4" />
+                  {user.role === "admin" ? "پنل مدیریت" : "پنل من"}
+                </button>
+                <button onClick={onLogout} title="خروج از حساب" className="flex h-10 w-10 items-center justify-center rounded-xl border border-ink-100 bg-white text-mist-500 transition-colors hover:border-[#E14B4B]/50 hover:text-[#E14B4B]">
+                  <Icon name="close" className="h-4 w-4" />
+                </button>
+              </div>
+            ) : (
+              <button onClick={() => nav({ page: "login" })} className="hidden items-center gap-2 rounded-xl border border-ink-100 bg-white px-4 py-2.5 text-sm font-semibold text-ink-900 transition-colors hover:border-teal-500 hover:text-teal-600 sm:flex">
+                <Icon name="users" className="h-4 w-4" />
+                ورود / ثبت‌نام
+              </button>
+            )}
             <button onClick={() => setOpen(!open)} className="flex h-10 w-10 items-center justify-center rounded-xl border border-ink-100 bg-white text-ink-900 lg:hidden" aria-label="منو">
               <Icon name={open ? "close" : "menu"} className="h-5 w-5" />
             </button>

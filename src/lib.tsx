@@ -6,7 +6,24 @@ export type Route =
   | { page: "downloads" }
   | { page: "training" }
   | { page: "about" }
-  | { page: "contact" };
+  | { page: "contact" }
+  | { page: "login" }
+  | { page: "register" }
+  | { page: "panel" }
+  | { page: "admin" };
+
+/** اجرای تابع در بازه‌های زمانی — برای تازه‌سازی چت و تیکت‌ها */
+export function usePolling(fn: () => void, ms: number, active = true) {
+  const ref = useRef(fn);
+  ref.current = fn;
+  useEffect(() => {
+    if (!active) return;
+    const run = () => ref.current();
+    run();
+    const id = window.setInterval(run, ms);
+    return () => window.clearInterval(id);
+  }, [ms, active]);
+}
 
 export type NavFn = (r: Route) => void;
 

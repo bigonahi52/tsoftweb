@@ -7,6 +7,10 @@
     { "source": "/downloads", "destination": "/index.html" },
     { "source": "/training", "destination": "/index.html" },
     { "source": "/about", "destination": "/index.html" },
-    { "source": "/contact", "destination": "/index.html" }
+    { "source": "/contact", "destination": "/index.html" },
+    { "source": "/login", "destination": "/index.html" },
+    { "source": "/register", "destination": "/index.html" },
+    { "source": "/panel", "destination": "/index.html" },
+    { "source": "/admin", "destination": "/index.html" }
   ]
 }
