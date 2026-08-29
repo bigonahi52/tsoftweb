@@ -15,6 +15,7 @@ import AuthPage from "./components/AuthPage";
 import UserPanel from "./components/UserPanel";
 import AdminPanel from "./components/AdminPanel";
 import Footer from "./components/Footer";
+import ChatWidget from "./components/ChatWidget";
 import { Icon, Logo } from "./components/Icons";
 
 /** لودینگ اولیه — لوگو + نوار نور + نام برند */
@@ -247,6 +248,7 @@ export default function App() {
           ))}
       </div>
       <Footer nav={nav} />
+      <ChatWidget user={user} nav={nav} />
     </div>
   );
 }

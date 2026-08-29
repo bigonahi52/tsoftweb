@@ -74,6 +74,10 @@ async function call<T = unknown>(path: string, init?: RequestInit): Promise<T> {
   }
   const data = (await res.json().catch(() => ({}))) as { error?: string } & T;
   if (!res.ok) throw new ApiError(data.error || "خطایی رخ داد", res.status);
+  /* پاسخ خالی (مثلاً صفحه‌ی HTML به‌جای JSON) یعنی بک‌اند در دسترس نیست */
+  if (data && typeof data === "object" && Object.keys(data).length === 0) {
+    throw new ApiError("بک‌اند در دسترس نیست", 0);
+  }
   return data as T;
 }
 
