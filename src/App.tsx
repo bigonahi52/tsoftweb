@@ -106,8 +106,8 @@ function BackToTop() {
 
 const pageMeta: Record<string, { title: string; desc: string }> = {
   home: {
-    title: "تیسافت (TSOFT) | ۲۰ سال حسابِ روشن — نرم‌افزارهای حسابداری فروشگاهی و چندارزی",
-    desc: "تیسافت؛ ۲۰ سال تجربه در نرم‌افزار حسابداری فروشگاهی و حسابداری چندارزی کپیتال — پشتیبانی در سراسر ایران و افغانستان.",
+    title: "تیسافت (TSOFT) | کپیتال Capital — نرم‌افزار حسابداری چندارزی | گروه نرم‌افزاری سرمایه",
+    desc: "کپیتال (Capital) نرم‌افزار حسابداری چندارزی از گروه نرم‌افزاری سرمایه (تیسافت TSOFT) — ارز پایه، نرخ روز و گزارش ارزی برای ایران و افغانستان. Capital multi-currency accounting software.",
   },
   downloads: { title: "مرکز دانلود | تیسافت (TSOFT)", desc: "دانلود نرم‌افزارهای تیسافت و کپیتال + ابزارهای اتصال از راه دور و SQL Server." },
   training: { title: "آموزش رایگان ویدیویی | تیسافت (TSOFT)", desc: "دوره‌های ویدیویی حسابداری تیسافت و کپیتال در آپارات — رایگان برای همه." },
@@ -214,7 +214,13 @@ export default function App() {
     let meta = pageMeta[route.page];
     if (route.page === "product") {
       const p = getProduct(route.id) ?? getProduct("tisaft");
-      if (p) meta = { title: `${p.name} (${p.latin}) | ${p.tagline} — تیسافت`, desc: p.overview[0] ?? p.short };
+      if (p) {
+        const enSuffix =
+          p.id === "capital"
+            ? " | Capital — multi-currency accounting software by Sarmaye Software Group (TSOFT): base currency, daily exchange rates, per-customer currency unit and balance conversion."
+            : "";
+        meta = { title: `${p.name} (${p.latin}) | ${p.tagline} — تیسافت TSOFT | گروه نرم‌افزاری سرمایه`, desc: (p.overview[0] ?? p.short) + enSuffix };
+      }
     }
     if (meta) {
       document.title = meta.title;

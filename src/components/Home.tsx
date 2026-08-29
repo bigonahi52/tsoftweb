@@ -232,10 +232,181 @@ function CtaBand({ nav }: { nav: NavFn }) {
   );
 }
 
+/* ───────── کپیتال — بخش ویژه‌ی صفحه اصلی ───────── */
+const capitalSteps = [
+  {
+    icon: "coins",
+    title: "تعریف ارز پایه",
+    desc: "یک ارز را به‌عنوان پایه معرفی می‌کنید؛ مبنای قیمت‌گذاری همه‌ی ارزهای دیگر.",
+  },
+  {
+    icon: "globe",
+    title: "نرخ‌دهی روزانه",
+    desc: "هر روز نرخ هر ارز نسبت به ارز پایه وارد برنامه می‌شود و همه‌چیز به نرخ روز می‌ماند.",
+  },
+  {
+    icon: "spark",
+    title: "نرخ لحظه‌ای هنگام ثبت",
+    desc: "اگر وسط کار نرخ عوض شد، همان‌جا داخل فرم، نرخ لحظه‌ای را ثبت می‌کنید.",
+  },
+  {
+    icon: "users",
+    title: "واحد ارز مشتری و تبدیل مانده",
+    desc: "برای هر مشتری واحد ارز تعیین می‌شود؛ مانده‌ی صورتحساب به هر ارزِ برنامه تبدیل می‌شود.",
+  },
+];
+
+function CapitalSpotlight({ nav }: { nav: NavFn }) {
+  const capital = products.find((p) => p.id === "capital") ?? products[0];
+  return (
+    <section id="capital" className="grid-lines grid-lines-fade noise relative scroll-mt-24 overflow-hidden bg-ink-950 py-24 sm:py-32">
+      <div className="pointer-events-none absolute -left-32 top-24 h-[480px] w-[480px] rounded-full opacity-25 blur-[130px]" style={{ background: capital.accent }} />
+      <div className="pointer-events-none absolute -right-24 bottom-10 h-[360px] w-[360px] rounded-full bg-teal-600/15 blur-[120px]" />
+
+      {/* تابلوی متحرک ارزها */}
+      <div className="relative border-y border-white/10 bg-ink-900/40 py-4 backdrop-blur-sm">
+        <div className="marquee-track">
+          {[0, 1].map((rep) => (
+            <div key={rep} className="flex shrink-0 items-center" aria-hidden={rep === 1}>
+              {currencies.map((c) => (
+                <span key={c.code + rep} className="mx-6 flex items-center gap-3 whitespace-nowrap">
+                  <Flag code={c.code} className="h-4 w-6 shadow" />
+                  <span className="text-sm font-medium text-ink-100">{c.name}</span>
+                  <span className="text-xs text-mist-300">{c.country}</span>
+                  <span className="font-latin text-[10px] tracking-[0.2em] text-teal-400" dir="ltr">{c.code}</span>
+                </span>
+              ))}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="relative mx-auto mt-16 max-w-7xl px-4 sm:px-6">
+        <div className="grid items-start gap-14 lg:grid-cols-[1.15fr_0.85fr] lg:gap-20">
+          {/* متن و امکانات */}
+          <div>
+            <p className="reveal font-latin text-xs tracking-[0.35em] text-gold-400">CAPITAL · MULTI-CURRENCY ACCOUNTING</p>
+            <h2 className="mt-4">
+              <span className="line-mask"><span className="font-display text-6xl leading-[1.1] text-white sm:text-7xl">کپیتال؛</span></span>
+              <span className="line-mask" style={{ "--rv-delay": "120ms" } as React.CSSProperties}>
+                <span className="font-display text-6xl leading-[1.1] sm:text-7xl" style={{ color: capital.accent }}>حسابِ چند ارز، به نرخِ روز</span>
+              </span>
+            </h2>
+            <p className="reveal mt-6 max-w-2xl text-lg leading-9 text-mist-300" style={{ "--rv-delay": "200ms" } as React.CSSProperties}>
+              در بازرگانیِ امروز، یک فاکتور ممکن است با دلار بسته شود، با درهم پرداخت شود و در دفتر با تومان ثبت شود.
+              کپیتال دقیقاً برای همین واقعیت ساخته شده است — حسابداری‌ای که چند ارز را هم‌زمان، دقیق و به نرخ روز نگه می‌دارد.
+            </p>
+
+            <div className="mt-10 space-y-4">
+              {capitalSteps.map((s, i) => (
+                <div
+                  key={s.title}
+                  className="reveal group flex items-start gap-5 rounded-2xl border border-white/10 bg-white/[0.04] p-6 transition-all duration-300 hover:border-gold-500/50 hover:bg-white/[0.07]"
+                  style={{ "--rv-delay": `${260 + i * 90}ms` } as React.CSSProperties}
+                >
+                  <span className="font-latin text-3xl font-bold text-white/20 transition-colors duration-300 group-hover:text-gold-400" dir="ltr">
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
+                  <span className="mt-1 flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gold-500/15 text-gold-400 transition-transform duration-300 group-hover:scale-110">
+                    <Icon name={s.icon} className="h-5 w-5" />
+                  </span>
+                  <div>
+                    <h3 className="font-display text-2xl text-white">{s.title}</h3>
+                    <p className="mt-1.5 text-sm leading-7 text-mist-300">{s.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="reveal mt-10 flex flex-wrap gap-4" style={{ "--rv-delay": "650ms" } as React.CSSProperties}>
+              <button onClick={() => nav({ page: "downloads" })} className="btn-shine group flex items-center gap-2.5 rounded-xl px-7 py-3.5 font-bold text-ink-950 transition-transform hover:scale-[1.02]" style={{ background: capital.accent }}>
+                <Icon name="download" className="h-5 w-5 transition-transform group-hover:translate-y-0.5" />
+                دانلود کپیتال
+              </button>
+              <button onClick={() => nav({ page: "product", id: "capital" })} className="rounded-xl border border-white/25 px-7 py-3.5 font-semibold text-white transition-colors hover:border-gold-500 hover:text-gold-400">
+                صفحه‌ی محصول
+              </button>
+            </div>
+          </div>
+
+          {/* تصویر و نشان‌های شناور */}
+          <div className="reveal rv-left relative lg:sticky lg:top-28" style={{ "--rv-delay": "250ms" } as React.CSSProperties}>
+            <div className="pointer-events-none absolute -inset-10 rounded-full opacity-30 blur-[110px]" style={{ background: capital.accent }} />
+            <div className="float-soft relative overflow-hidden rounded-[2.5rem] border border-white/10 shadow-[0_45px_90px_-35px_rgba(0,0,0,0.85)]">
+              <img src={capital.image} alt="کپیتال — نرم‌افزار حسابداری چندارزی | Capital multi-currency accounting software" loading="lazy" className="h-full w-full object-cover" />
+              <div className="pointer-events-none absolute inset-0" style={{ background: "linear-gradient(200deg, transparent 55%, rgba(10,27,33,0.45) 100%)" }} />
+            </div>
+            <div className="float-soft-late absolute -bottom-6 right-6 flex items-center gap-3 rounded-2xl border border-white/10 bg-ink-900/90 px-5 py-3.5 shadow-2xl backdrop-blur">
+              <span className="pulse-dot h-2.5 w-2.5 rounded-full bg-gold-500" />
+              <div>
+                <p className="text-xs text-mist-300">همه‌ی ارزها به نرخ</p>
+                <p className="font-display text-lg text-gold-400">ارز پایه — هر روز</p>
+              </div>
+            </div>
+            <div className="float-soft absolute -top-5 left-6 rounded-2xl border border-white/10 bg-ink-900/90 px-5 py-3 shadow-2xl backdrop-blur" style={{ animationDelay: "1.4s" }}>
+              <p className="font-latin text-[10px] tracking-[0.25em] text-teal-400" dir="ltr">BASE CURRENCY</p>
+              <p className="mt-0.5 font-display text-lg text-white">تومان / دلار / افغانی…</p>
+            </div>
+
+            {/* بازار افغانستان */}
+            <div className="reveal mt-10 rounded-2xl border border-white/10 bg-white/[0.04] p-6" style={{ "--rv-delay": "450ms" } as React.CSSProperties}>
+              <p className="font-display text-xl text-white">پرطرفدار در بازار افغانستان</p>
+              <p className="mt-2 text-sm leading-7 text-mist-300">
+                از کابل و هرات تا قندهار و مزار شریف، بازرگانان افغان حساب‌هایشان را با کپیتال نگه می‌دارند —
+                جایی که معاملات میان افغانی، دلار، درهم و تومان در جریان است.
+              </p>
+              <div className="mt-4 flex flex-wrap gap-2">
+                {["کابل", "هرات", "قندهار", "مزار شریف"].map((c) => (
+                  <span key={c} className="rounded-full border border-gold-500/40 bg-gold-500/10 px-3.5 py-1.5 text-xs font-medium text-gold-400">
+                    {c}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* بلاک انگلیسی — سئو و کاربران بین‌المللی */}
+        <div className="reveal mt-20 rounded-3xl border border-white/10 bg-white/[0.04] p-8 sm:p-10" dir="ltr">
+          <div className="mx-auto max-w-4xl">
+            <p className="font-latin text-xs tracking-[0.35em] text-teal-400">EN · CAPITAL ACCOUNTING SOFTWARE</p>
+            <h3 className="mt-3 font-latin text-3xl font-bold text-white sm:text-4xl">Capital — Multi-Currency Accounting Software</h3>
+            <p className="mt-4 leading-8 text-mist-300">
+              Capital is a Windows-based, multi-currency accounting software developed by <b className="text-gold-400">Sarmaye Software Group (TSOFT)</b>.
+              Define a <b className="text-white">base currency</b>, enter daily exchange rates for every other currency, and keep your entire
+              ledger — invoices, receipts, payments and reports — always at the day's rate. If a rate changes while you are entering a
+              document, you can set the instant rate right there. Each customer can have their own currency unit, and any account balance
+              can be converted to every currency defined in the system. Capital is widely used by trading businesses across
+              <b className="text-white"> Iran and Afghanistan</b> — Kabul, Herat, Kandahar and Mazar-i-Sharif — where daily commerce runs on
+              afghani, dollar, dirham and toman.
+            </p>
+            <div className="mt-6 grid gap-3 sm:grid-cols-2">
+              {[
+                "Base currency & daily rate board",
+                "Instant rate editing while recording",
+                "Per-customer currency unit",
+                "Balance conversion to any currency",
+                "Multi-currency inventory & reports",
+                "Standalone & network editions",
+              ].map((f) => (
+                <p key={f} className="flex items-center gap-2.5 text-sm text-mist-300">
+                  <Icon name="check" className="h-4 w-4 shrink-0 text-teal-400" />
+                  {f}
+                </p>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 export default function Home({ nav }: { nav: NavFn }) {
   const ref = useRevealAll<HTMLDivElement>();
   return (
     <div ref={ref}>
+      <CapitalSpotlight nav={nav} />
       <ProductsShowcase nav={nav} />
       <WhyTisaft />
       <SupportBand />

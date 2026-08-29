@@ -13,7 +13,7 @@ export default function Footer({ nav }: { nav: NavFn }) {
               <SiteLogo className="h-11 w-11" />
               <span className="text-right">
                 <span className="block font-display text-2xl leading-6 text-white">تیسافت</span>
-                <span className="mt-0.5 block font-latin text-[9px] tracking-[0.3em] text-teal-400">TSOFT GROUP</span>
+                <span className="mt-0.5 block font-latin text-[9px] tracking-[0.3em] text-teal-400">SARMAYE SOFTWARE GROUP</span>
               </span>
             </button>
             <p className="mt-5 max-w-xs leading-8">
@@ -73,7 +73,7 @@ export default function Footer({ nav }: { nav: NavFn }) {
         </div>
 
         <div className="mt-14 flex flex-col items-center justify-between gap-4 border-t border-ink-700/60 pt-7 text-xs sm:flex-row">
-          <p>© ۱۴۰۵ — کلیه حقوق برای گروه نرم‌افزاری تیسافت محفوظ است.</p>
+          <p>© ۱۴۰۵ — کلیه حقوق برای گروه نرم‌افزاری سرمایه (تیسافت) محفوظ است.</p>
           <p className="flex items-center gap-2">
             ساخته‌شده با عشق، برای کسب‌وکار ایرانی
             <span className="font-latin tracking-[0.25em] text-teal-500">TSOFT · EST. 2006</span>
