@@ -71,12 +71,19 @@ export default function AuthPage({ mode, nav, onAuth }: { mode: "login" | "regis
     try {
       if (tab === "register") {
         const d = await api.register({ firstName, lastName, phone, email: email.trim() || undefined, password });
+        /* اعتبارسنجی شکل پاسخ — اگر سرور پاسخ ناقص داد، خطای شفاف بینداز */
+        if (!d || !d.token || !d.user || !d.user.id) {
+          throw new ApiError("پاسخ سرور کامل نبود — صفحه را تازه کنید و دوباره تلاش کنید");
+        }
         setToken(d.token);
         onAuth(d.user);
         setNotice(d.first ? "حساب شما به‌عنوان مدیر ساخته شد — به پنل مدیریت خوش آمدید!" : "");
         nav({ page: d.user.role === "admin" ? "admin" : "panel" });
       } else if (tab === "login") {
         const d = await api.login({ phone, password });
+        if (!d || !d.token || !d.user || !d.user.id) {
+          throw new ApiError("پاسخ سرور کامل نبود — صفحه را تازه کنید و دوباره تلاش کنید");
+        }
         setToken(d.token);
         onAuth(d.user);
         nav({ page: d.user.role === "admin" ? "admin" : "panel" });
@@ -96,7 +103,14 @@ export default function AuthPage({ mode, nav, onAuth }: { mode: "login" | "regis
         }
       }
     } catch (ex) {
-      setErrMsg(ex instanceof ApiError ? ex.message : "خطایی رخ داد");
+      if (ex instanceof ApiError) {
+        setErrMsg(ex.message);
+      } else {
+        /* خطای غیرمنتظره — برای دیباگ در کنسول ثبت می‌شود
+           (هرگز اطلاعات حساس مثل رمز عبور لاگ نمی‌شود) */
+        console.error("[tsoft/auth] خطای غیرمنتظره:", ex);
+        setErrMsg("خطای غیرمنتظره‌ای رخ داد — اتصال اینترنت را بررسی و دوباره تلاش کنید");
+      }
     } finally {
       setBusy(false);
     }
