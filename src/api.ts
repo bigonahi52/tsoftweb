@@ -72,12 +72,24 @@ async function call<T = unknown>(path: string, init?: RequestInit): Promise<T> {
   } catch {
     throw new ApiError("اتصال به سرور برقرار نشد", 0);
   }
-  const data = (await res.json().catch(() => ({}))) as { error?: string } & T;
-  if (!res.ok) throw new ApiError(data.error || "خطایی رخ داد", res.status);
-  /* پاسخ خالی (مثلاً صفحه‌ی HTML به‌جای JSON) یعنی بک‌اند در دسترس نیست */
-  if (data && typeof data === "object" && Object.keys(data).length === 0) {
-    throw new ApiError("بک‌اند در دسترس نیست", 0);
+
+  /* ── ریشه‌یابی خطای ثبت‌نام ──
+     اگر هاست به‌جای تابع API صفحه‌ی HTML سایت را برگرداند (SPA fallback —
+     یعنی تابع سرورلس هنوز مستقر نشده یا KV فعال نیست و سرور خطا را HTML کرده)،
+     پاسخ JSON نیست. پیش از این، کد این پاسخ را «موفق» فرض می‌کرد، شیء خالی
+     برمی‌گرداند و سپس خواندن d.user.role خطای TypeError می‌انداخت که به پیام
+     عمومی «خطایی رخ داد» ختم می‌شد. حالا نوع محتوا قبل از هر کاری بررسی می‌شود
+     و با کد ۴۰۴ به حالت محلی (Fallback) می‌رود. */
+  const ctype = (res.headers.get("content-type") || "").toLowerCase();
+  if (!ctype.includes("application/json")) {
+    throw new ApiError("تابع API در دسترس نیست", 404);
   }
+
+  const data = (await res.json().catch(() => null)) as ({ error?: string } & T) | null;
+  if (data === null || typeof data !== "object") {
+    throw new ApiError("پاسخ سرور نامعتبر بود", 404);
+  }
+  if (!res.ok) throw new ApiError(data.error || "خطایی در سرور رخ داد", res.status);
   return data as T;
 }
 

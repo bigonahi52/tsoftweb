@@ -165,7 +165,13 @@ export default function App() {
   /* بازیابی نشست کاربر هنگام بارگذاری */
   useEffect(() => {
     if (!getToken()) return;
-    api.me().then((d) => setUser(d.user)).catch(() => setToken(null));
+    api
+      .me()
+      .then((d) => {
+        if (d && d.user && d.user.id) setUser(d.user);
+        else setToken(null);
+      })
+      .catch(() => setToken(null));
   }, []);
 
   const handleAuth = useCallback((u: PubUser) => setUser(u), []);
