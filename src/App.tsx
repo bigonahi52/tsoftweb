@@ -135,6 +135,10 @@ const ID_TO_SLUG: Record<string, string> = {
 function pathToRoute(path: string): Route {
   const seg = path.replace(/^\/+|\/+$/g, "").toLowerCase();
   if (!seg) return { page: "home" };
+  /* آدرس‌های قدیمی وردپرسِ صفحه آموزش کپیتال → هدایت به /training */
+  let decoded = seg;
+  try { decoded = decodeURIComponent(seg); } catch { /* encoded نامعتبر */ }
+  if (decoded.includes("آموزش-کپیتال") || decoded.includes("آموزش کپیتال")) return { page: "training" };
   if (SLUG_TO_ID[seg]) return { page: "product", id: SLUG_TO_ID[seg] };
   if (seg === "downloads") return { page: "downloads" };
   if (seg === "training") return { page: "training" };
