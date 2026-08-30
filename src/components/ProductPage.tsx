@@ -1,8 +1,60 @@
-import { currencies, getProduct, products } from "../data";
-import { useRevealAll } from "../lib";
+import { currencies, getProduct, messengers, products } from "../data";
+import { PHONE_FA, PHONE_TEL, useRevealAll } from "../lib";
 import type { NavFn } from "../lib";
 import { Flag, Icon } from "./Icons";
 import SupportBand from "./SupportBand";
+
+/* در پیام‌رسان‌ها هم در دسترسیم — ویژه‌ی کپیتال */
+function MessengerAvailability() {
+  return (
+    <section className="border-t border-ink-100 bg-paper py-16 sm:py-20">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6">
+        <div className="reveal relative overflow-hidden rounded-[2rem] border border-ink-100 bg-white p-8 sm:p-12">
+          <span className="absolute inset-y-0 right-0 w-1.5 bg-gold-500" aria-hidden />
+          <div className="pointer-events-none absolute -left-24 -top-24 h-72 w-72 rounded-full bg-teal-500/10 blur-3xl" aria-hidden />
+          <div className="pointer-events-none absolute -bottom-24 -right-10 h-72 w-72 rounded-full bg-gold-500/10 blur-3xl" aria-hidden />
+
+          <div className="relative grid items-center gap-10 lg:grid-cols-[1.15fr_0.85fr]">
+            <div>
+              <p className="flex items-center gap-2 font-latin text-[10px] tracking-[0.3em] text-teal-600" dir="ltr">
+                <Icon name="chat" className="h-4 w-4" /> WE ARE ON MESSENGERS
+              </p>
+              <h2 className="mt-3">
+                <span className="line-mask"><span className="font-display text-4xl leading-tight text-ink-900 sm:text-5xl">در پیام‌رسان‌ها هم</span></span>
+                <span className="line-mask" style={{ "--rv-delay": "120ms" } as React.CSSProperties}>
+                  <span className="font-display text-4xl leading-tight text-gold-500 sm:text-5xl">در دسترسیم</span>
+                </span>
+              </h2>
+              <p className="mt-5 max-w-xl leading-9 text-mist-500">
+                پشتیبانی و مشاوره‌ی کپیتال فقط پشت تلفن نیست؛ در هر پیام‌رسانی که راحت‌ترید، پیام بدهید — معمولاً همان روز پاسخ می‌دهیم.
+              </p>
+            </div>
+
+            <div className="reveal" style={{ "--rv-delay": "200ms" } as React.CSSProperties}>
+              <div className="flex flex-wrap justify-start gap-2.5 lg:justify-end">
+                {messengers.map((m) => (
+                  <span key={m.name} className="flex items-center gap-2 rounded-full border border-ink-100 bg-paper px-4 py-2 text-sm font-medium text-ink-800 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md">
+                    <span className="h-2.5 w-2.5 rounded-full" style={{ background: m.color }} aria-hidden />
+                    {m.name}
+                  </span>
+                ))}
+              </div>
+              <a href={`tel:${PHONE_TEL}`} className="group mt-6 flex items-center justify-start gap-3 lg:justify-end">
+                <span className="relative flex h-11 w-11 items-center justify-center rounded-2xl bg-ink-950 text-teal-400 transition-transform duration-300 group-hover:scale-105">
+                  <Icon name="phone" className="phone-ring h-5 w-5" />
+                </span>
+                <span className="text-right lg:text-left">
+                  <span className="block text-[11px] text-mist-500">همه‌ی پیام‌رسان‌ها با همین شماره</span>
+                  <span dir="ltr" className="phone-number block text-xl text-ink-900 transition-colors group-hover:text-teal-600">{PHONE_FA}</span>
+                </span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
 
 /* ویترین ارزهای کپیتال */
 function CurrencyShowcase() {
@@ -160,6 +212,7 @@ export default function ProductPage({ id, nav }: { id: string; nav: NavFn }) {
       </section>
 
       {p.id === "capital" && <CurrencyShowcase />}
+      {p.id === "capital" && <MessengerAvailability />}
 
       {/* معرفی */}
       <section className="py-20 sm:py-24">

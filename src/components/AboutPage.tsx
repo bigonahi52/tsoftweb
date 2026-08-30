@@ -1,4 +1,4 @@
-import { fa, useCountUp, useRevealAll } from "../lib";
+import { fa, PHONE_TEL, useCountUp, useRevealAll } from "../lib";
 import type { NavFn } from "../lib";
 import { Icon } from "./Icons";
 
@@ -102,27 +102,48 @@ export default function AboutPage({ nav }: { nav: NavFn }) {
       <section className="py-20 sm:py-28">
         <div className="mx-auto max-w-5xl px-4 sm:px-6">
           <div className="flex flex-wrap items-end justify-between gap-4">
-            <h2 className="reveal font-display text-4xl text-ink-900 sm:text-5xl">تیمی که خودش می‌سازد، خودش پشتیبانی می‌کند</h2>
-            <p className="reveal text-sm text-mist-500">تیم کوچک، تعهد بزرگ — و کمی وسواسی</p>
+            <h2 className="reveal font-display text-4xl text-ink-900 sm:text-5xl">با چه کسی طرف هستید؟</h2>
+            <p className="reveal text-sm text-mist-500">سازنده‌ای که خودش پشتیبانی می‌کند</p>
           </div>
-          <div className="reveal card-lift mt-10 rounded-3xl border border-ink-100 bg-white p-8 sm:p-10">
-            <div className="flex items-center gap-4">
-              <span className="flex h-16 w-16 items-center justify-center rounded-2xl bg-ink-950 text-teal-400">
-                <Icon name="cpu" className="h-8 w-8" />
-              </span>
-              <div>
-                <p className="font-latin text-[10px] tracking-[0.3em] text-teal-600">TSOFT TEAM</p>
-                <p className="font-display text-3xl text-ink-900">همه‌کاره‌های پشتِ نرم‌افزارها</p>
+
+          {/* کارت پروفایل بنیان‌گذار */}
+          <div className="reveal card-lift relative mt-10 overflow-hidden rounded-3xl border border-ink-100 bg-white p-8 sm:p-10">
+            <span className="absolute inset-y-0 right-0 w-1.5 bg-gold-500" aria-hidden />
+            <div className="flex flex-col gap-7 sm:flex-row sm:items-start">
+              {/* آیکن سازنده */}
+              <div className="shrink-0">
+                <div className="relative">
+                  <span className="flex h-24 w-24 items-center justify-center rounded-full bg-ink-950 text-gold-400 shadow-[0_16px_40px_-16px_rgba(12,31,25,0.55)] sm:h-28 sm:w-28">
+                    <Icon name="cpu" className="h-11 w-11" />
+                  </span>
+                  <span className="pulse-dot absolute -bottom-1 -left-1 h-5 w-5 rounded-full border-[3px] border-white bg-teal-500" />
+                </div>
               </div>
-            </div>
-            <p className="mt-6 leading-9 text-mist-500">
-              وقتی زنگ می‌زنید، همان کسی تلفن را جواب می‌دهد که کد را نوشته — واسطه‌ای در کار نیست؛
-              برای همین مشکلات همان‌جا، پشت تلفن حل می‌شوند.
-            </p>
-            <div className="mt-6 flex flex-wrap gap-2">
-              {teamRoles.map((tag) => (
-                <span key={tag} className="rounded-full border border-ink-100 bg-paper px-3.5 py-1.5 text-xs font-medium text-ink-800 transition-colors hover:border-teal-500/60 hover:text-teal-600">{tag}</span>
-              ))}
+              {/* معرفی */}
+              <div className="flex-1">
+                <p className="font-latin text-[10px] tracking-[0.3em] text-teal-600">FOUNDER & LEAD DEVELOPER</p>
+                <h3 className="mt-2 font-display text-4xl text-ink-900 sm:text-[42px]">بنیان‌گذار و توسعه‌دهنده‌ی ارشد</h3>
+                <p className="mt-1.5 font-display text-lg text-gold-600">سازنده‌ی تیسافت و کپیتال</p>
+                <p className="mt-5 leading-9 text-mist-500">
+                  وقتی زنگ می‌زنید، <b className="text-ink-900">خودِ سازنده</b> تلفن را جواب می‌دهد — همان کسی که بیست سال است
+                  تک‌تک خط‌های این نرم‌افزارها را نوشته. اینجا واسطه‌ای در کار نیست؛ نه در فروش، نه در پشتیبانی.
+                  برای همین مشکلات همان‌جا، پشت تلفن حل می‌شوند.
+                </p>
+                <div className="mt-6 flex flex-wrap gap-2">
+                  {teamRoles.map((tag) => (
+                    <span key={tag} className="rounded-full border border-ink-100 bg-paper px-3.5 py-1.5 text-xs font-medium text-ink-800 transition-colors hover:border-teal-500/60 hover:text-teal-600">{tag}</span>
+                  ))}
+                </div>
+                <a
+                  href={`tel:${PHONE_TEL}`}
+                  className="btn-primary group mt-7 inline-flex"
+                >
+                  <span className="relative flex h-5 w-5 items-center justify-center">
+                    <Icon name="phone" className="phone-ring h-5 w-5" />
+                  </span>
+                  تماس مستقیم با سازنده
+                </a>
+              </div>
             </div>
           </div>
         </div>

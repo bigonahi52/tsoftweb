@@ -119,7 +119,11 @@ export default function ContactPage() {
               <div>
                 <p className="font-display text-xl text-ink-900">تلفن پشتیبانی و فروش</p>
                 <a href={`tel:${PHONE_TEL}`} dir="ltr" className="phone-number mt-1.5 inline-block text-3xl text-teal-600 transition-colors hover:text-teal-500">{PHONE_FA}</a>
-                <p className="mt-1.5 text-sm text-mist-500">شنبه تا پنجشنبه — ۹ تا ۱۴ و ۱۷ تا ۲۲ · تعطیلات: اضطراری</p>
+                <p className="mt-1.5 flex items-center gap-1.5 text-sm font-bold text-gold-600">
+                  <Icon name="spark" className="h-3.5 w-3.5" />
+                  تماس مستقیم با مهندس بیگناهی — بدون واسطه
+                </p>
+                <p className="mt-1 text-sm text-mist-500">شنبه تا پنجشنبه — ۹ تا ۱۴ و ۱۷ تا ۲۲ · تعطیلات: اضطراری</p>
               </div>
             </div>
 

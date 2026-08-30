@@ -379,6 +379,39 @@ details.faq[open] .faq-chevron { transform: rotate(180deg); }
 }
 
 /* برچسب لاتین بالای تیترها */
+/* ── کارت محصول در هیرو ── */
+.product-card {
+  position: relative;
+  --acc: var(--color-teal-500);
+  isolation: isolate;
+}
+.product-card::before {
+  content: "";
+  position: absolute;
+  inset-inline-start: 0;
+  top: 16%;
+  bottom: 16%;
+  width: 4px;
+  border-radius: 99px;
+  background: var(--acc);
+  opacity: 0.85;
+  transition: top 0.35s ease, bottom 0.35s ease, opacity 0.35s ease;
+}
+.product-card:hover::before { top: 8%; bottom: 8%; opacity: 1; }
+.product-card:hover {
+  border-color: color-mix(in srgb, var(--acc) 55%, transparent);
+  box-shadow: 0 20px 48px -18px color-mix(in srgb, var(--acc) 42%, transparent);
+}
+.pc-arrow {
+  transition: background 0.3s ease, color 0.3s ease, transform 0.3s ease, border-color 0.3s ease;
+}
+.product-card:hover .pc-arrow {
+  background: var(--acc);
+  border-color: var(--acc);
+  color: var(--color-ink-950);
+  transform: translateX(-4px);
+}
+
 .eyebrow {
   font-family: var(--font-latin);
   font-size: 11px;

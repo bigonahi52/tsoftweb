@@ -171,11 +171,11 @@ export default function AuthPage({ mode, nav, onAuth }: { mode: "login" | "regis
                   <div className="grid grid-cols-2 gap-4">
                     <label className="block">
                       <span className="mb-2 block text-sm font-bold text-ink-900">نام</span>
-                      <input required value={firstName} onChange={(e) => setFirstName(e.target.value)} placeholder="مثلاً: مهدی" className={inputCls} />
+                      <input required value={firstName} onChange={(e) => setFirstName(e.target.value)} placeholder="مثلاً: علی" className={inputCls} />
                     </label>
                     <label className="block">
                       <span className="mb-2 block text-sm font-bold text-ink-900">نام خانوادگی</span>
-                      <input required value={lastName} onChange={(e) => setLastName(e.target.value)} placeholder="مثلاً: بیگناهی" className={inputCls} />
+                      <input required value={lastName} onChange={(e) => setLastName(e.target.value)} placeholder="مثلاً: رضایی" className={inputCls} />
                     </label>
                   </div>
                   <label className="block">
