@@ -40,7 +40,7 @@ export default function AboutPage({ nav }: { nav: NavFn }) {
         <div className="relative mx-auto max-w-7xl px-4 sm:px-6">
           <div className="grid items-center gap-12 lg:grid-cols-[1.1fr_0.9fr]">
             <div>
-              <p className="reveal font-latin text-xs tracking-[0.35em] text-teal-400">TSOFT · SINCE 2006</p>
+              <p className="reveal font-latin text-xs tracking-[0.35em] text-teal-400">TSOFT · CAPITAL · SINCE 2006</p>
               <h1 className="mt-4">
                 <span className="line-mask"><span className="font-display text-6xl leading-[1.1] text-white sm:text-7xl">قصه‌ی یک حسابِ</span></span>
                 <span className="line-mask" style={{ "--rv-delay": "130ms" } as React.CSSProperties}>

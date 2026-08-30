@@ -32,7 +32,7 @@ function botReply(text: string): string {
   if (/(مشکل|خطا|ارور|کار نمی|خراب)/.test(t))
     return "متأسفم که با مشکل مواجه شدید. لطفاً متن دقیق خطا یا اتفاقی که افتاده را بنویسید؛ اگر لازم باشد با اتصال از راه دور، همان لحظه حلش می‌کنیم.";
   if (/(سلام|درود|hi|hello)/.test(t))
-    return "سلام! به پشتیبانی تیسافت خوش آمدید. 😊 چطور می‌توانم کمکتان کنم؟ درباره‌ی قیمت، دانلود، محصولات یا مشکل فنی بپرسید.";
+    return "سلام! به پشتیبانی تیسافت و کپیتال خوش آمدید. 😊 چطور می‌توانم کمکتان کنم؟ درباره‌ی قیمت، دانلود، محصولات یا مشکل فنی بپرسید.";
   return "پیام‌تان رسید. اگر وارد حساب کاربری‌تان شوید، پاسخ‌ها را هم در پنل خودتان می‌بینید و هم می‌توانید تیکت ثبت کنید. در اولین فرصت پاسخ می‌دهیم. 🙏";
 }
 
@@ -44,7 +44,7 @@ export default function ChatWidget({ user, nav }: { user: PubUser | null; nav: N
   const [sending, setSending] = useState(false);
   const [typing, setTyping] = useState(false);
   const [guestMsgs, setGuestMsgs] = useState<Local[]>([
-    { from: "bot", text: "سلام! 👋 من دستیار پشتیبانی تیسافت هستم. سوالتان را بنویسید؛ اگر آنلاین باشیم، خودِ بچه‌ها جواب می‌دهند.", time: Date.now() },
+    { from: "bot", text: "سلام! 👋 من دستیار پشتیبانی تیسافت و کپیتال هستم. سوالتان را بنویسید؛ اگر آنلاین باشیم، خودِ بچه‌ها جواب می‌دهند.", time: Date.now() },
   ]);
   const [liveMsgs, setLiveMsgs] = useState<ChatMsg[]>([]);
   const boxRef = useRef<HTMLDivElement>(null);
@@ -123,7 +123,7 @@ export default function ChatWidget({ user, nav }: { user: PubUser | null; nav: N
               <span className={`pulse-dot absolute -left-0.5 -top-0.5 h-3 w-3 rounded-full border-2 border-ink-950 ${online ? "bg-teal-500" : "bg-gold-500"}`} />
             </span>
             <div className="min-w-0 flex-1">
-              <p className="truncate font-display text-lg leading-6 text-white">پشتیبانی تیسافت</p>
+              <p className="truncate font-display text-lg leading-6 text-white">تیسافت و کپیتال</p>
               <p className={`text-[11px] ${online ? "text-teal-400" : "text-gold-400"}`}>
                 {online ? "آنلاین — پاسخ می‌دهیم" : "الان آفلاینیم — پیام بگذارید"}
               </p>

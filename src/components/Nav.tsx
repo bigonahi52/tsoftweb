@@ -40,7 +40,7 @@ export default function Nav({ route, nav, user, onLogout }: { route: Route; nav:
           <div className="flex items-center gap-2.5">
             <span className="seal-pulse inline-flex h-5 w-5 items-center justify-center rounded-full bg-gold-500 text-[10px] font-bold text-ink-950">۲۰</span>
             <p className="font-medium tracking-wide">
-              <span className="text-gold-400">بیست‌سالگی تیسافت</span>
+              <span className="text-gold-400">بیست‌سالگی تیسافت و کپیتال</span>
               <span className="mx-2 hidden text-ink-600 sm:inline">|</span>
               <span className="hidden sm:inline">دو دهه حسابِ روشن</span>
             </p>
@@ -73,9 +73,11 @@ export default function Nav({ route, nav, user, onLogout }: { route: Route; nav:
           <button onClick={() => nav({ page: "home" })} className="group flex items-center gap-3">
             <Logo className="h-10 w-10 transition-transform duration-300 group-hover:rotate-6" />
             <span className="text-right">
-              <span className="block font-display text-[26px] leading-6 text-ink-900">تیسافت</span>
+              <span className="block font-display text-[22px] leading-6 text-ink-900">
+                تیسافت <span className="text-gold-600">و</span> کپیتال
+              </span>
               <span className="mt-0.5 block font-latin text-[9px] tracking-[0.3em] text-teal-600">
-                TSOFT <span className="text-mist-300">·</span> SINCE 2006
+                TSOFT <span className="text-mist-300">·</span> CAPITAL <span className="text-mist-300">·</span> SINCE 2006
               </span>
             </span>
           </button>
@@ -95,7 +97,7 @@ export default function Nav({ route, nav, user, onLogout }: { route: Route; nav:
                   </button>
                   <div className={`absolute right-0 top-full w-[380px] origin-top pt-3 transition-all duration-200 ${drop ? "visible translate-y-0 opacity-100" : "invisible -translate-y-2 opacity-0"}`}>
                     <div className="overflow-hidden rounded-2xl border border-ink-100 bg-white p-2 shadow-[0_30px_60px_-20px_rgba(10,27,33,0.3)]">
-                      <p className="px-3.5 pb-1 pt-2 font-latin text-[10px] tracking-[0.25em] text-mist-300">TSOFT FAMILY</p>
+                      <p className="px-3.5 pb-1 pt-2 font-latin text-[10px] tracking-[0.25em] text-mist-300">TSOFT · CAPITAL</p>
                       {products.map((p) => (
                         <button key={p.id} onClick={() => nav({ page: "product", id: p.id })} className="group flex w-full items-start gap-3.5 rounded-xl px-3.5 py-3 text-right transition-colors hover:bg-ink-50">
                           <span className="mt-1.5 h-9 w-1 shrink-0 rounded-full transition-all group-hover:h-10 group-hover:w-1.5" style={{ background: p.accent }} />
