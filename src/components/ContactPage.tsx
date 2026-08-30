@@ -63,9 +63,9 @@ export default function ContactPage() {
                 <span className="seal-pulse flex h-20 w-20 items-center justify-center rounded-full bg-teal-500 text-ink-950">
                   <Icon name="check" className="h-10 w-10" />
                 </span>
-                <h2 className="mt-6 font-display text-4xl text-ink-900">رسید!</h2>
+                <h2 className="mt-6 font-display text-3xl text-ink-900 sm:text-4xl">پیام شما با موفقیت ارسال شد</h2>
                 <p className="mt-3 max-w-sm leading-8 text-mist-500">
-                  {form.name ? `${form.name} عزیز، ` : ""}پیام‌تان ثبت شد. در اولین ساعت کاری با شما تماس می‌گیریم.
+                  {form.name ? `${form.name} عزیز، ` : ""}پیام‌تان به ایمیل پشتیبانی رسید؛ در اولین ساعت کاری با شما تماس می‌گیریم.
                 </p>
                 <button onClick={() => setSent(false)} className="link-underline mt-8 text-sm font-bold text-teal-600">ارسال پیام دیگر</button>
               </div>
