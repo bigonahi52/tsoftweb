@@ -1,8 +1,7 @@
 /* چت آنلاین کاربر با پشتیبانی:
    GET  → پیام‌های کاربر (و علامت‌گذاری پیام‌های پشتیبانی به‌عنوان خوانده‌شده)
    POST → ارسال پیام {text} */
-import { jget, jset, kvOk, sessionUser } from "../server/db";
-import { err, ok, uid } from "../server/auth";
+import { err, jget, jset, kvOk, ok, sessionUser, uid } from "./_kv";
 
 export type ChatMsg = { id: string; from: "user" | "admin"; text: string; time: number; read: boolean };
 

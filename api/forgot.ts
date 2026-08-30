@@ -1,9 +1,8 @@
 /* فراموشی رمز عبور:
    action=forgot → کد بازیابی ۶ رقمی ساخته و به ایمیل کاربر می‌فرستد (۱۰ دقیقه اعتبار)
    action=reset  → کد + رمز جدید را گرفته و رمز را بازنشانی می‌کند */
-import { getUser, jdel, jget, jset, kvOk, saveUser, userByPhone } from "../server/db";
-import { err, hashPass, normPhone, ok, uid, verifyPass } from "../server/auth";
-import { emailConfigured, emailShell, sendEmail } from "../server/email";
+import { err, getUser, hashPass, jdel, jget, jset, kvOk, normPhone, ok, saveUser, uid, userByPhone, verifyPass } from "./_kv";
+import { emailConfigured, emailShell, sendEmail } from "./_email";
 
 const CODE_TTL = 60 * 10; // ۱۰ دقیقه
 
