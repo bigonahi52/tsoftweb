@@ -1,23 +1,117 @@
-/* احراز هویت: ثبت‌نام، ورود، جلسه‌ی من، خروج، ویرایش، تغییر رمز */
-import {
-  allUserIds,
-  endSession,
-  kvOk,
-  newSession,
-  pub,
-  saveUser,
-  sessionUser,
-  userByPhone,
-  type DbUser,
-} from "../server/db";
-import { err, hashPass, normPhone, ok, uid, verifyPass } from "../server/auth";
+/* احراز هویت: ثبت‌نام، ورود، جلسه‌ی من، خروج، ویرایش، تغییر رمز
+   ─ کاملاً self-contained: هیچ وابستگی به پوشه‌ی server/ ندارد تا دچار
+     ERR_MODULE_NOT_FOUND نشود. فقط به Vercel KV و متغیرهای محیطی وابسته است. */
+import { kv } from "@vercel/kv";
+import { randomBytes, scryptSync } from "crypto";
+
+type DbUser = {
+  id: string;
+  firstName: string;
+  lastName: string;
+  phone: string;
+  email?: string;
+  salt: string;
+  passHash: string;
+  role: "user" | "admin";
+  createdAt: number;
+};
+type PubUser = Omit<DbUser, "salt" | "passHash">;
+
+const pub = (u: DbUser): PubUser => ({
+  id: u.id,
+  firstName: u.firstName,
+  lastName: u.lastName,
+  phone: u.phone,
+  email: u.email,
+  role: u.role,
+  createdAt: u.createdAt,
+});
+
+/* ── پاسخ‌ها ── */
+const ok = (data: unknown) => Response.json(data);
+const err = (message: string, status = 400) => Response.json({ error: message }, { status });
+
+/* ── ابزارها ── */
+const uid = () => randomBytes(6).toString("hex") + Date.now().toString(36);
+const hashPass = (pass: string, salt: string) => scryptSync(pass, salt, 32).toString("hex");
+const verifyPass = (pass: string, salt: string, stored: string) => {
+  try {
+    return hashPass(pass, salt) === stored;
+  } catch {
+    return false;
+  }
+};
+const normPhone = (p: string) =>
+  String(p || "")
+    .replace(/[۰-۹]/g, (d) => String("۰۱۲۳۴۵۶۷۸۹".indexOf(d)))
+    .replace(/[\s\-()]/g, "");
+
+/* ── JSON روی KV ── */
+async function jget<T>(key: string, fallback: T): Promise<T> {
+  try {
+    const v = await kv.get<T>(key);
+    return v === null || v === undefined ? fallback : v;
+  } catch {
+    return fallback;
+  }
+}
+async function jset(key: string, value: unknown, ttlSec?: number) {
+  try {
+    if (ttlSec) await kv.set(key, value, { ex: ttlSec });
+    else await kv.set(key, value);
+  } catch {
+    /* ignore */
+  }
+}
+async function jdel(key: string) {
+  try {
+    await kv.del(key);
+  } catch {
+    /* ignore */
+  }
+}
+
+/* ── کاربران ── */
+const allUserIds = () => jget<string[]>("users", []);
+const getUser = (id: string) => jget<DbUser | null>(`u:${id}`, null);
+async function userByPhone(phone: string): Promise<DbUser | null> {
+  const ids = await allUserIds();
+  for (const id of ids) {
+    const u = await getUser(id);
+    if (u && u.phone === phone) return u;
+  }
+  return null;
+}
+async function saveUser(u: DbUser) {
+  const ids = await allUserIds();
+  if (!ids.includes(u.id)) await jset("users", [...ids, u.id]);
+  await jset(`u:${u.id}`, u);
+}
+
+/* ── نشست‌ها (توکن) ── */
+const SESSION_TTL = 60 * 60 * 24 * 30; // ۳۰ روز
+async function newSession(userId: string) {
+  const token =
+    Array.from({ length: 32 }, () => "abcdefghijklmnopqrstuvwxyz0123456789"[Math.floor(Math.random() * 36)]).join("") +
+    Date.now().toString(36);
+  await jset(`s:${token}`, userId, SESSION_TTL);
+  return token;
+}
+function tokenOf(req: Request): string {
+  const auth = req.headers.get("authorization") || "";
+  return auth.replace(/^Bearer\s+/i, "").trim();
+}
+async function sessionUser(req: Request): Promise<DbUser | null> {
+  const token = tokenOf(req);
+  if (!token) return null;
+  const userId = await jget<string | null>(`s:${token}`, null);
+  if (!userId) return null;
+  return getUser(userId);
+}
 
 export default async function handler(req: Request) {
-  if (!kvOk())
-    return err(
-      "بک‌اند فعال نیست — در داشبورد Vercel یک فروشگاه KV (Redis) اضافه کنید تا متغیرهای KV_REST_API_URL و KV_REST_API_TOKEN ساخته شوند.",
-      503
-    );
+  if (!process.env.KV_REST_API_URL || !process.env.KV_REST_API_TOKEN)
+    return err("بک‌اند فعال نیست — در داشبورد Vercel یک فروشگاه KV (Redis) اضافه کنید.", 503);
 
   /* جلسه‌ی فعلی */
   if (req.method === "GET") {
@@ -71,7 +165,8 @@ export default async function handler(req: Request) {
   }
 
   if (action === "logout") {
-    await endSession(req);
+    const token = tokenOf(req);
+    if (token) await jdel(`s:${token}`);
     return ok({ ok: true });
   }
 

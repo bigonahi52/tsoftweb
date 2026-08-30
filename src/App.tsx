@@ -51,15 +51,18 @@ function Splash() {
         <span className="splash-bar absolute inset-y-0 w-1/3 rounded-full bg-teal-500" />
       </div>
 
-      {/* نام برند حرف‌به‌حرف */}
-      <p className="relative mt-5 font-latin text-xl font-bold tracking-[0.5em] text-ink-100" dir="ltr">
-        {"TSOFT".split("").map((ch, i) => (
-          <span key={i} className="splash-letter" style={{ animationDelay: `${i * 0.12}s` }}>
-            {ch}
+      {/* نام برند — تیسافت و کپیتال */}
+      <p className="splash-logo-in relative mt-6 font-display text-4xl leading-none text-white">
+        تیسافت <span className="text-gold-400">و</span> کپیتال
+      </p>
+      <p className="relative mt-4 font-latin text-sm font-bold tracking-[0.35em] text-ink-100" dir="ltr">
+        {"TSOFT · CAPITAL".split("").map((ch, i) => (
+          <span key={i} className="splash-letter" style={{ animationDelay: `${i * 0.06}s` }}>
+            {ch === " " ? "\u00A0" : ch}
           </span>
         ))}
       </p>
-      <p className="splash-logo-in relative mt-3 text-xs tracking-wide text-mist-300" style={{ animationDelay: "0.25s" }}>
+      <p className="splash-logo-in relative mt-3 text-xs tracking-wide text-mist-300" style={{ animationDelay: "0.4s" }}>
         ۲۰ سال حسابِ روشن
       </p>
     </div>

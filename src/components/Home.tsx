@@ -54,6 +54,16 @@ function ProductsShowcase({ nav }: { nav: NavFn }) {
             {products.map((p) => (
               <div key={p.id} id={`panel-${p.id}`} ref={(el) => { panels.current[p.id] = el; }} className="reveal card-lift relative overflow-hidden rounded-3xl border border-ink-100 bg-white p-8 sm:p-10">
                 <span className="absolute inset-y-0 right-0 w-1.5" style={{ background: p.accent }} aria-hidden />
+
+                {/* تصویر محصول — همان تصویر هرو */}
+                {p.image && (
+                  <div className="group/img relative mb-8 h-56 overflow-hidden rounded-2xl sm:h-64">
+                    <img src={p.image} alt={`${p.name} — ${p.tagline}`} loading="lazy" className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover/img:scale-105" />
+                    <div className="pointer-events-none absolute inset-0" style={{ background: `linear-gradient(180deg, transparent 55%, ${p.accent}33 100%)` }} aria-hidden />
+                    <span className="absolute bottom-4 right-4 rounded-full bg-ink-950/80 px-4 py-1.5 font-latin text-[10px] font-bold tracking-[0.25em] text-gold-400 backdrop-blur" dir="ltr">{p.latin}</span>
+                  </div>
+                )}
+
                 <div className="flex flex-wrap items-center gap-4">
                   <span className="flex h-16 w-16 items-center justify-center rounded-2xl text-[#ffffff] transition-transform duration-300 hover:rotate-6" style={{ background: p.accent }}>
                     <Icon name={p.features[0]?.icon ?? "box"} className="h-8 w-8" />
