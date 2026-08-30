@@ -39,7 +39,7 @@ function CurrencyShowcase() {
 
         <div className="reveal mt-10 overflow-hidden rounded-2xl border border-ink-100 bg-ink-950">
           <div className="flex items-center justify-between border-b border-ink-700/70 px-5 py-3">
-            <p className="text-xs font-bold text-[#d9e9ec]">تابلوی نرخ روز — همه ارزها به نرخ ارز پایه</p>
+            <p className="text-xs font-bold text-[#ddebe3]">تابلوی نرخ روز — همه ارزها به نرخ ارز پایه</p>
             <span className="flex items-center gap-1.5 text-[10px] text-teal-400">
               <span className="pulse-dot h-1.5 w-1.5 rounded-full bg-teal-500" />
               به‌روزرسانی روزانه
@@ -51,7 +51,7 @@ function CurrencyShowcase() {
                 {currencies.concat(currencies).map((c, i) => (
                   <span key={c.code + i} className="mx-5 flex items-center gap-2 whitespace-nowrap">
                     <Flag code={c.code} className="h-4 w-6" />
-                    <span className="text-xs text-[#d9e9ec]">{c.name} {c.country}</span>
+                    <span className="text-xs text-[#ddebe3]">{c.name} {c.country}</span>
                     <span className="font-latin text-[10px] text-mist-300" dir="ltr">{c.code}</span>
                     <span className="mr-4 h-1 w-1 rounded-full bg-gold-500/70" />
                   </span>
@@ -221,7 +221,7 @@ export default function ProductPage({ id, nav }: { id: string; nav: NavFn }) {
                       </li>
                     ))}
                   </ul>
-                  <button onClick={() => nav({ page: "contact" })} className={`btn-shine mt-8 w-full rounded-xl py-3.5 font-bold transition-transform hover:scale-[1.01] ${m.featured ? "bg-gold-500 text-[#0f262e]" : "bg-ink-900 text-[#ffffff]"}`}>
+                  <button onClick={() => nav({ page: "contact" })} className={`btn-shine mt-8 w-full rounded-xl py-3.5 font-bold transition-transform hover:scale-[1.01] ${m.featured ? "bg-gold-500 text-[#0c1f19]" : "bg-ink-900 text-[#ffffff]"}`}>
                     استعلام قیمت {m.name}
                   </button>
                 </div>

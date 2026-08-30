@@ -397,7 +397,7 @@ export default function UserPanel({ user, onUser, onLogout, nav }: { user: PubUs
             <button onClick={() => nav({ page: "home" })} className="rounded-xl border border-ink-600 px-5 py-3 text-sm font-semibold text-ink-100 transition-colors hover:border-teal-500 hover:text-teal-400">
               بازگشت به سایت
             </button>
-            <button onClick={onLogout} className="flex items-center gap-2 rounded-xl bg-gold-500 px-5 py-3 text-sm font-bold text-[#0f262e] transition-transform hover:scale-[1.02]">
+            <button onClick={onLogout} className="flex items-center gap-2 rounded-xl bg-gold-500 px-5 py-3 text-sm font-bold text-[#0c1f19] transition-transform hover:scale-[1.02]">
               <Icon name="close" className="h-4 w-4" />
               خروج
             </button>

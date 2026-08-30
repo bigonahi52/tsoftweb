@@ -103,7 +103,7 @@ function OrbVisual({ index }: { index: number }) {
             key={active.id}
             className="ticker-in flex items-center gap-2.5 whitespace-nowrap rounded-full border border-white/12 bg-ink-900/85 px-6 py-2.5 backdrop-blur-md"
           >
-            <span className="font-latin text-lg font-bold tracking-[0.2em] text-teal-400 drop-shadow-[0_0_12px_rgba(23,176,166,0.45)]" dir="ltr">
+            <span className="font-latin text-lg font-bold tracking-[0.2em] text-teal-400 drop-shadow-[0_0_12px_rgba(22,184,127,0.45)]" dir="ltr">
               {active.latin}
             </span>
             <span className="h-3.5 w-px bg-ink-600" aria-hidden />
@@ -156,7 +156,7 @@ export default function Hero({ nav }: { nav: NavFn }) {
           <div className="reveal mt-9 flex flex-wrap items-center gap-4" style={{ "--rv-delay": "350ms" } as React.CSSProperties}>
             <button
               onClick={() => nav({ page: "downloads" })}
-              className="btn-shine group flex items-center gap-2.5 rounded-xl bg-teal-500 px-7 py-3.5 text-base font-bold text-ink-950 transition-all hover:bg-teal-400 hover:shadow-[0_12px_35px_-8px_rgba(23,176,166,0.55)]"
+              className="btn-shine group flex items-center gap-2.5 rounded-xl bg-teal-500 px-7 py-3.5 text-base font-bold text-ink-950 transition-all hover:bg-teal-400 hover:shadow-[0_12px_35px_-8px_rgba(22,184,127,0.55)]"
             >
               <Icon name="download" className="h-5 w-5 transition-transform group-hover:translate-y-0.5" />
               دانلود نرم‌افزارها

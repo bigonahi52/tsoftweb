@@ -1,35 +1,35 @@
 @import "tailwindcss";
 
 :root {
-  --font-display: "Lalezar", "Vazirmatn", serif;
+  --font-display: "Markazi Text", "Lalezar", "Vazirmatn", serif;
   --font-body: "Vazirmatn", "Segoe UI", tahoma, sans-serif;
   --font-latin: "Space Grotesk", "Vazirmatn", sans-serif;
 
-  /* پالت نفتی-فیروزه‌ای */
-  --color-ink-950: #0a1b21;
-  --color-ink-900: #0f262e;
-  --color-ink-800: #14313a;
-  --color-ink-700: #1d424e;
-  --color-ink-600: #2b5663;
-  --color-ink-500: #3d6d7b;
-  --color-ink-400: #5b8b99;
-  --color-ink-300: #7fa9b5;
-  --color-ink-100: #d9e9ec;
-  --color-ink-50: #eef6f7;
+  /* پالت زمرد و طلای گرم */
+  --color-ink-950: #0c1f19;
+  --color-ink-900: #123028;
+  --color-ink-800: #1a463a;
+  --color-ink-700: #23594a;
+  --color-ink-600: #31715e;
+  --color-ink-500: #478874;
+  --color-ink-400: #6ba28e;
+  --color-ink-300: #92bca9;
+  --color-ink-100: #ddebe3;
+  --color-ink-50: #eef4ee;
 
-  --color-paper: #f6fbfb;
-  --color-mist-500: #5f7a82;
-  --color-mist-300: #9cb4ba;
+  --color-paper: #f7faf4;
+  --color-mist-500: #5d7a6d;
+  --color-mist-300: #98b1a4;
 
-  --color-teal-600: #0f948b;
-  --color-teal-500: #17b0a6;
-  --color-teal-400: #43c9bf;
-  --color-teal-100: #c9efec;
+  --color-teal-600: #0e9f6e;
+  --color-teal-500: #16b87f;
+  --color-teal-400: #4bd39b;
+  --color-teal-100: #cff2e2;
 
-  --color-gold-600: #c98f2b;
-  --color-gold-500: #e5a93d;
-  --color-gold-400: #f0c066;
-  --color-gold-100: #f7e8c9;
+  --color-gold-600: #c9862b;
+  --color-gold-500: #eaa63b;
+  --color-gold-400: #f4c365;
+  --color-gold-100: #f8e9c4;
 }
 
 html {
@@ -92,7 +92,7 @@ body {
 
 /* پس‌زمینه‌ی ماتریس نقطه‌ای دیجیتال */
 .grid-lines {
-  background-image: radial-gradient(rgba(127, 169, 181, 0.14) 1px, transparent 1px);
+  background-image: radial-gradient(rgba(146, 188, 169, 0.16) 1px, transparent 1px);
   background-size: 26px 26px;
 }
 .grid-lines-fade::before {
@@ -166,8 +166,8 @@ body {
 .ring-spin { animation: orbit-cw 70s linear infinite; }
 
 @keyframes pulse-dot {
-  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(23, 176, 166, 0.5); }
-  50% { opacity: 0.7; box-shadow: 0 0 0 7px rgba(23, 176, 166, 0); }
+  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(22, 184, 127, 0.5); }
+  50% { opacity: 0.7; box-shadow: 0 0 0 7px rgba(22, 184, 127, 0); }
 }
 .pulse-dot { animation: pulse-dot 2.2s ease-in-out infinite; }
 

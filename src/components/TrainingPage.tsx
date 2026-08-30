@@ -95,7 +95,7 @@ function CourseBlock({ title, subtitle, product, accent, sessions, onPlay }: { t
 
 function ExtraCard({ title, href, delay, onPlay }: { title: string; href: string; delay: number; onPlay: (p: Playing) => void }) {
   return (
-    <button onClick={() => onPlay({ title, href, accent: "#17B0A6" })} className="reveal group flex items-center gap-4 rounded-2xl border border-ink-100 bg-white p-5 text-right transition-all duration-300 hover:-translate-y-1 hover:border-teal-500/60 hover:shadow-[0_20px_44px_-22px_rgba(10,27,33,0.4)]" style={{ "--rv-delay": `${delay}ms` } as React.CSSProperties}>
+    <button onClick={() => onPlay({ title, href, accent: "#16b87f" })} className="reveal group flex items-center gap-4 rounded-2xl border border-ink-100 bg-white p-5 text-right transition-all duration-300 hover:-translate-y-1 hover:border-teal-500/60 hover:shadow-[0_20px_44px_-22px_rgba(10,27,33,0.4)]" style={{ "--rv-delay": `${delay}ms` } as React.CSSProperties}>
       <span className="relative flex h-14 w-20 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-ink-950">
         <div className="grid-lines absolute inset-0 opacity-60" />
         <Icon name="play" className="relative h-5 w-5 translate-x-[1px] text-white transition-transform duration-300 group-hover:scale-125" />
@@ -155,8 +155,8 @@ export default function TrainingPage() {
             <p className="reveal max-w-sm text-sm leading-8 text-mist-500">همه ویدیوها در کانال آپارات تیسافت منتشر شده‌اند؛ روی هر جلسه کلیک کنید تا همین‌جا پخش شود.</p>
           </div>
 
-          <CourseBlock title="دوره‌ی کامل حسابداری تیسافت" subtitle="از صفر تا گزارش‌گیری — یازده جلسه‌ی پیوسته" product="تیسافت" accent="#17B0A6" sessions={tisaftSessions} onPlay={setPlaying} />
-          <CourseBlock title="دوره‌ی حسابداری چندارزی کپیتال" subtitle="تعریف ارز پایه، نرخ‌دهی روزانه و گزارش‌های ارزی" product="کپیتال" accent="#E5A93D" sessions={capitalSessions} onPlay={setPlaying} />
+          <CourseBlock title="دوره‌ی کامل حسابداری تیسافت" subtitle="از صفر تا گزارش‌گیری — یازده جلسه‌ی پیوسته" product="تیسافت" accent="#16b87f" sessions={tisaftSessions} onPlay={setPlaying} />
+          <CourseBlock title="دوره‌ی حسابداری چندارزی کپیتال" subtitle="تعریف ارز پایه، نرخ‌دهی روزانه و گزارش‌های ارزی" product="کپیتال" accent="#eaa63b" sessions={capitalSessions} onPlay={setPlaying} />
 
           <div className="reveal mt-16">
             <div className="flex flex-wrap items-end justify-between gap-4 border-b-2 border-ink-100 pb-5">
