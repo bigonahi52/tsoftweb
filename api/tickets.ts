@@ -3,8 +3,7 @@
    POST create    → تیکت جدید {subject, priority, text}
    POST reply     → پاسخ {id, text}
    POST close     → بستن {id, close:true} */
-import { jget, jset, kvOk, sessionUser } from "../server/db";
-import { err, ok, uid } from "../server/auth";
+import { err, jget, jset, kvOk, ok, sessionUser, uid } from "./_kv";
 
 export type TicketMsg = { id: string; from: "user" | "admin"; text: string; time: number };
 export type DbTicket = {

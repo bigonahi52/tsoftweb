@@ -124,13 +124,34 @@ type LDb = {
   resets: Record<string, { code: string; exp: number }>;
 };
 
+/* نام کاربری و رمز ثابت مدیر (در حالت محلی) — همانند بک‌اند */
+const LOCAL_ADMIN_PHONE = "admin";
+const LOCAL_ADMIN_PASS = "tsoft20";
+
 const ldb = (): LDb => {
+  let d: LDb;
   try {
     const raw = localStorage.getItem(LDB_KEY);
-    return raw ? (JSON.parse(raw) as LDb) : { users: [], tokens: {}, tickets: [], chats: {}, resets: {} };
+    d = raw ? (JSON.parse(raw) as LDb) : { users: [], tokens: {}, tickets: [], chats: {}, resets: {} };
   } catch {
-    return { users: [], tokens: {}, tickets: [], chats: {}, resets: {} };
+    d = { users: [], tokens: {}, tickets: [], chats: {}, resets: {} };
   }
+  /* همیشه یک حساب مدیر ثابت وجود داشته باشد */
+  if (!d.users.some((u) => u.role === "admin")) {
+    const salt = "adminsalt";
+    d.users.unshift({
+      id: "admin",
+      firstName: "مدیر",
+      lastName: "سایت",
+      phone: LOCAL_ADMIN_PHONE,
+      salt,
+      hash: lhash(salt + LOCAL_ADMIN_PASS),
+      role: "admin",
+      createdAt: Date.now(),
+    });
+    saveDb(d);
+  }
+  return d;
 };
 const saveDb = (d: LDb) => {
   try {
@@ -189,7 +210,6 @@ const local = {
     const d = ldb();
     if (d.users.some((u) => u.phone === phone)) throw new ApiError("این شماره قبلاً ثبت شده — وارد شوید");
     const salt = luid().slice(0, 8);
-    const first = d.users.length === 0;
     const user: LUser = {
       id: luid(),
       firstName: b.firstName.trim(),
@@ -198,14 +218,15 @@ const local = {
       email: b.email?.trim() || undefined,
       salt,
       hash: lhash(salt + b.password),
-      role: first ? "admin" : "user",
+      /* کاربران عادی همیشه «user» هستند؛ فقط حساب مدیر (admin) نقش مدیر دارد */
+      role: phone === LOCAL_ADMIN_PHONE ? "admin" : "user",
       createdAt: Date.now(),
     };
     d.users.push(user);
     const token = luid() + luid();
     d.tokens[token] = user.id;
     saveDb(d);
-    return { token, user: lpub(user), first };
+    return { token, user: lpub(user), first: false };
   },
 
   login: (b: { phone: string; password: string }) => {
@@ -422,6 +443,32 @@ const local = {
     saveDb(d);
     return { ok: true };
   },
+
+  /* حذف یک کاربر توسط مدیر */
+  deleteUser: (targetId: string) => {
+    const me = lrequireAdmin();
+    if (targetId === me.id) throw new ApiError("نمی‌توانید حساب خودتان را حذف کنید");
+    const d = ldb();
+    const target = d.users.find((x) => x.id === targetId);
+    if (!target) throw new ApiError("کاربر پیدا نشد", 404);
+    d.users = d.users.filter((x) => x.id !== targetId);
+    delete d.chats[targetId];
+    d.tickets = d.tickets.filter((t) => t.userId !== targetId);
+    saveDb(d);
+    return { ok: true };
+  },
+
+  /* حذف همه‌ی کاربران توسط مدیر (حساب خود مدیر حفظ می‌شود) */
+  wipeUsers: () => {
+    const me = lrequireAdmin();
+    const d = ldb();
+    const removed = d.users.filter((u) => u.id !== me.id);
+    d.users = d.users.filter((u) => u.id === me.id);
+    d.tickets = [];
+    d.chats = {};
+    saveDb(d);
+    return { ok: true, deleted: removed.length };
+  },
 };
 
 /* ─────────────────── API عمومی ─────────────────── */
@@ -534,5 +581,19 @@ export const api = {
     fb(
       () => call("/api/admin", { method: "POST", body: JSON.stringify({ action: "send", userId, text }) }),
       () => local.adminSend(userId, text)
+    ),
+
+  /* حذف یک کاربر توسط مدیر */
+  deleteUser: (targetId: string) =>
+    fb(
+      () => call<{ ok: boolean }>("/api/auth", { method: "POST", body: JSON.stringify({ action: "deleteUser", targetId }) }),
+      () => local.deleteUser(targetId)
+    ),
+
+  /* حذف همه‌ی کاربران توسط مدیر */
+  wipeUsers: () =>
+    fb(
+      () => call<{ ok: boolean; deleted: number }>("/api/auth", { method: "POST", body: JSON.stringify({ action: "wipe" }) }),
+      () => local.wipeUsers()
     ),
 };

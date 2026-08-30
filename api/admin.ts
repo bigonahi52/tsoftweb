@@ -4,11 +4,21 @@
    GET ?what=tickets → همه‌ی تیکت‌ها + اطلاعات کاربر
    GET ?what=chats   → گفتگوها با آخرین پیام، تعداد نخوانده و وضعیت آنلاین
    GET ?what=conv&user=ID → پیام‌های یک کاربر
-   POST {action:"send", userId, text} → ارسال پاسخ به چت کاربر */
-import { allUserIds, getUser, jget, jset, kvOk, pub, sessionUser } from "../server/db";
-import { err, ok, uid } from "../server/auth";
-import type { ChatMsg } from "./chat";
-import type { DbTicket } from "./tickets";
+   POST {action:"send", userId, text} → ارسال پاسخ به چت کاربر
+   ─ فقط به ماژول مشترک ./_kv وابسته است (خودکفا) تا دچار ERR_MODULE_NOT_FOUND نشود. */
+import { allUserIds, err, getUser, jget, jset, kvOk, ok, pub, sessionUser, uid } from "./_kv";
+
+type ChatMsg = { id: string; from: "user" | "admin"; text: string; time: number; read: boolean };
+type DbTicket = {
+  id: string;
+  userId: string;
+  subject: string;
+  priority: "low" | "normal" | "high";
+  status: "open" | "answered" | "closed";
+  createdAt: number;
+  updatedAt: number;
+  messages: { id: string; from: "user" | "admin"; text: string; time: number }[];
+};
 
 export default async function handler(req: Request) {
   if (!kvOk()) return err("بک‌اند فعال نیست — Vercel KV را فعال کنید.", 503);
@@ -73,7 +83,6 @@ export default async function handler(req: Request) {
       const targetId = url.searchParams.get("user") || "";
       const u = await getUser(targetId);
       const messages = await jget<ChatMsg[]>(`chat:${targetId}`, []);
-      /* پیام‌های کاربر برای مدیر خوانده می‌شوند */
       let dirty = false;
       for (const m of messages)
         if (m.from === "user" && !m.read) {

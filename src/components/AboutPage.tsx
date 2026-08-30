@@ -134,7 +134,7 @@ export default function AboutPage({ nav }: { nav: NavFn }) {
             <p className="font-display text-3xl text-ink-900 sm:text-4xl">همکاری با تیسافت؟</p>
             <p className="mt-2 max-w-md leading-8 text-mist-500">برای سال‌های پیشِ رو، دنبال همکاران تازه در فروش و معرفی محصولات هستیم — از هر استانِ ایران و افغانستان.</p>
           </div>
-          <button onClick={() => nav({ page: "contact" })} className="btn-shine shrink-0 rounded-xl bg-gold-500 px-8 py-4 font-bold text-[#0f262e] transition-transform hover:scale-[1.02]">
+          <button onClick={() => nav({ page: "contact" })} className="btn-shine shrink-0 rounded-xl bg-gold-500 px-8 py-4 font-bold text-[#0c1f19] transition-transform hover:scale-[1.02]">
             صحبت کنیم
           </button>
         </div>

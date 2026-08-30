@@ -99,7 +99,7 @@ export default async function handler(req: Request) {
        ${business ? `<tr><td style="padding:8px;border-bottom:1px solid #d9e9ec;color:#5f7a82;">نوع کسب‌وکار</td><td style="padding:8px;border-bottom:1px solid #d9e9ec;">${business}</td></tr>` : ""}
        ${product ? `<tr><td style="padding:8px;border-bottom:1px solid #d9e9ec;color:#5f7a82;">محصول موردنظر</td><td style="padding:8px;border-bottom:1px solid #d9e9ec;">${product}</td></tr>` : ""}
      </table>
-     <div style="background:#eef6f7;border-right:4px solid #17b0a6;padding:16px;border-radius:8px;line-height:1.9;">${message.replace(/\n/g, "<br>")}</div>
+     <div style="background:#eef4ee;border-right:4px solid #16b87f;padding:16px;border-radius:8px;line-height:1.9;">${message.replace(/\n/g, "<br>")}</div>
      <p style="margin-top:20px;font-size:12px;color:#5f7a82;">برای پاسخ، با شماره‌ی فوق تماس بگیرید.</p>`
   );
 

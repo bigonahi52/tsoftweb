@@ -5,7 +5,7 @@ import { fa, PHONE_FA, PHONE_TEL, useRevealAll } from "../lib";
 import { Icon } from "./Icons";
 
 const formatColor: Record<string, string> = {
-  EXE: "#17B0A6", ZIP: "#E5A93D", RAR: "#E14B4B", MSI: "#8B5CF6", TXT: "#5f7a82", MP4: "#F5820D", APK: "#3d9a50",
+  EXE: "#16b87f", ZIP: "#eaa63b", RAR: "#E14B4B", MSI: "#8B5CF6", TXT: "#5d7a6d", MP4: "#F5820D", APK: "#3d9a50",
 };
 
 /* ───────── کارت فایل (فشرده) ───────── */

@@ -306,46 +306,118 @@ function TicketsTab() {
 function UsersTab() {
   const [users, setUsers] = useState<PubUser[] | null>(null);
   const [err, setErr] = useState("");
+  const [confirmDel, setConfirmDel] = useState<string | null>(null);
+  const [confirmWipe, setConfirmWipe] = useState(false);
+  const [busy, setBusy] = useState(false);
 
-  usePolling(() => {
+  const load = () => {
     api.adminUsers().then((d) => setUsers(d.users)).catch((e) => setErr(e instanceof ApiError ? e.message : "خطا"));
-  }, 10000);
+  };
+  usePolling(load, 10000);
 
-  if (err) return <p className="rounded-xl bg-[#E14B4B]/10 px-4 py-3 text-sm font-bold text-[#E14B4B]">{err}</p>;
+  const del = async (id: string) => {
+    setBusy(true);
+    try {
+      await api.deleteUser(id);
+      setConfirmDel(null);
+      load();
+    } catch (e) {
+      setErr(e instanceof ApiError ? e.message : "حذف انجام نشد");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const wipe = async () => {
+    setBusy(true);
+    try {
+      await api.wipeUsers();
+      setConfirmWipe(false);
+      load();
+    } catch (e) {
+      setErr(e instanceof ApiError ? e.message : "حذف انجام نشد");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  if (err)
+    return (
+      <div>
+        <p className="rounded-xl bg-[#E14B4B]/10 px-4 py-3 text-sm font-bold text-[#E14B4B]">{err}</p>
+        <button onClick={() => setErr("")} className="mt-3 text-sm font-bold text-teal-600">بستن</button>
+      </div>
+    );
   if (!users) return <p className="py-10 text-center text-sm text-mist-500">در حال دریافت…</p>;
 
   return (
-    <div className="overflow-hidden rounded-3xl border border-ink-100 bg-white">
-      <div className="overflow-x-auto">
-        <table className="w-full min-w-[560px] text-sm">
-          <thead>
-            <tr className="border-b-2 border-ink-100 bg-paper text-right">
-              <th className="px-6 py-4 font-display text-base text-ink-900">کاربر</th>
-              <th className="px-4 py-4 font-display text-base text-ink-900">شماره تماس</th>
-              <th className="px-4 py-4 font-display text-base text-ink-900">نقش</th>
-              <th className="px-4 py-4 font-display text-base text-ink-900">تاریخ ثبت‌نام</th>
-            </tr>
-          </thead>
-          <tbody>
-            {users.map((u) => (
-              <tr key={u.id} className="border-b border-ink-50 transition-colors last:border-0 hover:bg-ink-50/50">
-                <td className="px-6 py-4">
-                  <div className="flex items-center gap-3">
-                    <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-ink-950 font-display text-base text-teal-400">{u.firstName[0]}</span>
-                    <span className="font-bold text-ink-900">{u.firstName} {u.lastName}</span>
-                  </div>
-                </td>
-                <td className="px-4 py-4 font-latin text-mist-500" dir="ltr" style={{ textAlign: "right" }}>{u.phone}</td>
-                <td className="px-4 py-4">
-                  <span className={`rounded-full px-3 py-1 text-[10px] font-bold ${u.role === "admin" ? "bg-gold-500/15 text-gold-600" : "bg-teal-500/15 text-teal-600"}`}>
-                    {u.role === "admin" ? "مدیر" : "مشتری"}
-                  </span>
-                </td>
-                <td className="px-4 py-4 text-xs text-mist-500">{fa(new Date(u.createdAt).toLocaleDateString("fa-IR"))}</td>
+    <div>
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+        <p className="text-sm text-mist-500">
+          <b className="font-display text-lg text-ink-900">{fa(users.length)}</b> کاربر ثبت‌نام‌کرده
+        </p>
+        {users.length > 0 && (
+          <button
+            onClick={() => (confirmWipe ? wipe() : setConfirmWipe(true))}
+            disabled={busy}
+            className={`flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-bold transition-all disabled:opacity-60 ${
+              confirmWipe ? "bg-[#E14B4B] text-white" : "border border-[#E14B4B]/50 text-[#E14B4B] hover:bg-[#E14B4B]/10"
+            }`}
+          >
+            <Icon name="trash" className="h-4 w-4" />
+            {confirmWipe ? "مطمئنم — همه حذف شوند" : "حذف همه‌ی کاربران"}
+          </button>
+        )}
+      </div>
+
+      <div className="overflow-hidden rounded-3xl border border-ink-100 bg-white">
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[640px] text-sm">
+            <thead>
+              <tr className="border-b-2 border-ink-100 bg-paper text-right">
+                <th className="px-6 py-4 font-display text-base text-ink-900">کاربر</th>
+                <th className="px-4 py-4 font-display text-base text-ink-900">شماره تماس</th>
+                <th className="px-4 py-4 font-display text-base text-ink-900">ایمیل</th>
+                <th className="px-4 py-4 font-display text-base text-ink-900">تاریخ ثبت‌نام</th>
+                <th className="px-4 py-4 font-display text-base text-ink-900">عملیات</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {users.length === 0 && (
+                <tr>
+                  <td colSpan={5} className="px-6 py-12 text-center text-sm text-mist-500">
+                    هنوز کاربری ثبت‌نام نکرده است.
+                  </td>
+                </tr>
+              )}
+              {users.map((u) => (
+                <tr key={u.id} className="border-b border-ink-50 transition-colors last:border-0 hover:bg-ink-50/50">
+                  <td className="px-6 py-4">
+                    <div className="flex items-center gap-3">
+                      <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-ink-950 font-display text-base text-teal-400">{u.firstName[0]}</span>
+                      <span className="font-bold text-ink-900">{u.firstName} {u.lastName}</span>
+                    </div>
+                  </td>
+                  <td className="px-4 py-4 font-latin text-mist-500" dir="ltr" style={{ textAlign: "right" }}>{u.phone}</td>
+                  <td className="px-4 py-4 text-xs text-mist-500">{u.email || "—"}</td>
+                  <td className="px-4 py-4 text-xs text-mist-500">{fa(new Date(u.createdAt).toLocaleDateString("fa-IR"))}</td>
+                  <td className="px-4 py-4">
+                    <button
+                      onClick={() => (confirmDel === u.id ? del(u.id) : setConfirmDel(u.id))}
+                      disabled={busy}
+                      className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold transition-all disabled:opacity-60 ${
+                        confirmDel === u.id ? "bg-[#E14B4B] text-white" : "text-[#E14B4B] hover:bg-[#E14B4B]/10"
+                      }`}
+                    >
+                      <Icon name="trash" className="h-3.5 w-3.5" />
+                      {confirmDel === u.id ? "تأیید حذف" : "حذف"}
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );
@@ -387,7 +459,7 @@ export default function AdminPanel({ user, onLogout, nav }: { user: PubUser; onL
               <button onClick={() => nav({ page: "home" })} className="rounded-xl border border-ink-600 px-5 py-3 text-sm font-semibold text-ink-100 transition-colors hover:border-teal-500 hover:text-teal-400">
                 بازگشت به سایت
               </button>
-              <button onClick={onLogout} className="flex items-center gap-2 rounded-xl bg-gold-500 px-5 py-3 text-sm font-bold text-[#0f262e] transition-transform hover:scale-[1.02]">
+              <button onClick={onLogout} className="flex items-center gap-2 rounded-xl bg-gold-500 px-5 py-3 text-sm font-bold text-[#0c1f19] transition-transform hover:scale-[1.02]">
                 <Icon name="close" className="h-4 w-4" />
                 خروج
               </button>
