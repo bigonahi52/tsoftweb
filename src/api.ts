@@ -48,9 +48,12 @@ export const setToken = (t: string | null) => {
 
 export class ApiError extends Error {
   code: number;
-  constructor(msg: string, code = 400) {
+  /** آیا این پیام واقعاً از سرور آمده (real) یا یک خطای قطعی/پوشاننده است؟ */
+  real: boolean;
+  constructor(msg: string, code = 400, real = false) {
     super(msg);
     this.code = code;
+    this.real = real;
   }
 }
 
@@ -89,7 +92,9 @@ async function call<T = unknown>(path: string, init?: RequestInit): Promise<T> {
   if (data === null || typeof data !== "object") {
     throw new ApiError("پاسخ سرور نامعتبر بود", 404);
   }
-  if (!res.ok) throw new ApiError(data.error || "خطایی در سرور رخ داد", res.status);
+  /* اگر سرور JSON با خطا برگرداند، این یک پیام واقعی از سرور است (real=true)
+     تا فرانت‌اند همان را به کاربر نشان دهد، نه پیام پوشاننده. */
+  if (!res.ok) throw new ApiError(data.error || "خطایی در سرور رخ داد", res.status, true);
   return data as T;
 }
 
@@ -454,19 +459,14 @@ export const api = {
     try {
       return await call<{ ok: boolean; id?: string }>("/api/contact", { method: "POST", body: JSON.stringify(b) });
     } catch (e) {
-      if (e instanceof ApiError) {
-        /* اگر سرور پیام خطای واقعی و گویا فرستاده باشد (مثلاً «RESEND_API_KEY تنظیم نشده»
-           یا «خطا در ارسال») همان را به کاربر نشان می‌دهیم تا ریشه‌ی مشکل مشخص باشد.
-           فقط وقتی بک‌اند اصلاً در دسترس نیست (قطعی شبکه = کد ۰، یا عدم استقرارِ تابع API =
-           یکی از پیام‌های داخلی call) کاربر را به تماس/پیام‌رسان راهنمایی می‌کنیم. */
-        const connectivityMessages = ["اتصال به سرور برقرار نشد", "تابع API در دسترس نیست", "پاسخ سرور نامعتبر بود"];
-        const isConnectivityIssue = e.code === 0 || e.code === 404 || connectivityMessages.includes(e.message);
-        if (isConnectivityIssue) {
-          throw new ApiError("در حال حاضر امکان ارسال آنلاین پیام نیست؛ لطفاً با شماره‌ی پشتیبانی تماس بگیرید یا در پیام‌رسان‌ها پیام بدهید.", 0);
-        }
+      /* اگر سرور پیام خطای واقعی و گویا فرستاده باشد (real=true — مثلاً «RESEND_API_KEY
+         تنظیم نشده» یا «خطا در ارسال») همان را به کاربر نشان می‌دهیم تا ریشه‌ی مشکل مشخص باشد.
+         فقط وقتی بک‌اند اصلاً در دسترس نیست (قطعی شبکه، یا crash تابع API که پاسخ غیر JSON
+         برگردانده و real=false است) کاربر را به تماس/پیام‌رسان راهنمایی می‌کنیم. */
+      if (e instanceof ApiError && e.real) {
         throw e; /* پیام واقعی و گویای سرور */
       }
-      throw e;
+      throw new ApiError("در حال حاضر امکان ارسال آنلاین پیام نیست؛ لطفاً با شماره‌ی پشتیبانی تماس بگیرید یا در پیام‌رسان‌ها پیام بدهید.", 0);
     }
   },
 
