@@ -112,15 +112,32 @@ export default function ProductPage({ id, nav }: { id: string; nav: NavFn }) {
                 </button>
                 <button onClick={() => nav({ page: "contact" })} className="rounded-xl border border-ink-600 px-7 py-3.5 font-semibold text-ink-100 transition-colors hover:border-gold-500 hover:text-gold-400">درخواست دمو</button>
               </div>
+
+              {/* بنر تصویر محصول — فقط موبایل */}
+              <div className="reveal relative mt-9 h-52 overflow-hidden rounded-3xl border border-ink-700/60 lg:hidden" style={{ "--rv-delay": "340ms" } as React.CSSProperties}>
+                <img src={p.image} alt={`${p.name} — ${p.tagline}`} className="h-full w-full object-cover" />
+                <div className="pointer-events-none absolute inset-0" style={{ background: "linear-gradient(200deg, transparent 50%, rgba(10,27,33,0.5) 100%)" }} aria-hidden />
+                <span className="absolute bottom-4 right-4 rounded-full border border-white/15 bg-ink-950/70 px-3.5 py-1.5 font-latin text-[10px] font-bold tracking-[0.3em] text-white backdrop-blur" dir="ltr">{p.latin}</span>
+              </div>
             </div>
 
             <div className="reveal rv-scale relative hidden lg:block" style={{ "--rv-delay": "150ms" } as React.CSSProperties}>
-              <div className="float-soft relative flex aspect-square items-center justify-center overflow-hidden rounded-[2.5rem] border border-ink-700/60 bg-ink-900/60">
-                <div className="pointer-events-none absolute -inset-10 rounded-full opacity-25 blur-[90px]" style={{ background: p.accent }} aria-hidden />
-                <span className="relative flex h-36 w-36 items-center justify-center rounded-[2rem] text-[#ffffff] shadow-2xl" style={{ background: p.accent }}>
-                  <Icon name={p.features[0]?.icon ?? "box"} className="h-16 w-16" />
+              <div className="pointer-events-none absolute -inset-10 rounded-full opacity-30 blur-[110px]" style={{ background: p.accent }} aria-hidden />
+              <div className="float-soft group relative aspect-square overflow-hidden rounded-[2.5rem] border border-ink-700/60 shadow-[0_45px_90px_-35px_rgba(0,0,0,0.85)]">
+                <img
+                  src={p.image}
+                  alt={`${p.name} — ${p.tagline}`}
+                  className="h-full w-full object-cover transition-transform duration-[2500ms] ease-out group-hover:scale-[1.07]"
+                />
+                <div className="pointer-events-none absolute inset-0" style={{ background: "linear-gradient(200deg, transparent 45%, rgba(10,27,33,0.55) 100%)" }} aria-hidden />
+                {/* نشان محصول روی گوشه‌ی تصویر */}
+                <span className="absolute right-6 top-6 flex h-14 w-14 items-center justify-center rounded-2xl text-[#ffffff] shadow-xl ring-1 ring-white/25 backdrop-blur" style={{ background: p.accent }}>
+                  <Icon name={p.features[0]?.icon ?? "box"} className="h-7 w-7" />
                 </span>
-                <span className="absolute bottom-6 font-latin text-sm font-bold tracking-[0.4em] text-white/60" dir="ltr">{p.latin}</span>
+                <div className="absolute bottom-6 right-6 left-6 flex items-center justify-between gap-3">
+                  <span className="rounded-full border border-white/15 bg-ink-950/70 px-4 py-2 font-latin text-xs font-bold tracking-[0.35em] text-white backdrop-blur" dir="ltr">{p.latin}</span>
+                  <span className="pulse-dot h-2.5 w-2.5 rounded-full" style={{ background: p.accent }} aria-hidden />
+                </div>
               </div>
             </div>
           </div>
