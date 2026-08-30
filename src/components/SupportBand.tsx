@@ -2,14 +2,8 @@ import { useEffect, useState } from "react";
 import { PHONE_FA, PHONE_TEL, useRevealAll } from "../lib";
 import { Icon } from "./Icons";
 
-const promises = [
-  { icon: "award", title: "یک سال پشتیبانی رایگان", desc: "با هر خرید، یک سال کامل پشتیبانی تلفنی و ریموت دارید — بدون هزینه‌ی اضافه." },
-  { icon: "headset", title: "مستقیم با خود توسعه‌دهنده", desc: "پشت خط، منوی تلفن گویا و صف انتظار نیست — همان کسی که نرم‌افزار را ساخته، مشکل‌تان را حل می‌کند." },
-  { icon: "globe", title: "در هر استان که باشید", desc: "تماس می‌گیرید، با اتصال امن صفحه‌ی شما را می‌بینیم و مشکل را در همان تماس برطرف می‌کنیم — سراسر ایران و افغانستان." },
-];
-
 /** وضعیت لحظه‌ای پشتیبانی بر اساس ساعت تهران */
-function useSupportStatus() {
+export function useSupportStatus() {
   const calc = () => {
     try {
       const h = Number(new Intl.DateTimeFormat("en-GB", { hour: "2-digit", hour12: false, timeZone: "Asia/Tehran" }).format(new Date()));
@@ -26,21 +20,29 @@ function useSupportStatus() {
   return open;
 }
 
+const PROMISES = [
+  { icon: "award", title: "یک سال پشتیبانی رایگان", desc: "با هر خرید، یک سال کامل پشتیبانی تلفنی و با اتصال امن — بدون هزینه‌ی اضافه." },
+  { icon: "globe", title: "در هر استان که باشید", desc: "تماس می‌گیرید؛ با اتصال امن صفحه‌ی شما را می‌بینیم و مشکل را در همان تماس برطرف می‌کنیم." },
+  { icon: "spark", title: "بدون صف و بدون واسطه", desc: "نه تلفن گویا، نه نماینده؛ مستقیم با کسی که نرم‌افزار را ساخته صحبت می‌کنید." },
+];
+
 export default function SupportBand({ compact = false }: { compact?: boolean }) {
   const ref = useRevealAll<HTMLDivElement>();
   const isOpen = useSupportStatus();
 
   return (
-    <section ref={ref} className={`grid-lines grid-lines-fade noise relative overflow-hidden bg-ink-950 ${compact ? "py-20 sm:py-24" : "py-32 sm:py-40"}`}>
-      <div className="pointer-events-none absolute -right-24 top-0 h-[420px] w-[420px] rounded-full bg-teal-600/12 blur-[130px]" />
-      <div className="relative mx-auto max-w-7xl px-4 sm:px-6">
-        <div className="grid items-start gap-14 lg:grid-cols-[1.05fr_0.95fr] lg:gap-20">
+    <section ref={ref} className="grid-lines grid-lines-fade noise relative overflow-hidden bg-ink-950 py-24 sm:py-32">
+      <div className="pointer-events-none absolute -right-24 top-0 h-[420px] w-[420px] rounded-full bg-teal-600/12 blur-[130px]" aria-hidden />
+      <div className="pointer-events-none absolute -left-24 bottom-0 h-[320px] w-[320px] rounded-full bg-gold-500/8 blur-[110px]" aria-hidden />
+
+      <div className={`relative mx-auto max-w-7xl px-4 sm:px-6 ${compact ? "" : ""}`}>
+        <div className="grid items-center gap-14 lg:grid-cols-2 lg:gap-20">
           <div>
-            <p className="reveal font-latin text-xs tracking-[0.3em] text-teal-400">REAL SUPPORT</p>
+            <p className="reveal eyebrow text-teal-400">REAL SUPPORT</p>
             <h2 className="mt-4">
-              <span className="line-mask"><span className="font-display text-5xl leading-[1.15] text-white sm:text-6xl">پشتیبانی‌ای که</span></span>
+              <span className="line-mask"><span className="font-display block text-4xl leading-tight text-white sm:text-6xl">پشتیبانی‌ای که</span></span>
               <span className="line-mask" style={{ "--rv-delay": "120ms" } as React.CSSProperties}>
-                <span className="font-display text-5xl leading-[1.15] text-gold-400 sm:text-6xl">خیال‌تان را راحت می‌کند</span>
+                <span className="font-display block text-4xl leading-tight sm:text-6xl"><span className="text-gold-400">خیال‌تان</span> را راحت می‌کند</span>
               </span>
             </h2>
             <p className="reveal mt-6 max-w-xl leading-9 text-mist-300">
@@ -48,58 +50,62 @@ export default function SupportBand({ compact = false }: { compact?: boolean }) 
               و بعد از آن هم ما همان تیمی هستیم که همیشه تلفن را خودش جواب می‌دهد.
             </p>
 
-            <div className="mt-9 grid gap-4 sm:grid-cols-3">
-              {promises.map((pr, i) => (
-                <div key={pr.title} className="reveal rounded-2xl border border-ink-700/60 bg-ink-900/50 p-6 transition-colors hover:border-teal-500/50" style={{ "--rv-delay": `${i * 100}ms` } as React.CSSProperties}>
-                  <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-teal-500/15 text-teal-400">
+            <div className="mt-9 space-y-4">
+              {PROMISES.map((pr, i) => (
+                <div key={pr.title} className="reveal group flex items-start gap-4 rounded-2xl border border-white/8 bg-white/[0.04] p-5 transition-all duration-300 hover:border-teal-500/40 hover:bg-white/[0.07]" style={{ "--rv-delay": `${i * 100}ms` } as React.CSSProperties}>
+                  <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-teal-500/12 text-teal-400 transition-transform duration-300 group-hover:scale-110">
                     <Icon name={pr.icon} className="h-6 w-6" />
                   </span>
-                  <h3 className="mt-4 font-display text-xl text-[#ffffff]">{pr.title}</h3>
-                  <p className="mt-1.5 text-[13px] leading-6 text-mist-300">{pr.desc}</p>
+                  <div>
+                    <h3 className="font-display text-xl text-white">{pr.title}</h3>
+                    <p className="mt-1 text-[13px] leading-7 text-mist-300">{pr.desc}</p>
+                  </div>
                 </div>
               ))}
             </div>
           </div>
 
-          <div className="reveal rv-left">
-            <div className="rounded-3xl border border-ink-700/60 bg-ink-900/70 p-8 backdrop-blur">
-              <div className="flex items-center justify-between">
+          <div className="reveal rv-left" style={{ "--rv-delay": "200ms" } as React.CSSProperties}>
+            <div className="relative overflow-hidden rounded-[1.75rem] border border-white/10 bg-ink-900/80 p-8 shadow-[0_40px_80px_-40px_rgba(0,0,0,0.9)] backdrop-blur sm:p-9">
+              <div className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-gold-500/12 blur-[70px]" aria-hidden />
+
+              <div className="relative flex items-center justify-between">
                 <p className="font-display text-2xl text-white">تماس مستقیم</p>
                 <span className={`flex items-center gap-2 rounded-full px-4 py-2 text-xs font-bold ${isOpen ? "bg-teal-500/15 text-teal-400" : "bg-gold-500/15 text-gold-400"}`}>
                   <span className={`pulse-dot h-2 w-2 rounded-full ${isOpen ? "bg-teal-500" : "bg-gold-500"}`} />
-                  {isOpen ? "الان پاسخ‌گو هستیم" : "الان خارج از ساعت کاری‌ایم"}
+                  {isOpen ? "الان پاسخ‌گو هستیم" : "خارج از ساعت کاری"}
                 </span>
               </div>
 
-              <a href={`tel:${PHONE_TEL}`} className="btn-shine group mt-6 flex w-full items-center justify-center gap-3 rounded-2xl bg-gold-500 px-6 py-5 text-ink-950 transition-all hover:scale-[1.01] hover:bg-gold-400">
+              <a href={`tel:${PHONE_TEL}`} className="btn-primary group relative mt-7 flex w-full justify-center !bg-gold-500 !px-6 !py-5 hover:!bg-gold-400" style={{ boxShadow: "0 14px 36px -14px rgba(234,166,59,0.6)" }}>
                 <span className="relative flex h-11 w-11 items-center justify-center rounded-xl bg-ink-950 text-gold-400">
                   <span className="phone-ring-pulse absolute inset-0 rounded-xl border border-gold-500/50" aria-hidden />
                   <Icon name="phone" className="phone-ring h-5 w-5" />
                 </span>
-                <span>
+                <span className="text-right">
                   <span className="block text-xs font-bold text-ink-950/70">تلفن مستقیم توسعه‌دهنده</span>
-                  <span dir="ltr" className="phone-number mt-0.5 block text-2xl text-ink-950">{PHONE_FA}</span>
+                  <span dir="ltr" className="phone-number block text-2xl text-ink-950">{PHONE_FA}</span>
                 </span>
               </a>
 
-              <div className="mt-6 rounded-2xl border border-ink-700/60 bg-ink-950/60 p-5">
-                <p className="mt-1.5 font-display text-2xl text-[#ffffff]">ساعات پاسخ‌گویی</p>
+              <div className="relative mt-7 rounded-2xl border border-white/8 bg-white/[0.04] p-5">
+                <p className="font-display text-lg text-white">ساعات پاسخ‌گویی</p>
                 <dl className="mt-4 space-y-3 text-sm">
                   <div className="flex items-center justify-between gap-3">
                     <dt className="flex items-center gap-2 text-mist-300"><Icon name="sun" className="h-4 w-4 text-gold-400" /> صبح</dt>
-                    <dd className="font-latin text-sm font-bold text-[#ffffff]" dir="ltr">09:00 – 14:00</dd>
+                    <dd className="font-latin text-sm font-bold text-white" dir="ltr">09:00 – 14:00</dd>
                   </div>
                   <div className="flex items-center justify-between gap-3">
                     <dt className="flex items-center gap-2 text-mist-300"><Icon name="moon" className="h-4 w-4 text-teal-400" /> عصر</dt>
-                    <dd className="font-latin text-sm font-bold text-[#ffffff]" dir="ltr">17:00 – 22:00</dd>
+                    <dd className="font-latin text-sm font-bold text-white" dir="ltr">17:00 – 22:00</dd>
                   </div>
-                  <div className="flex items-center justify-between gap-3 border-t border-ink-700/60 pt-3">
+                  <div className="flex items-center justify-between gap-3 border-t border-white/8 pt-3">
                     <dt className="text-mist-300">روزهای تعطیل</dt>
                     <dd className="text-xs font-bold text-gold-400">پشتیبانی تلفنی اضطراری</dd>
                   </div>
                 </dl>
                 <p className="mt-4 text-center text-xs leading-6 text-mist-300">
-                  نصب، آموزش و پشتیبانی در <b className="text-[#ffffff]">سراسر ایران و افغانستان</b>
+                  نصب، آموزش و پشتیبانی در <b className="text-white">سراسر ایران و افغانستان</b>
                 </p>
               </div>
             </div>
