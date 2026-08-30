@@ -110,11 +110,11 @@ export default function AboutPage({ nav }: { nav: NavFn }) {
           <div className="reveal card-lift relative mt-10 overflow-hidden rounded-3xl border border-ink-100 bg-white p-8 sm:p-10">
             <span className="absolute inset-y-0 right-0 w-1.5 bg-gold-500" aria-hidden />
             <div className="flex flex-col gap-7 sm:flex-row sm:items-start">
-              {/* مونوگرام */}
+              {/* آیکن سازنده */}
               <div className="shrink-0">
                 <div className="relative">
-                  <span className="flex h-24 w-24 items-center justify-center rounded-full bg-ink-950 font-display text-4xl text-gold-400 shadow-[0_16px_40px_-16px_rgba(12,31,25,0.55)] sm:h-28 sm:w-28">
-                    م.ب
+                  <span className="flex h-24 w-24 items-center justify-center rounded-full bg-ink-950 text-gold-400 shadow-[0_16px_40px_-16px_rgba(12,31,25,0.55)] sm:h-28 sm:w-28">
+                    <Icon name="cpu" className="h-11 w-11" />
                   </span>
                   <span className="pulse-dot absolute -bottom-1 -left-1 h-5 w-5 rounded-full border-[3px] border-white bg-teal-500" />
                 </div>
@@ -122,10 +122,10 @@ export default function AboutPage({ nav }: { nav: NavFn }) {
               {/* معرفی */}
               <div className="flex-1">
                 <p className="font-latin text-[10px] tracking-[0.3em] text-teal-600">FOUNDER & LEAD DEVELOPER</p>
-                <h3 className="mt-2 font-display text-4xl text-ink-900 sm:text-[42px]">مهندس مهدی بیگناهی</h3>
-                <p className="mt-1.5 font-display text-lg text-gold-600">بنیان‌گذار و توسعه‌دهنده‌ی ارشد تیسافت و کپیتال</p>
+                <h3 className="mt-2 font-display text-4xl text-ink-900 sm:text-[42px]">بنیان‌گذار و توسعه‌دهنده‌ی ارشد</h3>
+                <p className="mt-1.5 font-display text-lg text-gold-600">سازنده‌ی تیسافت و کپیتال</p>
                 <p className="mt-5 leading-9 text-mist-500">
-                  وقتی زنگ می‌زنید، <b className="text-ink-900">خودِ مهندس بیگناهی</b> تلفن را جواب می‌دهد — همان کسی که بیست سال است
+                  وقتی زنگ می‌زنید، <b className="text-ink-900">خودِ سازنده</b> تلفن را جواب می‌دهد — همان کسی که بیست سال است
                   تک‌تک خط‌های این نرم‌افزارها را نوشته. اینجا واسطه‌ای در کار نیست؛ نه در فروش، نه در پشتیبانی.
                   برای همین مشکلات همان‌جا، پشت تلفن حل می‌شوند.
                 </p>
@@ -141,7 +141,7 @@ export default function AboutPage({ nav }: { nav: NavFn }) {
                   <span className="relative flex h-5 w-5 items-center justify-center">
                     <Icon name="phone" className="phone-ring h-5 w-5" />
                   </span>
-                  تماس مستقیم با مهندس بیگناهی
+                  تماس مستقیم با سازنده
                 </a>
               </div>
             </div>

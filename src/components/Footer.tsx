@@ -91,7 +91,7 @@ export default function Footer({ nav }: { nav: NavFn }) {
         <div className="mt-14 flex flex-col items-center justify-between gap-4 border-t border-white/8 pt-7 text-xs sm:flex-row">
           <p>© {fa(1405)} — کلیه حقوق برای گروه نرم‌افزاری سرمایه (تیسافت) محفوظ است.</p>
           <p className="flex items-center gap-2">
-            طراحی و توسعه: <span className="font-bold text-gold-400">مهندس مهدی بیگناهی</span>
+            طراحی و توسعه با عشق
             <Icon name="heart" className="h-3.5 w-3.5 text-gold-500" />
             <span className="font-latin tracking-[0.25em] text-teal-500" dir="ltr">TSOFT · EST. 2006</span>
           </p>
