@@ -1,7 +1,8 @@
 @import "tailwindcss";
 
 :root {
-  --font-display: "Markazi Text", "Lalezar", "Vazirmatn", serif;
+  /* فونت تیترها — یکان بخ (سبک ایران‌سنس)، با Rubik و وزیرمتن به‌عنوان جایگزین */
+  --font-display: "Yekan Bakh", "Rubik", "Vazirmatn", sans-serif;
   --font-body: "Vazirmatn", "Segoe UI", tahoma, sans-serif;
   --font-latin: "Space Grotesk", "Vazirmatn", sans-serif;
 
@@ -46,7 +47,12 @@ body {
   line-height: 1.95;
 }
 
-.font-display { font-family: var(--font-display); line-height: 1.25; }
+.font-display {
+  font-family: var(--font-display);
+  font-weight: 800;
+  line-height: 1.3;
+  letter-spacing: 0;
+}
 .font-body { font-family: var(--font-body); }
 .font-latin { font-family: var(--font-latin); }
 
