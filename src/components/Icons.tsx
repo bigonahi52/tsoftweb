@@ -299,16 +299,23 @@ export function Icon({ name, className = "h-5 w-5" }: { name: string; className?
   );
 }
 
-/** لوگوی تیسافت */
+/** لوگوی گروه — مونوگرام T (تیسافت) + C (کپیتال) */
 export function Logo({ className = "h-10 w-10" }: { className?: string }) {
   return (
     <svg viewBox="0 0 48 48" className={className} aria-hidden>
       <rect width="48" height="48" rx="13.5" fill="var(--color-teal-600)" />
       <rect x="8.5" y="8.5" width="31" height="31" rx="8.5" fill="var(--color-ink-900)" opacity="0.55" />
-      <rect x="15" y="14.5" width="18" height="4.4" rx="2.2" fill="#eef6f7" />
-      <rect x="21.8" y="14.5" width="4.4" height="17.5" rx="2.2" fill="#eef6f7" />
-      <circle cx="35.5" cy="33.5" r="5.6" fill="var(--color-gold-500)" />
-      <path d="m33.2 33.5 1.7 1.7 3-3.4" stroke="var(--color-teal-600)" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+      {/* T — تیسافت */}
+      <rect x="11" y="13" width="21" height="4.6" rx="2.3" fill="#eef6f7" />
+      <rect x="18.8" y="13" width="4.8" height="22" rx="2.4" fill="#eef6f7" />
+      {/* C — کپیتال؛ کمانی که دهانه‌اش به سمت ساقِ T باز است و با آن در هم قفل می‌شود */}
+      <path
+        d="M25.7 21 A 8.6 8.6 0 1 1 25.7 32"
+        stroke="var(--color-gold-500)"
+        strokeWidth="5"
+        fill="none"
+        strokeLinecap="round"
+      />
     </svg>
   );
 }

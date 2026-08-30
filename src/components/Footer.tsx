@@ -12,12 +12,14 @@ export default function Footer({ nav }: { nav: NavFn }) {
             <button onClick={() => nav({ page: "home" })} className="flex items-center gap-3">
               <SiteLogo className="h-11 w-11" />
               <span className="text-right">
-                <span className="block font-display text-2xl leading-6 text-white">تیسافت</span>
+                <span className="block font-display text-xl leading-6 text-white">
+                  تیسافت <span className="text-gold-400">و</span> کپیتال
+                </span>
                 <span className="mt-0.5 block font-latin text-[9px] tracking-[0.3em] text-teal-400">SARMAYE SOFTWARE GROUP</span>
               </span>
             </button>
             <p className="mt-5 max-w-xs leading-8">
-              بیست سال است نرم‌افزار حسابداری و مدیریت می‌سازیم؛ از صندوق فروشگاه تا حسابداری چندارزی بازرگانی.
+              بیست سال است نرم‌افزار حسابداری می‌سازیم؛ <b className="text-white">تیسافت</b> برای صندوق فروشگاه و <b className="text-white">کپیتال</b> برای حسابداری چندارزی بازرگانی.
             </p>
             <div className="mt-6 flex items-center gap-2 rounded-xl border border-gold-500/40 bg-gold-500/10 px-4 py-3 text-sm text-gold-400">
               <Icon name="spark" className="h-4 w-4" />
