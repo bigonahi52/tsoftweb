@@ -35,7 +35,7 @@ export const products: Product[] = [
     en: "TSOFT Retail",
     tagline: "حسابِ فروشگاه، در مشتِ شما",
     accent: "#17b0a6",
-    image: "https://image.qwenlm.ai/generated-images/cd7b78b4-9784-49fa-8150-e0f39f6b23e6/_result.png",
+    image: "https://image.qwenlm.ai/generated-images/72b011ca-18f2-4dae-a245-9d29d2f396e1/_result.png",
     short:
       "نرم‌افزار حسابداری فروشگاهی تیسافت، به‌صورت تک‌کاربره و تحت شبکه روی ویندوز کار می‌کند و در دو ماژول نقره‌ای و طلایی ارائه می‌شود. نسخه‌ی طلایی حسابداری کامل دارد: کدینگ دلخواه، ترازنامه، کارت حساب و گزارش سود و زیان.",
     overview: [
@@ -99,7 +99,7 @@ export const products: Product[] = [
     en: "Capital Multi-Currency",
     tagline: "به نرخِ روز، حسابِ چند ارز",
     accent: "#e5a93d",
-    image: "https://image.qwenlm.ai/generated-images/0f98676f-d096-4fcf-8a57-87b19cf74c2a/_result.png",
+    image: "https://image.qwenlm.ai/generated-images/2a8fb784-6280-413e-8e40-b27befa33bd6/_result.png",
     short:
       "کپیتال نرم‌افزار حسابداری چندارزی است: یک ارز پایه معرفی می‌کنید و بقیه‌ی ارزها هر روز با نرخ ارز پایه قیمت‌گذاری می‌شوند. هنگام ثبت، اگر نرخ تغییر کرده باشد همان‌جا نرخ لحظه‌ای می‌دهید؛ برای هر مشتری واحد ارز تعیین می‌شود و مانده‌ی صورتحساب به هر ارزی که بخواهید تبدیل می‌شود.",
     overview: [
