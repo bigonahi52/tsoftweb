@@ -95,4 +95,4 @@ export const endSession = async (req: Request) => {
   if (token) await jdel(`s:${token}`);
 };
 
-export const ok = ( unknown) => Response.json(data);
+export const ok = (data: unknown) => Response.json(data);
