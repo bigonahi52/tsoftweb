@@ -1,13 +1,26 @@
 /* ارسال ایمیل با Resend — نیاز به متغیر محیطی RESEND_API_KEY در داشبورد Vercel دارد.
-   راهنمای دریافت کلید رایگان: resend.com (روزانه ۱۰۰ ایمیل رایگان) */
+   راهنمای دریافت کلید رایگان: resend.com (روزانه ۱۰۰ ایمیل رایگان)
 
-const FROM = process.env.EMAIL_FROM || "تیسافت <onboarding@resend.dev>";
+   نکته‌ی مهم درباره‌ی From:
+   - فرستنده‌ی پیش‌فرض «onboarding@resend.dev» فرستنده‌ی آزمایشی Resend است و فقط زمانی
+     کار می‌کند که گیرنده همان ایمیلِ ثبت‌شده در حساب Resend شما باشد (بدون نیاز به تأیید دامنه).
+   - برای ارسال از دامنه‌ی خودتان (مثلاً info@tsoft20.ir) باید دامنه را در Resend تأیید کنید
+     و سپس متغیر EMAIL_FROM را تنظیم کنید. */
+
+/* فرستنده — قابل تغییر با EMAIL_FROM در Vercel */
+const FROM = process.env.EMAIL_FROM || "تیسافت TSOFT <onboarding@resend.dev>";
 
 export const emailConfigured = () => Boolean(process.env.RESEND_API_KEY);
 
-export async function sendEmail(to: string, subject: string, html: string): Promise<boolean> {
+export type SendResult = { ok: boolean; id?: string; error?: string };
+
+/** ارسال ایمیل — خطاها را در سمت سرور لاگ می‌کند تا در Vercel Logs قابل بررسی باشند */
+export async function sendEmail(to: string, subject: string, html: string, replyTo?: string): Promise<SendResult> {
   const key = process.env.RESEND_API_KEY;
-  if (!key) return false;
+  if (!key) {
+    console.error("[email] RESEND_API_KEY is not set in environment variables");
+    return { ok: false, error: "RESEND_API_KEY تنظیم نشده است" };
+  }
   try {
     const res = await fetch("https://api.resend.com/emails", {
       method: "POST",
@@ -15,11 +28,24 @@ export async function sendEmail(to: string, subject: string, html: string): Prom
         Authorization: `Bearer ${key}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ from: FROM, to, subject, html }),
+      body: JSON.stringify({
+        from: FROM,
+        to,
+        subject,
+        html,
+        ...(replyTo ? { reply_to: replyTo } : {}),
+      }),
     });
-    return res.ok;
-  } catch {
-    return false;
+    const data = (await res.json().catch(() => ({}))) as { id?: string; message?: string; name?: string; statusCode?: number };
+    if (!res.ok) {
+      /* ثبت خطای واقعی Resend در لاگ سرور — بدون هیچ اطلاعات حساس */
+      console.error("[email] Resend rejected the request:", res.status, JSON.stringify(data));
+      return { ok: false, error: data.message || data.name || `Resend HTTP ${res.status}` };
+    }
+    return { ok: true, id: data.id };
+  } catch (e) {
+    console.error("[email] network error while calling Resend:", e);
+    return { ok: false, error: "خطای شبکه در ارتباط با سرویس ایمیل" };
   }
 }
 
@@ -31,7 +57,7 @@ export const emailShell = (title: string, bodyHtml: string) => `
 <body style="margin:0;padding:24px;background:#f6fbfb;font-family:Tahoma,'Segoe UI',sans-serif;">
   <div style="max-width:520px;margin:0 auto;background:#ffffff;border-radius:16px;overflow:hidden;border:1px solid #d9e9ec;">
     <div style="background:#0a1b21;padding:20px 28px;">
-      <div style="color:#43c9bf;font-weight:bold;font-size:18px;">تیسافت <span style="color:#e5a93d;">TSOFT</span></div>
+      <div style="color:#43c9bf;font-weight:bold;font-size:18px;">گروه نرم‌افزاری سرمایه <span style="color:#e5a93d;">TSOFT</span></div>
       <div style="color:#7fa9b5;font-size:12px;margin-top:4px;">${title}</div>
     </div>
     <div style="padding:28px;color:#14313a;line-height:1.9;font-size:14px;">${bodyHtml}</div>

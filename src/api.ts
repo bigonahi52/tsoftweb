@@ -268,7 +268,7 @@ const local = {
     return { ok: true };
   },
 
-  contact: () => ({ ok: true, local: true }),
+  /* فرم تماس دیگر fallback جعلی ندارد — حذف شد تا موفقیت کاذب رخ ندهد */
 
   tickets: () => {
     const d = ldb();
@@ -446,11 +446,20 @@ export const api = {
       () => local.reset(b)
     ),
 
-  contact: (b: { name: string; phone?: string; business?: string; product?: string; message: string }) =>
-    fb(
-      () => call<{ ok: boolean; local?: boolean }>("/api/contact", { method: "POST", body: JSON.stringify(b) }),
-      () => local.contact()
-    ),
+  /* فرم تماس: برخلاف بقیه‌ی بخش‌ها عمداً از fallback جعلی استفاده نمی‌کند؛
+     چون هدف ارسالِ واقعی ایمیل است و نباید موفقیتِ کاذب نمایش داده شود.
+     اگر سرور خطای واقعی بدهد همان پیام به کاربر نشان داده می‌شود و اگر بک‌اند
+     اصلاً در دسترس نباشد (مثلاً محیط پیش‌نمایش) پیام راهنمای تماس نمایش داده می‌شود. */
+  contact: async (b: { name: string; phone?: string; business?: string; product?: string; message: string }) => {
+    try {
+      return await call<{ ok: boolean; id?: string }>("/api/contact", { method: "POST", body: JSON.stringify(b) });
+    } catch (e) {
+      if (e instanceof ApiError && DOWN_CODES.includes(e.code)) {
+        throw new ApiError("در حال حاضر امکان ارسال آنلاین پیام نیست؛ لطفاً با شماره‌ی پشتیبانی تماس بگیرید یا در پیام‌رسان‌ها پیام بدهید.", 0);
+      }
+      throw e;
+    }
+  },
 
   login: (b: { phone: string; password: string }) =>
     fb(
