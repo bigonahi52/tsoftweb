@@ -1,11 +1,26 @@
-/* ماژول مشترکِ خودکفا — لایه‌ی داده (Vercel KV) + ابزارهای امنیتی + نشست‌ها
+/* ماژول مشترکِ خودکفا — لایه‌ی داده (Upstash Redis روی Vercel) + ابزارهای امنیتی + نشست‌ها
    ─ این فایل با پیشوند «_» در پوشه‌ی api قرار دارد تا Vercel آن را به‌عنوان
      «کد مشترک» بشناسد و همیشه همراه توابع API باندل کند؛ بنابراین هیچ‌گاه
      دچار ERR_MODULE_NOT_FOUND نمی‌شود.
-   ─ همه‌ی داده‌ها در Vercel KV (Redis ابری) ذخیره می‌شوند؛ یعنی بین همه‌ی
-     دستگاه‌ها و همه‌ی کاربران مشترک‌اند و با پاک‌شدن مرورگر از بین نمی‌روند. */
-import { kv } from "@vercel/kv";
+   ─ همه‌ی داده‌ها در Upstash Redis ابری ذخیره می‌شوند؛ یعنی بین همه‌ی
+     دستگاه‌ها و همه‌ی کاربران مشترک‌اند و با پاک‌شدن مرورگر از بین نمی‌روند.
+   ─ هر دو مجموعه متغیر محیطی را پشتیبانی می‌کند:
+       • KV_REST_API_URL / KV_REST_API_TOKEN        (اتصال از نوع Vercel KV)
+       • UPSTASH_REDIS_REST_URL / UPSTASH_REDIS_REST_TOKEN (اتصال از نوع Upstash Redis) */
+import { Redis } from "@upstash/redis";
 import { randomBytes, scryptSync } from "crypto";
+
+/* ── کلاینت Redis ابری — فقط اگر متغیرهای محیطی موجود باشند ساخته می‌شود ── */
+const REDIS_URL = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL || "";
+const REDIS_TOKEN = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN || "";
+export const kv: Redis | null =
+  REDIS_URL && REDIS_TOKEN ? new Redis({ url: REDIS_URL, token: REDIS_TOKEN }) : null;
+/** کدام مجموعه متغیر پیدا شد (برای گزارش /api/status — بدون افشای مقدار) */
+export const redisSource: "kv" | "upstash" | "none" = process.env.KV_REST_API_URL
+  ? "kv"
+  : process.env.UPSTASH_REDIS_REST_URL
+    ? "upstash"
+    : "none";
 
 /* ── انواع ── */
 export type DbUser = {
@@ -35,8 +50,8 @@ export const pub = (u: DbUser): PubUser => ({
 export const ok = (data: unknown) => Response.json(data);
 export const err = (message: string, status = 400) => Response.json({ error: message }, { status });
 
-/** بررسی فعال بودن Vercel KV */
-export const kvOk = () => Boolean(process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN);
+/** بررسی فعال بودن دیتابیس ابری (Upstash Redis) */
+export const kvOk = () => kv !== null;
 
 /* ── ابزارهای امنیتی ── */
 export const uid = () => randomBytes(6).toString("hex") + Date.now().toString(36);
@@ -54,24 +69,37 @@ export const normPhone = (p: string) =>
     .replace(/[۰-۹]/g, (d) => String("۰۱۲۳۴۵۶۷۸۹".indexOf(d)))
     .replace(/[\s\-()]/g, "");
 
-/* ── ابزارهای JSON روی KV ── */
+/* ── ابزارهای JSON روی Redis ──
+   مقادیر به‌صورت صریح JSON.stringify/parse می‌شوند تا:
+   ۱) با داده‌های ذخیره‌شده توسط نسخه‌های قبلی (@vercel/kv) سازگار بمانند
+   ۲) رفتار در همه‌ی نسخه‌های کلاینت یکسان و قابل‌پیش‌بینی باشد */
 export async function jget<T>(key: string, fallback: T): Promise<T> {
+  if (!kv) return fallback;
   try {
-    const v = await kv.get<T>(key);
-    return v === null || v === undefined ? fallback : v;
+    const raw = await kv.get<string>(key);
+    if (raw === null || raw === undefined) return fallback;
+    if (typeof raw !== "string") return raw as T; /* داده‌های قدیمی که از قبل آبجکت‌اند */
+    try {
+      return JSON.parse(raw) as T;
+    } catch {
+      return fallback;
+    }
   } catch {
     return fallback;
   }
 }
 export async function jset(key: string, value: unknown, ttlSec?: number) {
+  if (!kv) return;
   try {
-    if (ttlSec) await kv.set(key, value, { ex: ttlSec });
-    else await kv.set(key, value);
+    const json = JSON.stringify(value);
+    if (ttlSec) await kv.set(key, json, { ex: ttlSec });
+    else await kv.set(key, json);
   } catch {
     /* ignore */
   }
 }
 export async function jdel(key: string) {
+  if (!kv) return;
   try {
     await kv.del(key);
   } catch {
