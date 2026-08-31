@@ -107,6 +107,24 @@ export async function jdel(key: string) {
   }
 }
 
+/** تست واقعی اتصال — نوشتن/خواندن/حذف یک کلید موقت؛ نتیجه با پیام خطای واقعی
+    (بدون افشای توکن) برمی‌گردد تا ریشه‌ی مشکلات اتصال قابل تشخیص باشد. */
+export async function pingRedis(): Promise<{ ok: boolean; ms?: number; error?: string }> {
+  if (!kv) return { ok: false, error: "کلاینت Redis ساخته نشده — متغیرهای محیطی (KV_REST_API_URL / KV_REST_API_TOKEN) در Runtime دیده نمی‌شوند." };
+  const t0 = Date.now();
+  try {
+    const key = "tsoft:ping";
+    const val = `ok-${Date.now()}`;
+    await kv.set(key, val, { ex: 30 });
+    const back = await kv.get<string>(key);
+    await kv.del(key);
+    if (back !== val) return { ok: false, error: "داده‌ی خوانده‌شده با داده‌ی نوشته‌شده متفاوت است." };
+    return { ok: true, ms: Date.now() - t0 };
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : String(e) };
+  }
+}
+
 /* ── کاربران ── */
 export const allUserIds = () => jget<string[]>("users", []);
 export const getUser = (id: string) => jget<DbUser | null>(`u:${id}`, null);
