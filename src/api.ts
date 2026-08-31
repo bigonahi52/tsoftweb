@@ -30,6 +30,18 @@ export type Ticket = {
 };
 export type ChatMsg = { id: string; from: "user" | "admin"; text: string; time: number; read: boolean };
 
+/* گزارش سلامت دیتابیس — پاسخ واقعی endpointِ ‏/api/health */
+export type HealthReport = {
+  ok?: boolean;
+  mode?: "cloud" | "local";
+  env?: Record<string, boolean>;
+  source?: "kv" | "upstash" | "none";
+  moduleError?: string | null;
+  ping?: { ok: boolean; ms?: number; error?: string } | null;
+  unreachable?: boolean;
+  reason?: string;
+};
+
 export const getToken = () => {
   try {
     return localStorage.getItem(TOKEN_KEY);
@@ -623,12 +635,17 @@ export const api = {
       () => local.wipeUsers()
     ),
 
-  /** وضعیت دیتابیس ابری — بدون fallback؛ اگر بک‌اند در دسترس نبود، «محلی» گزارش می‌شود */
-  backendStatus: async (): Promise<{ kv: boolean; mode: "cloud" | "local" }> => {
+  /** سلامت دیتابیس ابری — همیشه از بک‌اندِ واقعی پرسیده می‌شود؛ هرگز نتیجه‌ی
+      جعلیِ «محلی» برگردانده نمی‌شود. اگر بک‌اند در دسترس نباشد، همان واقعیت
+      (unreachable) گزارش می‌شود تا پنل مدیریت خطای واقعی را نشان دهد. */
+  health: async (): Promise<HealthReport> => {
     try {
-      return await call<{ kv: boolean; mode: "cloud" | "local" }>("/api/status");
-    } catch {
-      return { kv: false, mode: "local" };
+      return await call<HealthReport>("/api/health");
+    } catch (e) {
+      return {
+        unreachable: true,
+        reason: e instanceof ApiError ? `${e.message} (کد ${e.code})` : "اتصال به سرور برقرار نشد",
+      };
     }
   },
 };
