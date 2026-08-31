@@ -622,4 +622,13 @@ export const api = {
       () => call<{ ok: boolean; deleted: number }>("/api/auth", { method: "POST", body: JSON.stringify({ action: "wipe" }) }),
       () => local.wipeUsers()
     ),
+
+  /** وضعیت دیتابیس ابری — بدون fallback؛ اگر بک‌اند در دسترس نبود، «محلی» گزارش می‌شود */
+  backendStatus: async (): Promise<{ kv: boolean; mode: "cloud" | "local" }> => {
+    try {
+      return await call<{ kv: boolean; mode: "cloud" | "local" }>("/api/status");
+    } catch {
+      return { kv: false, mode: "local" };
+    }
+  },
 };
