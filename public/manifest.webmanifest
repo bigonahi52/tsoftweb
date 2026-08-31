@@ -1,0 +1,26 @@
+{
+  "name": "تیسافت و کپیتال — نرم‌افزارهای حسابداری و مدیریت کسب‌وکار",
+  "short_name": "TSOFT",
+  "description": "گروه نرم‌افزاری سرمایه؛ نرم‌افزار حسابداری فروشگاهی تیسافت و حسابداری چندارزی کپیتال",
+  "lang": "fa",
+  "dir": "rtl",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#0c1f19",
+  "theme_color": "#0e9f6e",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ]
+}
