@@ -1,7 +1,8 @@
 import { currencies, getProduct, messengers, products } from "../data";
-import { PHONE_FA, PHONE_TEL, useRevealAll } from "../lib";
+import { fa, PHONE_FA, PHONE_TEL, useRevealAll } from "../lib";
 import type { NavFn } from "../lib";
 import { Flag, Icon } from "./Icons";
+import CapitalAcademy from "./CapitalAcademy";
 import SupportBand from "./SupportBand";
 
 /* در پیام‌رسان‌ها هم در دسترسیم — ویژه‌ی کپیتال */
@@ -163,6 +164,15 @@ export default function ProductPage({ id, nav }: { id: string; nav: NavFn }) {
                   دانلود {p.name}
                 </button>
                 <button onClick={() => nav({ page: "contact" })} className="rounded-xl border border-ink-600 px-7 py-3.5 font-semibold text-ink-100 transition-colors hover:border-gold-500 hover:text-gold-400">درخواست دمو</button>
+                {p.id === "capital" && (
+                  <button
+                    onClick={() => document.getElementById("capital-academy")?.scrollIntoView({ block: "start" })}
+                    className="group flex items-center gap-2 rounded-xl border border-gold-500/50 px-7 py-3.5 font-semibold text-gold-400 transition-colors hover:border-gold-500 hover:bg-gold-500/10"
+                  >
+                    <Icon name="award" className="h-5 w-5" />
+                    آموزش جامع {fa(17)} فصلی
+                  </button>
+                )}
               </div>
 
               {/* بنر تصویر محصول — فقط موبایل */}
@@ -311,6 +321,9 @@ export default function ProductPage({ id, nav }: { id: string; nav: NavFn }) {
           </div>
         </section>
       )}
+
+      {/* آموزش جامع — فقط کپیتال */}
+      {p.id === "capital" && <CapitalAcademy />}
 
       <SupportBand compact />
 

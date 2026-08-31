@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { api, ApiError, type ChatMsg, type PubUser, type Ticket } from "../api";
 import { fa, usePolling, useRevealAll } from "../lib";
 import type { NavFn } from "../lib";
@@ -429,6 +429,12 @@ export default function AdminPanel({ user, onLogout, nav }: { user: PubUser; onL
   const [tab, setTab] = useState<"chats" | "tickets" | "users">("chats");
   const [stats, setStats] = useState<{ users: number; tickets: number; openTickets: number } | null>(null);
   const [err, setErr] = useState("");
+  const [dbMode, setDbMode] = useState<"cloud" | "local" | "checking">("checking");
+
+  /* بررسی وضعیت دیتابیس ابری — اگر فعال نباشد، داده‌ها فقط محلی ذخیره می‌شوند */
+  useEffect(() => {
+    api.backendStatus().then((s) => setDbMode(s.mode));
+  }, []);
 
   usePolling(() => {
     api.adminStats().then(setStats).catch((e) => setErr(e instanceof ApiError ? e.message : "خطا در ارتباط با بک‌اند"));
@@ -495,6 +501,33 @@ export default function AdminPanel({ user, onLogout, nav }: { user: PubUser; onL
               <p className="mt-1 font-normal text-mist-500">اگر در محیط پیش‌نمایش هستید، بک‌اند فقط روی دامنه‌ی اصلی (بعد از push به گیت‌هاب و فعال‌سازی KV در Vercel) کار می‌کند.</p>
             </div>
           )}
+
+          {/* وضعیت دیتابیس ابری */}
+          {dbMode === "cloud" && (
+            <div className="reveal mb-6 flex items-start gap-3 rounded-2xl border border-teal-500/40 bg-teal-500/10 px-5 py-4">
+              <Icon name="check" className="mt-0.5 h-5 w-5 shrink-0 text-teal-600" />
+              <div>
+                <p className="text-sm font-bold text-teal-600">دیتابیس ابری فعال است</p>
+                <p className="mt-0.5 text-xs leading-6 text-mist-500">
+                  ثبت‌نام و داده‌های کاربران در فضای ابری ذخیره می‌شود و بین همه‌ی دستگاه‌ها مشترک است.
+                </p>
+              </div>
+            </div>
+          )}
+          {dbMode === "local" && (
+            <div className="reveal mb-6 flex items-start gap-3 rounded-2xl border border-gold-500/50 bg-gold-500/10 px-5 py-4">
+              <Icon name="shield" className="mt-0.5 h-5 w-5 shrink-0 text-gold-600" />
+              <div>
+                <p className="text-sm font-bold text-gold-600">دیتابیس ابری فعال نیست — داده‌ها فقط محلی ذخیره می‌شوند</p>
+                <p className="mt-1 text-xs leading-6 text-mist-500">
+                  در این حالت، ثبت‌نام هر کاربر فقط در مرورگرِ همان کاربر ذخیره می‌شود و شما آن را در پنل خود نمی‌بینید.
+                  برای ذخیره‌ی واقعی و مشترک، در داشبورد Vercel به بخش <b className="text-ink-900">Storage</b> بروید، یک
+                  <b className="text-ink-900"> KV (Redis)</b> بسازید و به پروژه متصل کنید، سپس یک <b className="text-ink-900">Redeploy</b> بزنید.
+                </p>
+              </div>
+            </div>
+          )}
+
           <div className="reveal mb-8 flex flex-wrap gap-2">
             {tabs.map((t) => (
               <button
