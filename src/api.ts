@@ -111,9 +111,24 @@ async function fb<T>(remote: () => Promise<T>, local: () => T): Promise<T> {
   return local();
 }
 
+/** نسخه‌ی مقاوم‌تر برای عملیات‌های احراز هویت (ورود/ثبت‌نام):
+    فقط «خطای تجاریِ واقعی» از بک‌اند (کد 4xx با پیام سرور) را به کاربر نشان می‌دهد؛
+    هر خطای دیگری (سرور پایین، پاسخ HTML، خطای 5xx، قطعی شبکه) یعنی بک‌اند در دسترس
+    نیست و عملیات روی نسخه‌ی محلی انجام می‌شود تا ورود کاربر هرگز قفل نشود. */
+async function fbAuth<T>(remote: () => Promise<T>, local: () => T): Promise<T> {
+  try {
+    return await remote();
+  } catch (e) {
+    const realBusinessError = e instanceof ApiError && e.real && e.code >= 400 && e.code < 500;
+    if (realBusinessError) throw e;
+    return local();
+  }
+}
+
 /* ─────────────────── حالت محلی (localStorage) ─────────────────── */
 
-const LDB_KEY = "tsoft_local_db_v1";
+/* نسخه‌ی ۲ — داده‌های قدیمی نسخه‌های قبلی (که مدیر متفاوتی می‌ساختند) نادیده گرفته می‌شوند */
+const LDB_KEY = "tsoft_local_db_v2";
 
 type LUser = PubUser & { salt: string; hash: string };
 type LDb = {
@@ -136,16 +151,27 @@ const ldb = (): LDb => {
   } catch {
     d = { users: [], tokens: {}, tickets: [], chats: {}, resets: {} };
   }
-  /* همیشه یک حساب مدیر ثابت وجود داشته باشد */
-  if (!d.users.some((u) => u.role === "admin")) {
-    const salt = "adminsalt";
+  /* ── حساب مدیر ثابت ──
+     صرف‌نظر از داده‌های قدیمی (مثلاً مدیرِ ساخته‌شده در نسخه‌های قبلی)، همیشه
+     حساب «admin» با رمز «tsoft20» وجود داشته باشد و هش آن صحیح باشد.
+     اگر کاربری با همین نام کاربری هست ولی هش/نقشش قدیمی است، تعمیر می‌شود. */
+  const adminSalt = "adminsalt";
+  const expectedHash = lhash(adminSalt + LOCAL_ADMIN_PASS);
+  const existing = d.users.find((u) => u.phone === LOCAL_ADMIN_PHONE);
+  if (existing) {
+    if (existing.hash !== expectedHash || existing.role !== "admin") {
+      existing.hash = expectedHash;
+      existing.role = "admin";
+      saveDb(d);
+    }
+  } else {
     d.users.unshift({
       id: "admin",
       firstName: "مدیر",
       lastName: "سایت",
       phone: LOCAL_ADMIN_PHONE,
-      salt,
-      hash: lhash(salt + LOCAL_ADMIN_PASS),
+      salt: adminSalt,
+      hash: expectedHash,
       role: "admin",
       createdAt: Date.now(),
     });
@@ -474,10 +500,10 @@ const local = {
 /* ─────────────────── API عمومی ─────────────────── */
 
 export const api = {
-  me: () => fb(() => call<{ user: PubUser }>("/api/auth"), local.me),
+  me: () => fbAuth(() => call<{ user: PubUser }>("/api/auth"), local.me),
 
   register: (b: { firstName: string; lastName: string; phone: string; email?: string; password: string }) =>
-    fb(
+    fbAuth(
       () =>
         call<{ token: string; user: PubUser; first: boolean }>("/api/auth", {
           method: "POST",
@@ -487,13 +513,13 @@ export const api = {
     ),
 
   forgot: (phone: string) =>
-    fb(
+    fbAuth(
       () => call<{ ok: boolean; demoCode?: string }>("/api/forgot", { method: "POST", body: JSON.stringify({ action: "forgot", phone }) }),
       () => local.forgot(phone)
     ),
 
   reset: (b: { phone: string; code: string; newPass: string }) =>
-    fb(
+    fbAuth(
       () => call<{ ok: boolean }>("/api/forgot", { method: "POST", body: JSON.stringify({ action: "reset", ...b }) }),
       () => local.reset(b)
     ),
@@ -518,7 +544,7 @@ export const api = {
   },
 
   login: (b: { phone: string; password: string }) =>
-    fb(
+    fbAuth(
       () =>
         call<{ token: string; user: PubUser }>("/api/auth", {
           method: "POST",
@@ -527,16 +553,16 @@ export const api = {
       () => local.login(b)
     ),
 
-  logout: () => fb(() => call("/api/auth", { method: "POST", body: JSON.stringify({ action: "logout" }) }), local.logout),
+  logout: () => fbAuth(() => call("/api/auth", { method: "POST", body: JSON.stringify({ action: "logout" }) }), local.logout),
 
   update: (b: { firstName: string; lastName: string; email?: string }) =>
-    fb(
+    fbAuth(
       () => call<{ user: PubUser }>("/api/auth", { method: "POST", body: JSON.stringify({ action: "update", ...b }) }),
       () => local.update(b)
     ),
 
   changePassword: (b: { oldPass: string; newPass: string }) =>
-    fb(
+    fbAuth(
       () => call("/api/auth", { method: "POST", body: JSON.stringify({ action: "password", ...b }) }),
       () => local.changePassword(b)
     ),

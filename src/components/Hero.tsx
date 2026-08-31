@@ -258,7 +258,7 @@ export default function Hero({ nav }: { nav: NavFn }) {
           {/* نوار اعتماد */}
           <div className="reveal mt-8 grid grid-cols-2 gap-y-5 border-t border-white/10 pt-6 sm:grid-cols-4" style={{ "--rv-delay": "560ms" } as React.CSSProperties}>
             {TRUST.map((t) => (
-              <div key={t.l} className="sm:border-l sm:border-white/10 sm:pl-5 sm:last:border-0">
+              <div key={t.l} className="sm:border-s sm:border-white/10 sm:ps-6 sm:first:border-s-0 sm:first:ps-0">
                 <p className="font-display text-[26px] leading-none text-gold-400">{fa(t.v)}</p>
                 <p className="mt-1.5 text-[11px] text-mist-300">{t.l}</p>
               </div>

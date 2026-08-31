@@ -186,8 +186,17 @@ export default function AuthPage({ mode, nav, onAuth }: { mode: "login" | "regis
               )}
 
               <label className="block">
-                <span className="mb-2 block text-sm font-bold text-ink-900">شماره موبایل</span>
-                <input required dir="ltr" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="0915 ..." className={inputCls + " text-left"} />
+                <span className="mb-2 block text-sm font-bold text-ink-900">
+                  {tab === "login" ? "شماره موبایل یا نام کاربری" : "شماره موبایل"}
+                </span>
+                <input
+                  required
+                  dir="ltr"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  placeholder={tab === "login" ? "0915 ... یا نام کاربری" : "0915 ..."}
+                  className={inputCls + " text-left"}
+                />
               </label>
 
               {tab !== "forgot" && (
