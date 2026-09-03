@@ -21,19 +21,33 @@ type KvClient = {
   del: (key: string) => Promise<void>;
 };
 
-/** اجرای یک دستور Redis از طریق REST APIِ آپ‌استش و برگرداندن نتیجه */
+/** اجرای یک دستور Redis از طریق REST APIِ آپ‌استش و برگرداندن نتیجه.
+    هر دستور حداکثر ۴ ثانیه مهلت دارد تا فانکشن API هرگز در Vercel معطل نماند
+    و به خطای GATEWAY_TIMEOUT (504) نرسد — اگر دیتابیس کند یا قطع باشد،
+    خطای واضح برمی‌گردد به‌جای اینکه کل درخواست قفل شود. */
 async function upstashCommand<T = unknown>(args: (string | number)[]): Promise<T | null> {
-  const res = await fetch(REDIS_URL, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${REDIS_TOKEN}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(args),
-  });
-  if (!res.ok) throw new Error(`Upstash REST error: HTTP ${res.status}`);
-  const data = (await res.json()) as { result: T | null };
-  return data.result ?? null;
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 4000);
+  try {
+    const res = await fetch(REDIS_URL, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${REDIS_TOKEN}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(args),
+      signal: ctrl.signal,
+    });
+    if (!res.ok) throw new Error(`Upstash REST error: HTTP ${res.status}`);
+    const data = (await res.json()) as { result: T | null };
+    return data.result ?? null;
+  } catch (e) {
+    if (e instanceof Error && e.name === "AbortError")
+      throw new Error("Upstash timeout (4s) — اتصال به دیتابیس کند یا برقرار نیست");
+    throw e;
+  } finally {
+    clearTimeout(timer);
+  }
 }
 
 /* ── کلاینت Redis ابری — فقط اگر متغیرهای محیطی موجود باشند ساخته می‌شود ── */
@@ -165,10 +179,20 @@ export async function pingRedis(): Promise<{ ok: boolean; ms?: number; error?: s
 export const allUserIds = () => jget<string[]>("users", []);
 export const getUser = (id: string) => jget<DbUser | null>(`u:${id}`, null);
 export async function userByPhone(phone: string): Promise<DbUser | null> {
+  /* مسیر سریع: ایندکس phone→id (حداکثر ۲ درخواست به‌جای N+1) */
+  const idx = await jget<string | null>(`byphone:${phone}`, null);
+  if (idx) {
+    const u = await getUser(idx);
+    if (u && u.phone === phone) return u;
+  }
+  /* fallback برای داده‌های قدیمی که ایندکس ندارند + بازسازی ایندکس برای دفعات بعد */
   const ids = await allUserIds();
   for (const id of ids) {
     const u = await getUser(id);
-    if (u && u.phone === phone) return u;
+    if (u) {
+      await jset(`byphone:${u.phone}`, u.id);
+      if (u.phone === phone) return u;
+    }
   }
   return null;
 }
@@ -176,6 +200,7 @@ export async function saveUser(u: DbUser) {
   const ids = await allUserIds();
   if (!ids.includes(u.id)) await jset("users", [...ids, u.id]);
   await jset(`u:${u.id}`, u);
+  await jset(`byphone:${u.phone}`, u.id); /* ایندکس phone→id */
 }
 
 /* ── مدیر ثابت ──
