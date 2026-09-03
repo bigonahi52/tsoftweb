@@ -149,25 +149,14 @@ export default function Nav({ route, nav, user, onLogout }: { route: Route; nav:
           </nav>
 
           <div className="flex items-center gap-3">
-            {user ? (
-              <>
-                {user.role === "admin" && (
-                  <button onClick={() => nav({ page: "admin" })} className="hidden rounded-xl bg-gold-500 px-5 py-2.5 text-sm font-bold text-ink-950 transition-transform hover:scale-[1.02] sm:block">
-                    پنل مدیریت
-                  </button>
-                )}
-                {user.role !== "admin" && (
-                  <button onClick={() => nav({ page: "panel" })} className="hidden rounded-xl bg-teal-500 px-5 py-2.5 text-sm font-bold text-ink-950 transition-transform hover:scale-[1.02] sm:block">
-                    پنل کاربری
-                  </button>
-                )}
-                <button onClick={onLogout} className="hidden rounded-xl border border-ink-100 px-4 py-2.5 text-sm font-semibold text-ink-800 transition-colors hover:border-[#E14B4B]/50 hover:text-[#E14B4B] sm:block">
-                  خروج
-                </button>
-              </>
-            ) : (
-              <button onClick={() => nav({ page: "login" })} className="hidden rounded-xl bg-ink-950 px-5 py-2.5 text-sm font-bold text-white transition-colors hover:bg-teal-600 sm:block">
-                ورود / ثبت‌نام
+            {user && user.role === "admin" && (
+              <button onClick={() => nav({ page: "admin" })} className="hidden rounded-xl bg-gold-500 px-5 py-2.5 text-sm font-bold text-ink-950 transition-transform hover:scale-[1.02] sm:block">
+                پنل مدیریت
+              </button>
+            )}
+            {user && (
+              <button onClick={onLogout} className="hidden rounded-xl border border-ink-100 px-4 py-2.5 text-sm font-semibold text-ink-800 transition-colors hover:border-[#E14B4B]/50 hover:text-[#E14B4B] sm:block">
+                خروج
               </button>
             )}
             <button onClick={() => setOpen(!open)} className="flex h-10 w-10 items-center justify-center rounded-xl border border-ink-100 bg-white text-ink-900 lg:hidden" aria-label="منو">
@@ -201,18 +190,16 @@ export default function Nav({ route, nav, user, onLogout }: { route: Route; nav:
               ))}
             </div>
           </div>
-          <div className="mt-8">
-            {user ? (
-              <div className="space-y-3">
-                <button onClick={() => { nav({ page: user.role === "admin" ? "admin" : "panel" }); setOpen(false); }} className="w-full rounded-xl bg-gold-500 px-5 py-3.5 font-bold text-ink-950">
-                  {user.role === "admin" ? "پنل مدیریت" : "پنل کاربری"}
+          {user && (
+            <div className="mt-8 space-y-3">
+              {user.role === "admin" && (
+                <button onClick={() => { nav({ page: "admin" }); setOpen(false); }} className="w-full rounded-xl bg-gold-500 px-5 py-3.5 font-bold text-ink-950">
+                  پنل مدیریت
                 </button>
-                <button onClick={() => { onLogout(); setOpen(false); }} className="w-full rounded-xl border border-ink-600 px-5 py-3.5 font-semibold text-ink-100">خروج</button>
-              </div>
-            ) : (
-              <button onClick={() => { nav({ page: "login" }); setOpen(false); }} className="w-full rounded-xl bg-teal-500 px-5 py-3.5 font-bold text-ink-950">ورود / ثبت‌نام</button>
-            )}
-          </div>
+              )}
+              <button onClick={() => { onLogout(); setOpen(false); }} className="w-full rounded-xl border border-ink-600 px-5 py-3.5 font-semibold text-ink-100">خروج</button>
+            </div>
+          )}
           <p className="mt-12 text-center font-display text-lg text-gold-400">۱۳۸۵ — ۱۴۰۵ · دو دهه حسابِ روشن</p>
         </div>
       </div>

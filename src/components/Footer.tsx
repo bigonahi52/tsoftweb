@@ -47,7 +47,6 @@ export default function Footer({ nav }: { nav: NavFn }) {
             <ul className="mt-5 space-y-3.5 text-sm">
               <li><button onClick={() => nav({ page: "about" })} className="link-underline text-ink-100 transition-colors hover:text-gold-400">درباره ما</button></li>
               <li><button onClick={() => nav({ page: "contact" })} className="link-underline text-ink-100 transition-colors hover:text-gold-400">تماس با ما</button></li>
-              <li><button onClick={() => nav({ page: "login" })} className="link-underline text-ink-100 transition-colors hover:text-gold-400">ورود / ثبت‌نام</button></li>
               <li><button onClick={() => nav({ page: "home" })} className="link-underline text-ink-100 transition-colors hover:text-gold-400">خانه</button></li>
             </ul>
           </div>
