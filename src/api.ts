@@ -75,9 +75,13 @@ const DOWN_CODES = [0, 404, 502, 503, 508];
 
 async function call<T = unknown>(path: string, init?: RequestInit): Promise<T> {
   let res: Response;
+  /* timeout تا اگر سرور پاسخی نداد (مثل محیط پیش‌نمایش)، fetch برای همیشه hang نکند */
+  const ctrl = new AbortController();
+  const timer = window.setTimeout(() => ctrl.abort(), 8000);
   try {
     res = await fetch(path, {
       ...init,
+      signal: ctrl.signal,
       headers: {
         "Content-Type": "application/json",
         ...(getToken() ? { Authorization: `Bearer ${getToken()}` } : {}),
@@ -86,6 +90,8 @@ async function call<T = unknown>(path: string, init?: RequestInit): Promise<T> {
     });
   } catch {
     throw new ApiError("اتصال به سرور برقرار نشد", 0);
+  } finally {
+    window.clearTimeout(timer);
   }
 
   const ctype = (res.headers.get("content-type") || "").toLowerCase();
