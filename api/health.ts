@@ -3,14 +3,7 @@
    ─ هرگز crash نمی‌کند: ماژول داده با import پویا بارگذاری می‌شود و اگر خطایی
      باشد، دلیل واقعی آن گزارش می‌شود (نه یک خطای عمومی).
    ─ هیچ مقدار حساسی برگردانده نمی‌شود — فقط «بود/نبود» متغیرها (Boolean)
-     و پیام‌های خطای فنی.
-   خروجی:
-     ok      : آیا دیتابیس ابری واقعاً کار می‌کند (تنظیم + پینگ موفق)؟
-     mode    : cloud | local
-     env     : کدام Environment Variableها در Runtime دیده می‌شوند
-     source  : اتصال از کدام مجموعه متغیر ساخته شده
-     moduleError : اگر ماژول داده اصلاً بارگذاری نشد، دلیلش
-     ping    : نتیجه‌ی تست واقعی نوشتن/خواندن روی Redis */
+     و پیام‌های خطای فنی. */
 export default async function handler() {
   const env = {
     KV_REST_API_URL: Boolean(process.env.KV_REST_API_URL),
