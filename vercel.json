@@ -1,0 +1,24 @@
+{
+  "redirects": [
+    { "source": "/آموزش-کپیتال/", "destination": "/training", "permanent": true },
+    { "source": "/آموزش-کپیتال", "destination": "/training", "permanent": true },
+    { "source": "/%D8%A2%D9%85%D9%88%D8%B2%D8%B4-%DA%A9%D9%BE%DB%8C%D8%AA%D8%A7%D9%84/", "destination": "/training", "permanent": true },
+    { "source": "/%D8%A2%D9%85%D9%88%D8%B2%D8%B4-%DA%A9%D9%BE%DB%8C%D8%AA%D8%A7%D9%84", "destination": "/training", "permanent": true },
+    { "source": "/category/آموزش-کپیتال/:path*", "destination": "/training", "permanent": true },
+    { "source": "/tag/آموزش-کپیتال/:path*", "destination": "/training", "permanent": true }
+  ],
+  "rewrites": [
+    { "source": "/", "destination": "/index.html" },
+    { "source": "/tsoft", "destination": "/index.html" },
+    { "source": "/tisaft", "destination": "/index.html" },
+    { "source": "/capital", "destination": "/index.html" },
+    { "source": "/downloads", "destination": "/index.html" },
+    { "source": "/training", "destination": "/index.html" },
+    { "source": "/about", "destination": "/index.html" },
+    { "source": "/contact", "destination": "/index.html" },
+    { "source": "/login", "destination": "/index.html" },
+    { "source": "/register", "destination": "/index.html" },
+    { "source": "/panel", "destination": "/index.html" },
+    { "source": "/admin", "destination": "/index.html" }
+  ]
+}
