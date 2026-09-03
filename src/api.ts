@@ -7,6 +7,14 @@
 
 const TOKEN_KEY = "tsoft_token";
 
+/* ── تشخیص محیط ──
+   بک‌اند (توابع /api و دیتابیس ابری) فقط روی دامنه‌ی اصلی اجرا می‌شود.
+   در محیط پیش‌نمایش اصلاً سروری وجود ندارد؛ بنابراین نباید منتظر پاسخ ماند
+   یا خطای «بک‌اند در دسترس نیست» نشان داد — بلکه باید حالت پیش‌نمایش اعلام شود. */
+const PROD_HOSTS = ["tsoft20.ir", "www.tsoft20.ir"];
+const isProd =
+  typeof window !== "undefined" && PROD_HOSTS.includes(window.location.hostname);
+
 export type PubUser = {
   id: string;
   firstName: string;
@@ -40,6 +48,8 @@ export type HealthReport = {
   ping?: { ok: boolean; ms?: number; error?: string } | null;
   unreachable?: boolean;
   reason?: string;
+  /** آیا در محیط پیش‌نمایش هستیم (نه روی دامنه‌ی اصلی)؟ در این حالت بک‌اند اصلاً وجود ندارد */
+  preview?: boolean;
 };
 
 export const getToken = () => {
@@ -608,8 +618,15 @@ export const api = {
       () => local.wipeUsers()
     ),
 
-  /** سلامت دیتابیس ابری — همیشه از بک‌اندِ واقعی پرسیده می‌شود */
+  /** سلامت دیتابیس ابری.
+      ─ در پیش‌نمایش (غیر از دامنه‌ی اصلی) اصلاً به سرور درخواست نمی‌زنیم، چون سروری
+        وجود ندارد؛ فقط حالت «پیش‌نمایش» را اعلام می‌کنیم تا بنر خطای اشتباه نشان ندهد.
+      ─ در دامنه‌ی اصلی، بررسی واقعی از /api/health انجام می‌شود و نتیجه‌ی واقعی
+        (فعال/غیرفعال با دلیل) نمایش داده می‌شود. */
   health: async (): Promise<HealthReport> => {
+    if (!isProd) {
+      return { preview: true, mode: "local" };
+    }
     try {
       return await call<HealthReport>("/api/health");
     } catch (e) {

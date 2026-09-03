@@ -372,6 +372,24 @@ function DbHealthBanner({ health, onRecheck }: { health: HealthReport | null; on
         <p className="text-sm font-bold text-mist-500">در حال بررسی اتصال به دیتابیس ابری…</p>
       </div>
     );
+
+  /* حالت پیش‌نمایش — در محیط آزمایشی سروری وجود ندارد؛ این خطا نیست */
+  if (health.preview)
+    return (
+      <div className="mb-6 flex items-start gap-3 rounded-2xl border border-ink-300/50 bg-ink-50/70 px-5 py-4">
+        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-ink-100/80 text-ink-500">
+          <Icon name="server" className="h-5 w-5" />
+        </span>
+        <div>
+          <p className="text-sm font-bold text-ink-700">حالت پیش‌نمایش</p>
+          <p className="mt-0.5 text-xs leading-6 text-mist-500">
+            این یک نسخه‌ی آزمایشی است و داده‌ها به‌صورت موقت در مرورگر شما ذخیره می‌شوند.
+            دیتابیس ابری روی نسخه‌ی اصلی سایت <b dir="ltr" className="font-latin text-ink-700">tsoft20.ir</b> فعال است.
+          </p>
+        </div>
+      </div>
+    );
+
   if (health.unreachable)
     return (
       <div className="mb-6 rounded-2xl border border-[#E14B4B]/40 bg-[#E14B4B]/10 px-5 py-4">
