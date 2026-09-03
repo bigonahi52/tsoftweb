@@ -533,3 +533,107 @@ export default function AdminPanel({ user, onLogout, nav }: { user: PubUser; onL
     </div>
   );
 }
+/* ───────── بنر وضعیت واقعی دیتابیس ابری ───────── */
+function DbHealthBanner({ health, onRecheck }: { health: HealthReport | null; onRecheck: () => void }) {
+  if (!health) {
+    return (
+      <div className="mb-6 flex items-center gap-3 rounded-2xl border border-ink-100 bg-white px-5 py-4">
+        <span className="pulse-dot h-3 w-3 rounded-full bg-teal-500" />
+        <p className="text-sm font-bold text-mist-500">در حال بررسی اتصال به دیتابیس ابری…</p>
+      </div>
+    );
+  }
+  if (health.unreachable) {
+    return (
+      <div className="mb-6 rounded-2xl border border-[#E14B4B]/40 bg-[#E14B4B]/10 px-5 py-4">
+        <div className="flex items-start justify-between gap-4">
+          <div className="flex items-start gap-3">
+            <Icon name="server" className="mt-0.5 h-5 w-5 shrink-0 text-[#E14B4B]" />
+            <div>
+              <p className="text-sm font-bold text-[#E14B4B]">بک‌اند در دسترس نیست</p>
+              <p className="mt-1 text-xs leading-6 text-mist-500">{health.reason} — در این حالت داده‌ها موقتاً در مرورگر خودتان ذخیره می‌شوند.</p>
+            </div>
+          </div>
+          <RecheckBtn onClick={onRecheck} />
+        </div>
+      </div>
+    );
+  }
+  if (health.ok) {
+    return (
+      <div className="mb-6 flex items-start justify-between gap-4 rounded-2xl border border-teal-500/40 bg-teal-500/10 px-5 py-4">
+        <div className="flex items-start gap-3">
+          <Icon name="check" className="mt-0.5 h-5 w-5 shrink-0 text-teal-600" />
+          <div>
+            <p className="text-sm font-bold text-teal-600">دیتابیس ابری فعال است</p>
+            <p className="mt-0.5 text-xs leading-6 text-mist-500">
+              کاربران، تیکت‌ها و گفتگوها در Upstash Redis ذخیره می‌شوند و بین همه‌ی دستگاه‌ها مشترک‌اند.
+              {health.ping?.ms !== undefined && <span className="font-latin" dir="ltr"> · ping: {health.ping.ms}ms</span>}
+            </p>
+          </div>
+        </div>
+        <RecheckBtn onClick={onRecheck} />
+      </div>
+    );
+  }
+  const presentVars = health.env ? Object.entries(health.env).filter(([, on]) => on).map(([k]) => k) : [];
+  const missingVars = health.env ? Object.entries(health.env).filter(([, on]) => !on).map(([k]) => k) : [];
+  const detail = health.moduleError || health.ping?.error;
+  const hasBase = !!(health.env?.KV_REST_API_URL && health.env?.KV_REST_API_TOKEN);
+  return (
+    <div className="mb-6 rounded-2xl border border-gold-500/50 bg-gold-500/10 px-5 py-4">
+      <div className="flex items-start justify-between gap-4">
+        <div className="flex items-start gap-3">
+          <Icon name="shield" className="mt-0.5 h-5 w-5 shrink-0 text-gold-600" />
+          <div className="min-w-0">
+            <p className="text-sm font-bold text-gold-600">
+              {hasBase ? "اتصال به دیتابیس برقرار نشد — دلیل واقعی:" : "دیتابیس ابری فعال نیست — داده‌ها فقط محلی ذخیره می‌شوند"}
+            </p>
+            {detail && (
+              <p dir="ltr" className="mt-1.5 overflow-x-auto rounded-lg bg-ink-950/5 px-3 py-2 font-latin text-[11px] leading-5 text-ink-800" style={{ textAlign: "left" }}>
+                {detail}
+              </p>
+            )}
+            <p className="mt-1.5 text-xs leading-6 text-mist-500">
+              {hasBase
+                ? "متغیرها تنظیم‌اند ولی تست واقعی نوشتن/خواندن روی Redis ناموفق بود. جزئیات در کادر بالا آمده است."
+                : "متغیرهای اتصال در Runtime دیده نمی‌شوند. در داشبورد Vercel مطمئن شوید KV_REST_API_URL و KV_REST_API_TOKEN برای Production فعال‌اند و سپس Redeploy بزنید."}
+            </p>
+            {health.env && (
+              <div className="mt-2.5 flex flex-wrap gap-1.5">
+                {presentVars.map((k) => (
+                  <span key={k} dir="ltr" className="flex items-center gap-1 rounded-md bg-teal-500/15 px-2 py-1 font-latin text-[10px] text-teal-600">
+                    <Icon name="check" className="h-3 w-3" /> {k}
+                  </span>
+                ))}
+                {missingVars.slice(0, 4).map((k) => (
+                  <span key={k} dir="ltr" className="flex items-center gap-1 rounded-md bg-[#E14B4B]/10 px-2 py-1 font-latin text-[10px] text-[#E14B4B]">
+                    <Icon name="close" className="h-3 w-3" /> {k}
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+        <RecheckBtn onClick={onRecheck} />
+      </div>
+    </div>
+  );
+}
+
+function RecheckBtn({ onClick }: { onClick: () => void }) {
+  const [busy, setBusy] = useState(false);
+  return (
+    <button
+      onClick={() => {
+        setBusy(true);
+        onClick();
+        window.setTimeout(() => setBusy(false), 1500);
+      }}
+      className="flex shrink-0 items-center gap-1.5 rounded-lg border border-ink-100 bg-white px-3 py-2 text-xs font-bold text-mist-500 transition-all hover:border-teal-500/60 hover:text-teal-600"
+    >
+      <Icon name="update" className={`h-3.5 w-3.5 ${busy ? "animate-spin" : ""}`} />
+      بررسی مجدد
+    </button>
+  );
+}
