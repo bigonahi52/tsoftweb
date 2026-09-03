@@ -1,5 +1,42 @@
 @import "tailwindcss";
 
+/* ── فونت یکان بخ — فقط وزن‌های لازم، با swap برای نمایش فوری متن ── */
+@font-face {
+  font-family: "Yekan Bakh";
+  src: url("https://cdn.jsdelivr.net/gh/rastikerdar/yekan-bakh-font@v3.0.0/dist/YekanBakh-Light.woff2") format("woff2");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Yekan Bakh";
+  src: url("https://cdn.jsdelivr.net/gh/rastikerdar/yekan-bakh-font@v3.0.0/dist/YekanBakh-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Yekan Bakh";
+  src: url("https://cdn.jsdelivr.net/gh/rastikerdar/yekan-bakh-font@v3.0.0/dist/YekanBakh-Medium.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Yekan Bakh";
+  src: url("https://cdn.jsdelivr.net/gh/rastikerdar/yekan-bakh-font@v3.0.0/dist/YekanBakh-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Yekan Bakh";
+  src: url("https://cdn.jsdelivr.net/gh/rastikerdar/yekan-bakh-font@v3.0.0/dist/YekanBakh-Heavy.woff2") format("woff2");
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
   /* فونت‌ها */
   --font-display: "Yekan Bakh", "Rubik", "Vazirmatn", sans-serif;
