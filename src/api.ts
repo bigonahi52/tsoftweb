@@ -88,13 +88,6 @@ async function call<T = unknown>(path: string, init?: RequestInit): Promise<T> {
     throw new ApiError("اتصال به سرور برقرار نشد", 0);
   }
 
-  /* ── ریشه‌یابی خطای ثبت‌نام ──
-     اگر هاست به‌جای تابع API صفحه‌ی HTML سایت را برگرداند (SPA fallback —
-     یعنی تابع سرورلس هنوز مستقر نشده یا KV فعال نیست و سرور خطا را HTML کرده)،
-     پاسخ JSON نیست. پیش از این، کد این پاسخ را «موفق» فرض می‌کرد، شیء خالی
-     برمی‌گرداند و سپس خواندن d.user.role خطای TypeError می‌انداخت که به پیام
-     عمومی «خطایی رخ داد» ختم می‌شد. حالا نوع محتوا قبل از هر کاری بررسی می‌شود
-     و با کد ۴۰۴ به حالت محلی (Fallback) می‌رود. */
   const ctype = (res.headers.get("content-type") || "").toLowerCase();
   if (!ctype.includes("application/json")) {
     throw new ApiError("تابع API در دسترس نیست", 404);
@@ -104,8 +97,6 @@ async function call<T = unknown>(path: string, init?: RequestInit): Promise<T> {
   if (data === null || typeof data !== "object") {
     throw new ApiError("پاسخ سرور نامعتبر بود", 404);
   }
-  /* اگر سرور JSON با خطا برگرداند، این یک پیام واقعی از سرور است (real=true)
-     تا فرانت‌اند همان را به کاربر نشان دهد، نه پیام پوشاننده. */
   if (!res.ok) throw new ApiError(data.error || "خطایی در سرور رخ داد", res.status, true);
   return data as T;
 }
@@ -123,10 +114,7 @@ async function fb<T>(remote: () => Promise<T>, local: () => T): Promise<T> {
   return local();
 }
 
-/** نسخه‌ی مقاوم‌تر برای عملیات‌های احراز هویت (ورود/ثبت‌نام):
-    فقط «خطای تجاریِ واقعی» از بک‌اند (کد 4xx با پیام سرور) را به کاربر نشان می‌دهد؛
-    هر خطای دیگری (سرور پایین، پاسخ HTML، خطای 5xx، قطعی شبکه) یعنی بک‌اند در دسترس
-    نیست و عملیات روی نسخه‌ی محلی انجام می‌شود تا ورود کاربر هرگز قفل نشود. */
+/** نسخه‌ی مقاوم‌تر برای عملیات‌های احراز هویت (ورود/ثبت‌نام) */
 async function fbAuth<T>(remote: () => Promise<T>, local: () => T): Promise<T> {
   try {
     return await remote();
@@ -139,7 +127,6 @@ async function fbAuth<T>(remote: () => Promise<T>, local: () => T): Promise<T> {
 
 /* ─────────────────── حالت محلی (localStorage) ─────────────────── */
 
-/* نسخه‌ی ۲ — داده‌های قدیمی نسخه‌های قبلی (که مدیر متفاوتی می‌ساختند) نادیده گرفته می‌شوند */
 const LDB_KEY = "tsoft_local_db_v2";
 
 type LUser = PubUser & { salt: string; hash: string };
@@ -151,9 +138,24 @@ type LDb = {
   resets: Record<string, { code: string; exp: number }>;
 };
 
-/* نام کاربری و رمز ثابت مدیر (در حالت محلی) — همانند بک‌اند */
 const LOCAL_ADMIN_PHONE = "admin";
 const LOCAL_ADMIN_PASS = "tsoft20";
+
+const lhash = (s: string) => {
+  let h = 2166136261;
+  for (let i = 0; i < s.length; i++) {
+    h ^= s.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return (h >>> 0).toString(36);
+};
+const saveDb = (d: LDb) => {
+  try {
+    localStorage.setItem(LDB_KEY, JSON.stringify(d));
+  } catch {
+    /* ignore */
+  }
+};
 
 const ldb = (): LDb => {
   let d: LDb;
@@ -163,10 +165,6 @@ const ldb = (): LDb => {
   } catch {
     d = { users: [], tokens: {}, tickets: [], chats: {}, resets: {} };
   }
-  /* ── حساب مدیر ثابت ──
-     صرف‌نظر از داده‌های قدیمی (مثلاً مدیرِ ساخته‌شده در نسخه‌های قبلی)، همیشه
-     حساب «admin» با رمز «tsoft20» وجود داشته باشد و هش آن صحیح باشد.
-     اگر کاربری با همین نام کاربری هست ولی هش/نقشش قدیمی است، تعمیر می‌شود. */
   const adminSalt = "adminsalt";
   const expectedHash = lhash(adminSalt + LOCAL_ADMIN_PASS);
   const existing = d.users.find((u) => u.phone === LOCAL_ADMIN_PHONE);
@@ -190,21 +188,6 @@ const ldb = (): LDb => {
     saveDb(d);
   }
   return d;
-};
-const saveDb = (d: LDb) => {
-  try {
-    localStorage.setItem(LDB_KEY, JSON.stringify(d));
-  } catch {
-    /* ignore */
-  }
-};
-const lhash = (s: string) => {
-  let h = 2166136261;
-  for (let i = 0; i < s.length; i++) {
-    h ^= s.charCodeAt(i);
-    h = Math.imul(h, 16777619);
-  }
-  return (h >>> 0).toString(36);
 };
 const luid = () => Math.random().toString(36).slice(2, 9) + Date.now().toString(36);
 const lnorm = (p: string) =>
@@ -256,7 +239,6 @@ const local = {
       email: b.email?.trim() || undefined,
       salt,
       hash: lhash(salt + b.password),
-      /* کاربران عادی همیشه «user» هستند؛ فقط حساب مدیر (admin) نقش مدیر دارد */
       role: phone === LOCAL_ADMIN_PHONE ? "admin" : "user",
       createdAt: Date.now(),
     };
@@ -313,7 +295,6 @@ const local = {
     const code = String(Math.floor(100000 + Math.random() * 900000));
     d.resets[u.id] = { code, exp: Date.now() + 10 * 60 * 1000 };
     saveDb(d);
-    /* در حالت محلی، ایمیل ارسال نمی‌شود — کد برای نمایش برگردانده می‌شود */
     return { ok: true, demoCode: code };
   },
 
@@ -331,8 +312,6 @@ const local = {
     saveDb(d);
     return { ok: true };
   },
-
-  /* فرم تماس دیگر fallback جعلی ندارد — حذف شد تا موفقیت کاذب رخ ندهد */
 
   tickets: () => {
     const d = ldb();
@@ -482,7 +461,6 @@ const local = {
     return { ok: true };
   },
 
-  /* حذف یک کاربر توسط مدیر */
   deleteUser: (targetId: string) => {
     const me = lrequireAdmin();
     if (targetId === me.id) throw new ApiError("نمی‌توانید حساب خودتان را حذف کنید");
@@ -496,7 +474,6 @@ const local = {
     return { ok: true };
   },
 
-  /* حذف همه‌ی کاربران توسط مدیر (حساب خود مدیر حفظ می‌شود) */
   wipeUsers: () => {
     const me = lrequireAdmin();
     const d = ldb();
@@ -536,20 +513,12 @@ export const api = {
       () => local.reset(b)
     ),
 
-  /* فرم تماس: برخلاف بقیه‌ی بخش‌ها عمداً از fallback جعلی استفاده نمی‌کند؛
-     چون هدف ارسالِ واقعی ایمیل است و نباید موفقیتِ کاذب نمایش داده شود.
-     اگر سرور خطای واقعی بدهد همان پیام به کاربر نشان داده می‌شود و اگر بک‌اند
-     اصلاً در دسترس نباشد (مثلاً محیط پیش‌نمایش) پیام راهنمای تماس نمایش داده می‌شود. */
   contact: async (b: { name: string; phone?: string; business?: string; product?: string; message: string }) => {
     try {
       return await call<{ ok: boolean; id?: string }>("/api/contact", { method: "POST", body: JSON.stringify(b) });
     } catch (e) {
-      /* اگر سرور پیام خطای واقعی و گویا فرستاده باشد (real=true — مثلاً «RESEND_API_KEY
-         تنظیم نشده» یا «خطا در ارسال») همان را به کاربر نشان می‌دهیم تا ریشه‌ی مشکل مشخص باشد.
-         فقط وقتی بک‌اند اصلاً در دسترس نیست (قطعی شبکه، یا crash تابع API که پاسخ غیر JSON
-         برگردانده و real=false است) کاربر را به تماس/پیام‌رسان راهنمایی می‌کنیم. */
       if (e instanceof ApiError && e.real) {
-        throw e; /* پیام واقعی و گویای سرور */
+        throw e;
       }
       throw new ApiError("در حال حاضر امکان ارسال آنلاین پیام نیست؛ لطفاً با شماره‌ی پشتیبانی تماس بگیرید یا در پیام‌رسان‌ها پیام بدهید.", 0);
     }
@@ -621,23 +590,19 @@ export const api = {
       () => local.adminSend(userId, text)
     ),
 
-  /* حذف یک کاربر توسط مدیر */
   deleteUser: (targetId: string) =>
     fb(
       () => call<{ ok: boolean }>("/api/auth", { method: "POST", body: JSON.stringify({ action: "deleteUser", targetId }) }),
       () => local.deleteUser(targetId)
     ),
 
-  /* حذف همه‌ی کاربران توسط مدیر */
   wipeUsers: () =>
     fb(
       () => call<{ ok: boolean; deleted: number }>("/api/auth", { method: "POST", body: JSON.stringify({ action: "wipe" }) }),
       () => local.wipeUsers()
     ),
 
-  /** سلامت دیتابیس ابری — همیشه از بک‌اندِ واقعی پرسیده می‌شود؛ هرگز نتیجه‌ی
-      جعلیِ «محلی» برگردانده نمی‌شود. اگر بک‌اند در دسترس نباشد، همان واقعیت
-      (unreachable) گزارش می‌شود تا پنل مدیریت خطای واقعی را نشان دهد. */
+  /** سلامت دیتابیس ابری — همیشه از بک‌اندِ واقعی پرسیده می‌شود */
   health: async (): Promise<HealthReport> => {
     try {
       return await call<HealthReport>("/api/health");

@@ -1,39 +1,5 @@
-# وابستگی‌ها و خروجی بیلد
 node_modules/
 .next/
 dist/
 build/
 *.log
-
-# فایل‌های حجیم و باینری — نباید وارد گیت شوند (محدودیت ۱۰۰ مگابایت گیت‌هاب)
-# فایل‌های نصب و دانلود روی هاست dl.tsoft20.ir نگهداری می‌شوند، نه در مخزن
-*.exe
-*.msi
-*.zip
-*.rar
-*.7z
-*.iso
-*.img
-*.dmg
-*.apk
-*.mp4
-*.avi
-*.mov
-*.dll
-*.bin
-
-# اما فایل‌های راهنما و متنی داخل پوشه دانلود نگه داشته شوند
-!public/Download/**/README.md
-!public/Download/**/readme.md
-
-# فایل‌های سیستمی و محرمانه
-.DS_Store
-Thumbs.db
-.env
-.env.local
-*.pem
-*.key
-
-# تنظیمات محلی
-.vercel
-.cache/

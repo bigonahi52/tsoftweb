@@ -1,49 +1,39 @@
 import { useState } from "react";
 import { api, ApiError } from "../api";
 import { messengers } from "../data";
-import { PHONE_FA, PHONE_TEL, useRevealAll } from "../lib";
+import { fa, PHONE_FA, PHONE_TEL, useRevealAll } from "../lib";
 import { Icon } from "./Icons";
-
-const fields = [
-  { name: "name", label: "نام و نام خانوادگی", type: "text", placeholder: "مثلاً: علی محمدی" },
-  { name: "phone", label: "شماره تماس", type: "tel", placeholder: "۰۹۱۲ ..." },
-  { name: "business", label: "نوع کسب‌وکار", type: "text", placeholder: "فروشگاه، بازرگانی…" },
-] as const;
 
 export default function ContactPage() {
   const ref = useRevealAll<HTMLDivElement>();
-  const [sent, setSent] = useState(false);
+  const [form, setForm] = useState({ name: "", phone: "", business: "", product: "", message: "" });
   const [busy, setBusy] = useState(false);
-  const [errMsg, setErrMsg] = useState("");
-  const [form, setForm] = useState<Record<string, string>>({});
+  const [sent, setSent] = useState(false);
+  const [err, setErr] = useState("");
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setErrMsg("");
     setBusy(true);
+    setErr("");
     try {
-      await api.contact({
-        name: form.name || "",
-        phone: form.phone,
-        business: form.business,
-        product: form.product,
-        message: form.message || "",
-      });
+      await api.contact(form);
       setSent(true);
     } catch (ex) {
-      setErrMsg(ex instanceof ApiError ? ex.message : "خطا در ارسال پیام — مستقیم تماس بگیرید.");
+      setErr(ex instanceof ApiError ? ex.message : "خطا در ارسال پیام");
     } finally {
       setBusy(false);
     }
   };
+
+  const inputCls = "w-full rounded-xl border border-ink-100 bg-paper px-4 py-3.5 text-sm text-ink-900 transition-all placeholder:text-mist-300 focus:border-teal-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-teal-500/15";
 
   return (
     <div ref={ref} className="bg-paper">
       <section className="grid-lines grid-lines-fade noise relative overflow-hidden bg-ink-950 pb-16 pt-14 sm:pt-20">
         <div className="pointer-events-none absolute -left-32 bottom-0 h-[380px] w-[380px] rounded-full bg-teal-600/15 blur-[120px]" />
         <div className="relative mx-auto max-w-7xl px-4 sm:px-6">
-          <p className="reveal font-latin text-xs tracking-[0.35em] text-teal-400">GET IN TOUCH</p>
-          <h1 className="mt-4">
+          <p className="reveal eyebrow text-teal-400">GET IN TOUCH</p>
+          <h1 className="reveal mt-4">
             <span className="line-mask"><span className="font-display text-6xl leading-none text-white sm:text-7xl">حرف‌تان را بزنید؛</span></span>
             <span className="line-mask" style={{ "--rv-delay": "120ms" } as React.CSSProperties}>
               <span className="font-display text-6xl leading-none text-gold-400 sm:text-7xl">گوش می‌دهیم</span>
@@ -60,55 +50,47 @@ export default function ContactPage() {
           <div className="reveal rounded-3xl border border-ink-100 bg-white p-8 sm:p-10">
             {sent ? (
               <div className="flex h-full min-h-[420px] flex-col items-center justify-center text-center">
-                <span className="seal-pulse flex h-20 w-20 items-center justify-center rounded-full bg-teal-500 text-ink-950">
-                  <Icon name="check" className="h-10 w-10" />
-                </span>
-                <h2 className="mt-6 font-display text-3xl text-ink-900 sm:text-4xl">پیام شما با موفقیت ارسال شد</h2>
+                <span className="seal-pulse flex h-20 w-20 items-center justify-center rounded-full bg-teal-500 text-ink-950"><Icon name="check" className="h-10 w-10" /></span>
+                <h2 className="mt-6 font-display text-4xl text-ink-900">رسید!</h2>
                 <p className="mt-3 max-w-sm leading-8 text-mist-500">
-                  {form.name ? `${form.name} عزیز، ` : ""}پیام‌تان به ایمیل پشتیبانی رسید؛ در اولین ساعت کاری با شما تماس می‌گیریم.
+                  {form.name ? `${form.name} عزیز، ` : ""}پیام شما با موفقیت ارسال شد. در اولین ساعت کاری با شما تماس می‌گیریم.
                 </p>
-                <button onClick={() => setSent(false)} className="link-underline mt-8 text-sm font-bold text-teal-600">ارسال پیام دیگر</button>
+                <button onClick={() => { setSent(false); setForm({ name: "", phone: "", business: "", product: "", message: "" }); }} className="link-underline mt-8 text-sm font-bold text-teal-600">ارسال پیام دیگر</button>
               </div>
             ) : (
               <form onSubmit={submit}>
                 <h2 className="font-display text-3xl text-ink-900">فرم تماس</h2>
                 <div className="mt-7 grid gap-5 sm:grid-cols-2">
-                  {fields.map((f) => (
-                    <label key={f.name} className={`block ${f.name === "business" ? "sm:col-span-2" : ""}`}>
-                      <span className="mb-2 block text-sm font-bold text-ink-900">{f.label}</span>
-                      <input required type={f.type} placeholder={f.placeholder} value={form[f.name] ?? ""} onChange={(e) => setForm({ ...form, [f.name]: e.target.value })} className="w-full rounded-xl border border-ink-100 bg-paper px-4 py-3.5 text-sm text-ink-900 transition-all placeholder:text-mist-300 focus:border-teal-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-teal-500/15" />
-                    </label>
-                  ))}
+                  <label className="block">
+                    <span className="mb-2 block text-sm font-bold text-ink-900">نام و نام خانوادگی *</span>
+                    <input required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="مثلاً: علی رضایی" className={inputCls} />
+                  </label>
+                  <label className="block">
+                    <span className="mb-2 block text-sm font-bold text-ink-900">شماره تماس</span>
+                    <input dir="ltr" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} placeholder="0915 ..." className={inputCls + " text-left"} />
+                  </label>
+                  <label className="block sm:col-span-2">
+                    <span className="mb-2 block text-sm font-bold text-ink-900">نوع کسب‌وکار</span>
+                    <input value={form.business} onChange={(e) => setForm({ ...form, business: e.target.value })} placeholder="فروشگاه، بازرگانی…" className={inputCls} />
+                  </label>
                   <label className="block sm:col-span-2">
                     <span className="mb-2 block text-sm font-bold text-ink-900">محصول موردنظر</span>
-                    <select value={form.product ?? ""} onChange={(e) => setForm({ ...form, product: e.target.value })} className="w-full rounded-xl border border-ink-100 bg-paper px-4 py-3.5 text-sm text-ink-900 focus:border-teal-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-teal-500/15">
+                    <select value={form.product} onChange={(e) => setForm({ ...form, product: e.target.value })} className={inputCls}>
                       <option value="">هنوز مطمئن نیستم — راهنمایی می‌خواهم</option>
                       <option>تیسافت — حسابداری فروشگاهی</option>
                       <option>کپیتال — حسابداری چندارزی</option>
                     </select>
                   </label>
                   <label className="block sm:col-span-2">
-                    <span className="mb-2 block text-sm font-bold text-ink-900">پیام شما</span>
-                    <textarea required rows={5} placeholder="چند خط درباره نیازتان بنویسید…" value={form.message ?? ""} onChange={(e) => setForm({ ...form, message: e.target.value })} className="w-full resize-none rounded-xl border border-ink-100 bg-paper px-4 py-3.5 text-sm text-ink-900 transition-all placeholder:text-mist-300 focus:border-teal-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-teal-500/15" />
+                    <span className="mb-2 block text-sm font-bold text-ink-900">پیام شما *</span>
+                    <textarea required rows={5} value={form.message} onChange={(e) => setForm({ ...form, message: e.target.value })} placeholder="چند خط درباره نیازتان بنویسید…" className={inputCls + " resize-none"} />
                   </label>
                 </div>
-                {errMsg && (
-                  <p className="ticker-in mt-5 flex items-start gap-2 rounded-xl bg-[#E14B4B]/10 px-4 py-3 text-sm font-bold text-[#E14B4B]">
-                    <Icon name="bell" className="mt-0.5 h-4 w-4 shrink-0" />
-                    {errMsg}
-                  </p>
-                )}
-                <button
-                  type="submit"
-                  disabled={busy}
-                  className="btn-shine group mt-7 flex w-full items-center justify-center gap-2.5 rounded-xl bg-ink-900 py-4 text-base font-bold text-white transition-colors hover:bg-teal-600 disabled:opacity-60"
-                >
+                {err && <p className="mt-4 rounded-xl bg-[#E14B4B]/10 px-4 py-3 text-sm font-bold text-[#E14B4B]">{err}</p>}
+                <button type="submit" disabled={busy} className="btn-shine group mt-7 flex w-full items-center justify-center gap-2.5 rounded-xl bg-ink-950 py-4 text-base font-bold text-white transition-colors hover:bg-teal-600 disabled:opacity-60">
                   {busy ? "در حال ارسال…" : "ارسال پیام"}
-                  {!busy && <Icon name="arrow" className="h-4 w-4 transition-transform group-hover:-translate-x-1" />}
+                  <Icon name="send" className="h-4 w-4 -scale-x-100 transition-transform group-hover:-translate-x-1" />
                 </button>
-                <p className="mt-3 text-center text-[11px] leading-6 text-mist-500">
-                  پیام شما مستقیم به ایمیل پشتیبانی ارسال می‌شود و در اولین فرصت پاسخ می‌دهیم.
-                </p>
               </form>
             )}
           </div>
@@ -119,11 +101,7 @@ export default function ContactPage() {
               <div>
                 <p className="font-display text-xl text-ink-900">تلفن پشتیبانی و فروش</p>
                 <a href={`tel:${PHONE_TEL}`} dir="ltr" className="phone-number mt-1.5 inline-block text-3xl text-teal-600 transition-colors hover:text-teal-500">{PHONE_FA}</a>
-                <p className="mt-1.5 flex items-center gap-1.5 text-sm font-bold text-gold-600">
-                  <Icon name="spark" className="h-3.5 w-3.5" />
-                  تماس مستقیم با مهندس بیگناهی — بدون واسطه
-                </p>
-                <p className="mt-1 text-sm text-mist-500">شنبه تا پنجشنبه — ۹ تا ۱۴ و ۱۷ تا ۲۲ · تعطیلات: اضطراری</p>
+                <p className="mt-1.5 text-sm text-mist-500">شنبه تا پنجشنبه — {fa(9)} تا {fa(14)} و {fa(17)} تا {fa(22)} · تعطیلات: اضطراری</p>
               </div>
             </div>
 
@@ -158,12 +136,7 @@ export default function ContactPage() {
               <p className="relative font-latin text-[10px] tracking-[0.3em] text-teal-400">WHAT YOU GET</p>
               <p className="relative mt-1 font-display text-xl text-white">با هر خرید، همراه‌تان هستیم</p>
               <ul className="relative mt-4 space-y-3">
-                {[
-                  "یک سال پشتیبانی کامل رایگان — تلفنی و با اتصال امن",
-                  "فعال‌سازی با پین‌کد نرم‌افزاری — بدون قفل سخت‌افزاری",
-                  "نسخه‌ی تک‌کاربره یا تحت شبکه، بسته به نیاز شما",
-                  "بکاپ در فضای ابری یا ارسال خودکار با ایمیل",
-                ].map((it) => (
+                {["یک سال پشتیبانی کامل رایگان — تلفنی و با اتصال امن", "فعال‌سازی با پین‌کد نرم‌افزاری — بدون قفل سخت‌افزاری", "نسخه‌ی تک‌کاربره یا تحت شبکه، بسته به نیاز شما", "بکاپ در فضای ابری یا ارسال خودکار با ایمیل"].map((it) => (
                   <li key={it} className="flex items-start gap-2.5 text-sm leading-7 text-mist-300">
                     <Icon name="check" className="mt-1.5 h-4 w-4 shrink-0 text-gold-400" />
                     {it}

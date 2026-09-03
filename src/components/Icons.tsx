@@ -1,3 +1,6 @@
+import type { SVGProps } from "react";
+
+/* ── آیکون‌های خطی ── */
 const paths: Record<string, React.ReactNode> = {
   receipt: (
     <>
@@ -7,35 +10,35 @@ const paths: Record<string, React.ReactNode> = {
   ),
   box: (
     <>
-      <path d="M12 3 4 7v10l8 4 8-4V7l-8-4Z" />
-      <path d="M4 7l8 4 8-4M12 11v10" />
+      <path d="M21 8 12 3 3 8v8l9 5 9-5V8Z" />
+      <path d="M3 8l9 5 9-5M12 13v8" />
     </>
   ),
   network: (
     <>
-      <circle cx="12" cy="5" r="2.4" />
-      <circle cx="5" cy="18" r="2.4" />
-      <circle cx="19" cy="18" r="2.4" />
-      <path d="M12 7.5V12m0 0-5.4 4M12 12l5.4 4" />
+      <rect x="9" y="3" width="6" height="6" rx="1.5" />
+      <rect x="3" y="15" width="6" height="6" rx="1.5" />
+      <rect x="15" y="15" width="6" height="6" rx="1.5" />
+      <path d="M12 9v3M12 12H6v3M12 12h6v3" />
     </>
   ),
   ledger: (
     <>
-      <rect x="5" y="3.5" width="14" height="17" rx="2" />
-      <path d="M9 3.5v17M12.5 8h3.5M12.5 12h3.5" />
+      <path d="M5 4h14v16H5a1.5 1.5 0 0 1-1.5-1.5v-13A1.5 1.5 0 0 1 5 4Z" />
+      <path d="M8 4v16M11.5 9h4M11.5 13h4" />
     </>
   ),
   scale: (
     <>
-      <path d="M12 4v16M7 20h10" />
-      <path d="M5 8 12 6l7 2" />
-      <path d="M5 8l-2.5 5a3 3 0 0 0 5 0L5 8ZM19 8l-2.5 5a3 3 0 0 0 5 0L19 8Z" />
+      <path d="M12 4v16M8 20h8" />
+      <path d="M12 6 5 8m7-2 7 2" />
+      <path d="M5 8l-2 5a3.5 3.5 0 0 0 7 0L8 8M19 8l-2 5a3.5 3.5 0 0 0 7 0l-2-5" transform="translate(-1.5 0)" />
     </>
   ),
   report: (
     <>
-      <rect x="4" y="4" width="16" height="16" rx="2" />
-      <path d="M8 16v-4M12 16V8M16 16v-6" />
+      <path d="M5 4h11l3 3v13H5V4Z" />
+      <path d="M16 4v3h3M9 16v-3M12 16v-5M15 16v-2" />
     </>
   ),
   coins: (
@@ -53,46 +56,45 @@ const paths: Record<string, React.ReactNode> = {
   ),
   edit: (
     <>
-      <path d="M4 20h16" />
-      <path d="M6 16 16.5 5.5a1.9 1.9 0 0 1 2.7 0l.3.3a1.9 1.9 0 0 1 0 2.7L9 19l-4 1 1-4Z" />
+      <path d="M14 5.5 18.5 10 8 20.5H3.5V16L14 5.5Z" />
+      <path d="M12.5 7 17 11.5" />
     </>
   ),
   store: (
     <>
-      <path d="M4 9 5.5 4h13L20 9" />
-      <path d="M4 9a2.6 2.6 0 0 0 5.3 0 2.7 2.7 0 0 0 5.4 0A2.6 2.6 0 0 0 20 9" />
-      <path d="M5.5 12v8h13v-8M10 20v-5h4v5" />
+      <path d="M4 9 5.5 4h13L20 9M4 9v11h16V9M4 9h16" />
+      <path d="M9 20v-6h6v6" />
     </>
   ),
   barcode: (
     <>
-      <path d="M4 6v12M7.5 6v12M10 6v12M13.5 6v12M16 6v12M20 6v12" strokeWidth="1.6" />
+      <path d="M4 6v12M7.5 6v12M10 6v9M13 6v12M16 6v9M20 6v12" />
     </>
   ),
   monitor: (
     <>
-      <rect x="3.5" y="4.5" width="17" height="12" rx="2" />
-      <path d="M9 20h6M12 16.5V20" />
+      <rect x="3" y="4" width="18" height="12" rx="2" />
+      <path d="M9 20h6M12 16v4" />
     </>
   ),
   bell: (
     <>
-      <path d="M12 4a6 6 0 0 1 6 6v3.5l1.5 3h-15L6 13.5V10a6 6 0 0 1 6-6Z" />
-      <path d="M10 19.5a2 2 0 0 0 4 0" />
+      <path d="M6 9a6 6 0 0 1 12 0c0 5 2 6 2 6H4s2-1 2-6Z" />
+      <path d="M10 18a2 2 0 0 0 4 0" />
     </>
   ),
   users: (
     <>
-      <circle cx="9" cy="8.5" r="3.2" />
-      <path d="M3.5 19a5.5 5.5 0 0 1 11 0" />
-      <path d="M15.5 6.3a3.2 3.2 0 0 1 0 4.9M17.5 14.6a5.5 5.5 0 0 1 3 4.4" />
+      <circle cx="9" cy="8" r="3.5" />
+      <path d="M3 20c0-3.5 2.5-5.5 6-5.5s6 2 6 5.5" />
+      <path d="M16 4.8a3.5 3.5 0 0 1 0 6.4M17.5 14.8c2.2.8 3.5 2.5 3.5 5.2" />
     </>
   ),
   printer: (
     <>
-      <path d="M7 8V4h10v4" />
+      <path d="M7 8V3h10v5" />
       <rect x="4" y="8" width="16" height="8" rx="1.5" />
-      <path d="M7 13h10v7H7v-7Z" />
+      <path d="M7 13h10v8H7v-8Z" />
     </>
   ),
   phone: (
@@ -103,26 +105,27 @@ const paths: Record<string, React.ReactNode> = {
   mail: (
     <>
       <rect x="3.5" y="5.5" width="17" height="13" rx="2" />
-      <path d="m4.5 7.5 7.5 6 7.5-6" />
+      <path d="m4.5 7.5 7.5 5.5 7.5-5.5" />
     </>
   ),
   chat: (
     <>
       <path d="M12 3.5c-4.7 0-8.5 3.2-8.5 7.1 0 1.6.7 3.1 1.8 4.3l-.6 3.4 3.5-1.6c1.2.4 2.5.6 3.8.6 4.7 0 8.5-3.2 8.5-7.1S16.7 3.5 12 3.5Z" />
+      <path d="M8.2 10.6h.01M12 10.6h.01M15.8 10.6h.01" strokeLinecap="round" strokeWidth="2.2" />
     </>
   ),
   headset: (
     <>
-      <path d="M4.5 13.5V12a7.5 7.5 0 0 1 15 0v1.5" />
-      <rect x="3.5" y="13" width="4" height="6" rx="1.6" />
-      <rect x="16.5" y="13" width="4" height="6" rx="1.6" />
-      <path d="M19 19v.5a2.5 2.5 0 0 1-2.5 2.5H13" />
+      <path d="M4 14v-2a8 8 0 0 1 16 0v2" />
+      <rect x="3" y="13" width="4" height="6" rx="1.5" />
+      <rect x="17" y="13" width="4" height="6" rx="1.5" />
+      <path d="M19 19v.7a2.3 2.3 0 0 1-2.3 2.3H13" />
     </>
   ),
   key: (
     <>
-      <circle cx="8" cy="15.5" r="4.5" />
-      <path d="M11.5 12.5 19 5M16.5 7.5l2.5 2.5M14 10l2 2" />
+      <circle cx="8" cy="8" r="4.5" />
+      <path d="M11.2 11.2 20 20M16.5 16.5 19 14M14 14l1.8-1.8" />
     </>
   ),
   cloud: (
@@ -139,8 +142,8 @@ const paths: Record<string, React.ReactNode> = {
   ),
   shield: (
     <>
-      <path d="M12 3 5 6v6c0 4.5 3 7.5 7 9 4-1.5 7-4.5 7-9V6l-7-3Z" />
-      <path d="m9 12 2.2 2.2L15.5 9.5" />
+      <path d="M12 3 5 6v5c0 4.5 3 8 7 10 4-2 7-5.5 7-10V6l-7-3Z" />
+      <path d="m9 11.5 2 2 4-4.5" />
     </>
   ),
   spark: (
@@ -151,7 +154,7 @@ const paths: Record<string, React.ReactNode> = {
   award: (
     <>
       <circle cx="12" cy="9" r="5.5" />
-      <path d="m8.8 13.5-1.8 7 5-3 5 3-1.8-7" />
+      <path d="m8.5 13.5-2 7 5.5-3 5.5 3-2-7" />
     </>
   ),
   heart: (
@@ -161,14 +164,13 @@ const paths: Record<string, React.ReactNode> = {
   ),
   megaphone: (
     <>
-      <path d="M4 10v4a1.5 1.5 0 0 0 1.5 1.5H8l7 4.5V4L8 8.5H5.5A1.5 1.5 0 0 0 4 10Z" />
+      <path d="M4 10v4a1.5 1.5 0 0 0 1.5 1.5H8l7 4.5V4L8 8H5.5A1.5 1.5 0 0 0 4 10Z" />
       <path d="M18 9a3.5 3.5 0 0 1 0 6M8 15.5V19a1.5 1.5 0 0 0 3 .5" />
     </>
   ),
   update: (
     <>
-      <path d="M19 12a7 7 0 1 1-2.3-5.2" />
-      <path d="M19 3v4.5h-4.5" />
+      <path d="M20 12a8 8 0 1 1-2.3-5.6M20 3v4h-4" />
     </>
   ),
   sun: (
@@ -180,32 +182,32 @@ const paths: Record<string, React.ReactNode> = {
   globe: (
     <>
       <circle cx="12" cy="12" r="8.5" />
-      <path d="M3.5 12h17M12 3.5c-2.7 2.5-2.7 14.5 0 17 2.7-2.5 2.7-14.5 0-17Z" />
+      <path d="M3.5 12h17M12 3.5c2.5 2.3 3.8 5.2 3.8 8.5s-1.3 6.2-3.8 8.5c-2.5-2.3-3.8-5.2-3.8-8.5s1.3-6.2 3.8-8.5Z" />
     </>
   ),
   search: (
     <>
-      <circle cx="10.5" cy="10.5" r="6" />
-      <path d="m15.2 15.2 5 5" />
+      <circle cx="10.5" cy="10.5" r="6.5" />
+      <path d="m15.5 15.5 5 5" />
     </>
   ),
   truck: (
     <>
-      <path d="M3 6h11v10H3V6ZM14 10h4l3 3v3h-7v-6Z" />
-      <circle cx="7" cy="17.5" r="1.8" />
-      <circle cx="17" cy="17.5" r="1.8" />
+      <path d="M3 7h11v10H3zM14 10h4l3 3v4h-7" />
+      <circle cx="7" cy="18.5" r="1.8" />
+      <circle cx="17" cy="18.5" r="1.8" />
     </>
   ),
   server: (
     <>
-      <rect x="4" y="4.5" width="16" height="6" rx="1.5" />
-      <rect x="4" y="13.5" width="16" height="6" rx="1.5" />
-      <path d="M7.5 7.5h.01M7.5 16.5h.01" strokeWidth="2" />
+      <rect x="4" y="4" width="16" height="7" rx="1.5" />
+      <rect x="4" y="13" width="16" height="7" rx="1.5" />
+      <path d="M7.5 7.5h.01M7.5 16.5h.01" strokeLinecap="round" strokeWidth="2.4" />
     </>
   ),
   wrench: (
     <>
-      <path d="M14.5 6.5a4 4 0 0 0-5.2 5L4 16.8 7.2 20l5.3-5.3a4 4 0 0 0 5-5.2L14.6 12l-2.6-2.6 2.5-2.9Z" />
+      <path d="M14.5 6.5a4.5 4.5 0 0 0-6 5.6L3 17.6a2 2 0 1 0 2.8 2.8l5.5-5.5a4.5 4.5 0 0 0 5.6-6L14 12l-2-2 2.5-3.5Z" />
     </>
   ),
   arrow: (
@@ -221,8 +223,7 @@ const paths: Record<string, React.ReactNode> = {
   ),
   send: (
     <>
-      <path d="m4 11 16-7-5 16-3.5-6.5L4 11Z" />
-      <path d="M11.5 13.5 20 4" />
+      <path d="M21 3 10 14M21 3l-7 18-3-7-7-3 17-8Z" />
     </>
   ),
   close: (
@@ -237,7 +238,7 @@ const paths: Record<string, React.ReactNode> = {
   ),
   play: (
     <>
-      <path d="M8 5.5v13l11-6.5-11-6.5Z" />
+      <path d="M7 5.5v13l11-6.5-11-6.5Z" />
     </>
   ),
   check: (
@@ -252,13 +253,14 @@ const paths: Record<string, React.ReactNode> = {
   ),
   trash: (
     <>
-      <path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2" />
+      <path d="M4 7h16M9 7V4.5h6V7M6.5 7l1 13h9l1-13" />
+      <path d="M10 11v6M14 11v6" />
     </>
   ),
   gear: (
     <>
-      <circle cx="12" cy="12" r="3.2" />
-      <path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1.03 1.56V21a2 2 0 1 1-4 0v-.09a1.7 1.7 0 0 0-1.11-1.56 1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.7 1.7 0 0 0 4.58 15a1.7 1.7 0 0 0-1.56-1.03H3a2 2 0 1 1 0-4h.09A1.7 1.7 0 0 0 4.65 8.86a1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.7 1.7 0 0 0 1.87.34h.08A1.7 1.7 0 0 0 10.12 3V3a2 2 0 1 1 4 0v.09a1.7 1.7 0 0 0 1.03 1.56 1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.7 1.7 0 0 0-.34 1.87v.08a1.7 1.7 0 0 0 1.56 1.03H21a2 2 0 1 1 0 4h-.09a1.7 1.7 0 0 0-1.51.88Z" />
+      <circle cx="12" cy="12" r="3" />
+      <path d="M12 2.5 13.5 5h2.7l1 2.4 2.4 1v2.7L22 12.5 19.6 14v2.7l-2.4 1-1 2.4h-2.7L12 22.5 10.5 20H7.8l-1-2.4-2.4-1v-2.7L2 12.5 4.4 11V8.3l2.4-1 1-2.4h2.7L12 2.5Z" />
     </>
   ),
   lock: (
@@ -282,40 +284,32 @@ const paths: Record<string, React.ReactNode> = {
   ),
 };
 
-export function Icon({ name, className = "h-5 w-5" }: { name: string; className?: string }) {
+export function Icon({ name, ...props }: { name: string } & SVGProps<SVGSVGElement>) {
   return (
     <svg
       viewBox="0 0 24 24"
-      className={className}
       fill="none"
       stroke="currentColor"
       strokeWidth="1.7"
       strokeLinecap="round"
       strokeLinejoin="round"
-      aria-hidden
+      aria-hidden="true"
+      {...props}
     >
       {paths[name] ?? paths.box}
     </svg>
   );
 }
 
-/** لوگوی گروه — مونوگرام T (تیسافت) + C (کپیتال) */
-export function Logo({ className = "h-10 w-10" }: { className?: string }) {
+/* ── لوگوی رسمی TSOFT (مونوگرام T + کمان C طلایی) ── */
+export function Logo({ className }: { className?: string }) {
   return (
-    <svg viewBox="0 0 48 48" className={className} aria-hidden>
-      <rect width="48" height="48" rx="13.5" fill="var(--color-teal-600)" />
-      <rect x="8.5" y="8.5" width="31" height="31" rx="8.5" fill="var(--color-ink-900)" opacity="0.55" />
-      {/* T — تیسافت */}
-      <rect x="11" y="13" width="21" height="4.6" rx="2.3" fill="#eef6f7" />
-      <rect x="18.8" y="13" width="4.8" height="22" rx="2.4" fill="#eef6f7" />
-      {/* C — کپیتال؛ کمانی که دهانه‌اش به سمت ساقِ T باز است و با آن در هم قفل می‌شود */}
-      <path
-        d="M25.7 21 A 8.6 8.6 0 1 1 25.7 32"
-        stroke="var(--color-gold-500)"
-        strokeWidth="5"
-        fill="none"
-        strokeLinecap="round"
-      />
+    <svg viewBox="0 0 48 48" className={className} aria-label="لوگوی تیسافت">
+      <rect width="48" height="48" rx="13.5" fill="#0e9f6e" />
+      <rect x="8.5" y="8.5" width="31" height="31" rx="8.5" fill="#0c1f19" opacity="0.55" />
+      <rect x="11" y="13" width="21" height="4.6" rx="2.3" fill="#eef4ee" />
+      <rect x="18.8" y="13" width="4.8" height="22" rx="2.4" fill="#eef4ee" />
+      <path d="M25.7 21 A 8.6 8.6 0 1 1 25.7 32" stroke="#eaa63b" strokeWidth="5" fill="none" strokeLinecap="round" />
     </svg>
   );
 }
@@ -324,68 +318,68 @@ export function SiteLogo({ className }: { className?: string }) {
   return <Logo className={className} />;
 }
 
+/* ── پرچم کشورها ── */
 const flags: Record<string, React.ReactNode> = {
   USD: (
     <>
-      <rect width="30" height="20" fill="#b22234" />
-      <rect y="2.86" width="30" height="2.86" fill="#fff" />
-      <rect y="8.57" width="30" height="2.86" fill="#fff" />
-      <rect y="14.28" width="30" height="2.86" fill="#fff" />
-      <rect width="13" height="10" fill="#3c3b6e" />
+      <rect width="24" height="16" fill="#b22234" />
+      {[2, 4.5, 7, 9.5, 12, 14].map((y) => (
+        <rect key={y} y={y} width="24" height="1.2" fill="#fff" />
+      ))}
+      <rect width="10" height="8" fill="#3c3b6e" />
     </>
   ),
   EUR: (
     <>
-      <rect width="30" height="20" fill="#003399" />
-      <circle cx="15" cy="10" r="6" fill="none" stroke="#ffcc00" strokeWidth="1.4" strokeDasharray="1.5 1.6" />
+      <rect width="24" height="16" fill="#003399" />
+      <circle cx="12" cy="8" r="4.5" fill="none" stroke="#ffcc00" strokeWidth="1.4" strokeDasharray="1.5 1.4" />
     </>
   ),
   AED: (
     <>
-      <rect width="30" height="20" fill="#00732f" />
-      <rect y="6.7" width="30" height="6.6" fill="#fff" />
-      <rect y="13.3" width="30" height="6.7" fill="#111" />
-      <rect width="9" height="20" fill="#ff0000" />
+      <rect width="24" height="16" fill="#fff" />
+      <rect width="24" height="5.3" fill="#00732f" />
+      <rect y="10.7" width="24" height="5.3" fill="#000" />
+      <rect width="6" height="16" fill="#ff0000" />
     </>
   ),
   AFN: (
     <>
-      <rect width="10" height="20" fill="#111" />
-      <rect x="10" width="10" height="20" fill="#d32011" />
-      <rect x="20" width="10" height="20" fill="#007a36" />
-      <circle cx="15" cy="10" r="3.4" fill="none" stroke="#fff" strokeWidth="1" />
+      <rect width="24" height="16" fill="#000" />
+      <rect x="8" width="8" height="16" fill="#d32011" />
+      <circle cx="12" cy="8" r="2.6" fill="none" stroke="#fff" strokeWidth="1" />
     </>
   ),
   IRR: (
     <>
-      <rect width="30" height="20" fill="#239f40" />
-      <rect y="6.7" width="30" height="6.6" fill="#fff" />
-      <rect y="13.3" width="30" height="6.7" fill="#da0000" />
-      <path d="M15 8.2c-1 .9-1.4 2-.8 3.1.5 1 1.5 1.3 2.5 1" stroke="#da0000" strokeWidth="1" fill="none" />
+      <rect width="24" height="16" fill="#fff" />
+      <rect width="24" height="5.3" fill="#239f40" />
+      <rect y="10.7" width="24" height="5.3" fill="#da0000" />
+      <circle cx="12" cy="8" r="1.6" fill="#da0000" />
     </>
   ),
   TRY: (
     <>
-      <rect width="30" height="20" fill="#e30a17" />
-      <circle cx="12.5" cy="10" r="5" fill="#fff" />
-      <circle cx="14" cy="10" r="4" fill="#e30a17" />
-      <path d="m17.5 10-1.2.9.45-1.45L15.6 8.6l1.5.02L17.6 7.2l.5 1.4 1.5-.05-1.15.95.45 1.45L17.5 10Z" fill="#fff" />
+      <rect width="24" height="16" fill="#e30a17" />
+      <circle cx="9.5" cy="8" r="3.6" fill="#fff" />
+      <circle cx="10.4" cy="8" r="2.9" fill="#e30a17" />
+      <path d="m13.5 6.4.7 1.4 1.5.2-1.1 1 .3 1.5-1.4-.8-1.3.8.3-1.5-1.1-1 1.5-.2.6-1.4Z" fill="#fff" transform="scale(0.7) translate(6.5 4)" />
     </>
   ),
   IQD: (
     <>
-      <rect width="30" height="20" fill="#fff" />
-      <rect width="30" height="6.6" fill="#ce1126" />
-      <rect y="13.4" width="30" height="6.6" fill="#111" />
-      <path d="M8 11.5h4M13 10l1 1.5h3" stroke="#007a3d" strokeWidth="1.2" fill="none" />
+      <rect width="24" height="16" fill="#fff" />
+      <rect width="24" height="5.3" fill="#ce1126" />
+      <rect y="10.7" width="24" height="5.3" fill="#000" />
+      <path d="M6 9.2h12" stroke="#007a3d" strokeWidth="1.4" />
     </>
   ),
 };
 
-export function Flag({ code, className = "h-4 w-6" }: { code: string; className?: string }) {
+export function Flag({ code, className }: { code: string; className?: string }) {
   return (
-    <svg viewBox="0 0 30 20" className={`${className} rounded-[3px] shadow-sm`} aria-hidden>
-      {flags[code] ?? flags.USD}
+    <svg viewBox="0 0 24 16" className={className} aria-hidden="true" style={{ borderRadius: 3, overflow: "hidden", boxShadow: "0 1px 4px rgba(0,0,0,0.25)" }}>
+      {flags[code] ?? <rect width="24" height="16" fill="#5d8a72" />}
     </svg>
   );
 }

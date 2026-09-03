@@ -1,74 +1,25 @@
 import { currencies, getProduct, messengers, products } from "../data";
-import { fa, PHONE_FA, PHONE_TEL, useRevealAll } from "../lib";
+import { fa, useRevealAll } from "../lib";
 import type { NavFn } from "../lib";
 import { Flag, Icon } from "./Icons";
-import CapitalAcademy from "./CapitalAcademy";
-import SupportBand from "./SupportBand";
 
-/* در پیام‌رسان‌ها هم در دسترسیم — ویژه‌ی کپیتال */
-function MessengerAvailability() {
-  return (
-    <section className="border-t border-ink-100 bg-paper py-16 sm:py-20">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6">
-        <div className="reveal relative overflow-hidden rounded-[2rem] border border-ink-100 bg-white p-8 sm:p-12">
-          <span className="absolute inset-y-0 right-0 w-1.5 bg-gold-500" aria-hidden />
-          <div className="pointer-events-none absolute -left-24 -top-24 h-72 w-72 rounded-full bg-teal-500/10 blur-3xl" aria-hidden />
-          <div className="pointer-events-none absolute -bottom-24 -right-10 h-72 w-72 rounded-full bg-gold-500/10 blur-3xl" aria-hidden />
+const COMMON = [
+  { icon: "network", title: "تک‌کاربره و تحت شبکه", desc: "هر دو نسخه را داریم؛ چند کاربر هم‌زمان، بدون تداخل." },
+  { icon: "key", title: "فعال‌سازی با پین‌کد", desc: "قفل نرم‌افزاری است — بدون قفل سخت‌افزاری و بدون نگرانی دانگل." },
+  { icon: "cloud", title: "بکاپ ابری و ایمیلی", desc: "پشتیبان اطلاعات‌تان در فضای ابری ذخیره یا با ایمیل برایتان ارسال می‌شود." },
+];
 
-          <div className="relative grid items-center gap-10 lg:grid-cols-[1.15fr_0.85fr]">
-            <div>
-              <p className="flex items-center gap-2 font-latin text-[10px] tracking-[0.3em] text-teal-600" dir="ltr">
-                <Icon name="chat" className="h-4 w-4" /> WE ARE ON MESSENGERS
-              </p>
-              <h2 className="mt-3">
-                <span className="line-mask"><span className="font-display text-4xl leading-tight text-ink-900 sm:text-5xl">در پیام‌رسان‌ها هم</span></span>
-                <span className="line-mask" style={{ "--rv-delay": "120ms" } as React.CSSProperties}>
-                  <span className="font-display text-4xl leading-tight text-gold-500 sm:text-5xl">در دسترسیم</span>
-                </span>
-              </h2>
-              <p className="mt-5 max-w-xl leading-9 text-mist-500">
-                پشتیبانی و مشاوره‌ی کپیتال فقط پشت تلفن نیست؛ در هر پیام‌رسانی که راحت‌ترید، پیام بدهید — معمولاً همان روز پاسخ می‌دهیم.
-              </p>
-            </div>
-
-            <div className="reveal" style={{ "--rv-delay": "200ms" } as React.CSSProperties}>
-              <div className="flex flex-wrap justify-start gap-2.5 lg:justify-end">
-                {messengers.map((m) => (
-                  <span key={m.name} className="flex items-center gap-2 rounded-full border border-ink-100 bg-paper px-4 py-2 text-sm font-medium text-ink-800 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md">
-                    <span className="h-2.5 w-2.5 rounded-full" style={{ background: m.color }} aria-hidden />
-                    {m.name}
-                  </span>
-                ))}
-              </div>
-              <a href={`tel:${PHONE_TEL}`} className="group mt-6 flex items-center justify-start gap-3 lg:justify-end">
-                <span className="relative flex h-11 w-11 items-center justify-center rounded-2xl bg-ink-950 text-teal-400 transition-transform duration-300 group-hover:scale-105">
-                  <Icon name="phone" className="phone-ring h-5 w-5" />
-                </span>
-                <span className="text-right lg:text-left">
-                  <span className="block text-[11px] text-mist-500">همه‌ی پیام‌رسان‌ها با همین شماره</span>
-                  <span dir="ltr" className="phone-number block text-xl text-ink-900 transition-colors group-hover:text-teal-600">{PHONE_FA}</span>
-                </span>
-              </a>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-/* ویترین ارزهای کپیتال */
 function CurrencyShowcase() {
   return (
     <section className="relative overflow-hidden border-t border-ink-100 bg-white py-20 sm:py-24">
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
-            <p className="reveal font-latin text-xs tracking-[0.3em] text-teal-600">MULTI-CURRENCY BOARD</p>
+            <p className="reveal eyebrow">MULTI-CURRENCY BOARD</p>
             <h2 className="mt-3">
-              <span className="line-mask"><span className="font-display text-4xl leading-tight text-ink-900 sm:text-5xl">از افغانی تا یورو،</span></span>
+              <span className="line-mask"><span className="font-display block text-4xl leading-tight text-ink-900 sm:text-5xl">از افغانی تا یورو،</span></span>
               <span className="line-mask" style={{ "--rv-delay": "120ms" } as React.CSSProperties}>
-                <span className="font-display text-4xl leading-tight text-teal-600 sm:text-5xl">همه به نرخ روز</span>
+                <span className="font-display block text-4xl leading-tight text-teal-600 sm:text-5xl">همه به نرخ روز</span>
               </span>
             </h2>
           </div>
@@ -76,63 +27,53 @@ function CurrencyShowcase() {
             یک ارز پایه معرفی می‌کنید؛ بقیه‌ی ارزها هر روز با نرخِ همان ارز پایه قیمت می‌گیرند و همه‌ی حساب‌ها به نرخ روز می‌مانند.
           </p>
         </div>
-
         <div className="mt-12 grid grid-cols-2 gap-4 sm:grid-cols-4 lg:grid-cols-7">
           {currencies.map((c, i) => (
             <div key={c.code} className="reveal card-lift group flex flex-col items-center rounded-2xl border border-ink-100 bg-paper px-3 py-7 text-center hover:border-teal-500/50" style={{ "--rv-delay": `${(i % 7) * 70}ms` } as React.CSSProperties}>
-              <span className="transition-transform duration-300 group-hover:scale-125">
-                <Flag code={c.code} className="h-12 w-[72px] shadow-md" />
-              </span>
+              <span className="transition-transform duration-300 group-hover:scale-125"><Flag code={c.code} className="h-12 w-[72px]" /></span>
               <span className="mt-3 font-display text-lg leading-6 text-ink-900">{c.name}</span>
               <span className="mt-1 text-[11px] text-mist-500">{c.country}</span>
               <span className="mt-2 rounded-full bg-ink-100/70 px-2.5 py-0.5 font-latin text-[9px] tracking-[0.2em] text-mist-500">{c.code}</span>
             </div>
           ))}
         </div>
-
-        <div className="reveal mt-10 overflow-hidden rounded-2xl border border-ink-100 bg-ink-950">
-          <div className="flex items-center justify-between border-b border-ink-700/70 px-5 py-3">
-            <p className="text-xs font-bold text-[#ddebe3]">تابلوی نرخ روز — همه ارزها به نرخ ارز پایه</p>
-            <span className="flex items-center gap-1.5 text-[10px] text-teal-400">
-              <span className="pulse-dot h-1.5 w-1.5 rounded-full bg-teal-500" />
-              به‌روزرسانی روزانه
-            </span>
-          </div>
-          <div className="marquee-track py-3.5">
-            {[0, 1].map((rep) => (
-              <div key={rep} className="flex shrink-0 items-center" aria-hidden={rep === 1}>
-                {currencies.concat(currencies).map((c, i) => (
-                  <span key={c.code + i} className="mx-5 flex items-center gap-2 whitespace-nowrap">
-                    <Flag code={c.code} className="h-4 w-6" />
-                    <span className="text-xs text-[#ddebe3]">{c.name} {c.country}</span>
-                    <span className="font-latin text-[10px] text-mist-300" dir="ltr">{c.code}</span>
-                    <span className="mr-4 h-1 w-1 rounded-full bg-gold-500/70" />
-                  </span>
-                ))}
-              </div>
-            ))}
-          </div>
-        </div>
-
         <p className="reveal mt-6 text-center text-sm text-mist-500">
-          و ده‌ها ارز دیگر — از روپیه تا یوآن. اگر ارزی هست که کسب‌وکار شما لازم دارد و در فهرست نیست، <b className="text-teal-600">همان روز اضافه می‌کنیم.</b>
+          و ده‌ها ارز دیگر — اگر ارزی هست که کسب‌وکار شما لازم دارد و در فهرست نیست، <b className="text-teal-600">همان روز اضافه می‌کنیم.</b>
         </p>
       </div>
     </section>
   );
 }
 
-/* اصول مشترک همه محصولات */
-const commonPrinciples = [
-  { icon: "network", title: "تک‌کاربره و تحت شبکه", desc: "هر دو نسخه را داریم؛ چند کاربر هم‌زمان، بدون تداخل." },
-  { icon: "key", title: "فعال‌سازی با پین‌کد", desc: "قفل نرم‌افزاری است — بدون قفل سخت‌افزاری و بدون نگرانی دانگل." },
-  { icon: "cloud", title: "بکاپ ابری و ایمیلی", desc: "پشتیبان اطلاعات‌تان در فضای ابری ذخیره یا با ایمیل برایتان ارسال می‌شود." },
-];
+function MessengerAvailability() {
+  return (
+    <section className="border-t border-ink-100 bg-paper py-16 sm:py-20">
+      <div className="mx-auto max-w-5xl px-4 sm:px-6">
+        <div className="reveal relative overflow-hidden rounded-[1.75rem] border border-ink-100 bg-white p-8 sm:p-10">
+          <span className="absolute inset-y-0 right-0 w-1.5 bg-gold-500" aria-hidden />
+          <h2 className="font-display text-3xl text-ink-900">در پیام‌رسان‌ها هم در دسترسیم</h2>
+          <p className="mt-3 max-w-2xl leading-9 text-mist-500">
+            پشتیبانی کپیتال فقط تلفنی نیست؛ در همه‌ی پیام‌رسان‌های محبوب هم پاسخ‌گو هستیم — مخصوصاً برای مشتریان افغانستان.
+          </p>
+          <div className="mt-6 flex flex-wrap gap-2.5">
+            {messengers.map((m) => (
+              <span key={m.name} className="flex items-center gap-2 rounded-full border border-ink-100 bg-paper px-4 py-2 text-sm font-medium text-ink-800 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md">
+                <span className="h-2.5 w-2.5 rounded-full" style={{ background: m.color }} />
+                {m.name}
+              </span>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
 
 export default function ProductPage({ id, nav }: { id: string; nav: NavFn }) {
   const ref = useRevealAll<HTMLDivElement>();
   const p = getProduct(id) ?? products[0];
   const others = products.filter((x) => x.id !== p.id);
+  const isCapital = p.id === "capital";
 
   return (
     <div ref={ref} className="bg-paper">
@@ -144,11 +85,10 @@ export default function ProductPage({ id, nav }: { id: string; nav: NavFn }) {
             <Icon name="arrow" className="h-4 w-4 rotate-180 transition-transform group-hover:translate-x-1" />
             همه محصولات
           </button>
-
           <div className="grid items-center gap-12 lg:grid-cols-[1.1fr_0.9fr]">
             <div>
               <div className="reveal flex items-center gap-5">
-                <span className="flex h-20 w-20 shrink-0 items-center justify-center rounded-3xl text-[#ffffff] shadow-2xl" style={{ background: p.accent }}>
+                <span className="flex h-20 w-20 shrink-0 items-center justify-center rounded-3xl text-ink-950 shadow-2xl" style={{ background: p.accent }}>
                   <Icon name={p.features[0]?.icon ?? "box"} className="h-10 w-10" />
                 </span>
                 <div>
@@ -159,47 +99,16 @@ export default function ProductPage({ id, nav }: { id: string; nav: NavFn }) {
               <p className="reveal mt-5 font-display text-2xl text-gold-400" style={{ "--rv-delay": "120ms" } as React.CSSProperties}>{p.tagline}</p>
               <p className="reveal mt-6 max-w-xl leading-9 text-mist-300" style={{ "--rv-delay": "200ms" } as React.CSSProperties}>{p.short}</p>
               <div className="reveal mt-8 flex flex-wrap gap-4" style={{ "--rv-delay": "280ms" } as React.CSSProperties}>
-                <button onClick={() => nav({ page: "downloads" })} className="btn-shine group flex items-center gap-2.5 rounded-xl bg-teal-500 px-7 py-3.5 font-bold text-ink-950 transition-colors hover:bg-teal-400">
+                <button onClick={() => nav({ page: "downloads" })} className="btn-primary group">
                   <Icon name="download" className="h-5 w-5 transition-transform group-hover:translate-y-0.5" />
                   دانلود {p.name}
                 </button>
-                <button onClick={() => nav({ page: "contact" })} className="rounded-xl border border-ink-600 px-7 py-3.5 font-semibold text-ink-100 transition-colors hover:border-gold-500 hover:text-gold-400">درخواست دمو</button>
-                {p.id === "capital" && (
-                  <button
-                    onClick={() => document.getElementById("capital-academy")?.scrollIntoView({ block: "start" })}
-                    className="group flex items-center gap-2 rounded-xl border border-gold-500/50 px-7 py-3.5 font-semibold text-gold-400 transition-colors hover:border-gold-500 hover:bg-gold-500/10"
-                  >
-                    <Icon name="award" className="h-5 w-5" />
-                    آموزش جامع {fa(17)} فصلی
-                  </button>
-                )}
-              </div>
-
-              {/* بنر تصویر محصول — فقط موبایل */}
-              <div className="reveal relative mt-9 h-52 overflow-hidden rounded-3xl border border-ink-700/60 lg:hidden" style={{ "--rv-delay": "340ms" } as React.CSSProperties}>
-                <img src={p.image} alt={`${p.name} — ${p.tagline}`} className="h-full w-full object-cover" />
-                <div className="pointer-events-none absolute inset-0" style={{ background: "linear-gradient(200deg, transparent 50%, rgba(10,27,33,0.5) 100%)" }} aria-hidden />
-                <span className="absolute bottom-4 right-4 rounded-full border border-white/15 bg-ink-950/70 px-3.5 py-1.5 font-latin text-[10px] font-bold tracking-[0.3em] text-white backdrop-blur" dir="ltr">{p.latin}</span>
+                <button onClick={() => nav({ page: "contact" })} className="btn-ghost-light">درخواست دمو</button>
               </div>
             </div>
-
             <div className="reveal rv-scale relative hidden lg:block" style={{ "--rv-delay": "150ms" } as React.CSSProperties}>
-              <div className="pointer-events-none absolute -inset-10 rounded-full opacity-30 blur-[110px]" style={{ background: p.accent }} aria-hidden />
-              <div className="float-soft group relative aspect-square overflow-hidden rounded-[2.5rem] border border-ink-700/60 shadow-[0_45px_90px_-35px_rgba(0,0,0,0.85)]">
-                <img
-                  src={p.image}
-                  alt={`${p.name} — ${p.tagline}`}
-                  className="h-full w-full object-cover transition-transform duration-[2500ms] ease-out group-hover:scale-[1.07]"
-                />
-                <div className="pointer-events-none absolute inset-0" style={{ background: "linear-gradient(200deg, transparent 45%, rgba(10,27,33,0.55) 100%)" }} aria-hidden />
-                {/* نشان محصول روی گوشه‌ی تصویر */}
-                <span className="absolute right-6 top-6 flex h-14 w-14 items-center justify-center rounded-2xl text-[#ffffff] shadow-xl ring-1 ring-white/25 backdrop-blur" style={{ background: p.accent }}>
-                  <Icon name={p.features[0]?.icon ?? "box"} className="h-7 w-7" />
-                </span>
-                <div className="absolute bottom-6 right-6 left-6 flex items-center justify-between gap-3">
-                  <span className="rounded-full border border-white/15 bg-ink-950/70 px-4 py-2 font-latin text-xs font-bold tracking-[0.35em] text-white backdrop-blur" dir="ltr">{p.latin}</span>
-                  <span className="pulse-dot h-2.5 w-2.5 rounded-full" style={{ background: p.accent }} aria-hidden />
-                </div>
+              <div className="float-soft relative overflow-hidden rounded-[2rem] border border-white/10 shadow-2xl">
+                <img src={p.image} alt={p.name} className="img-key h-[420px] w-full object-cover" style={{ objectPosition: p.imgPos ?? "50% 40%" }} />
               </div>
             </div>
           </div>
@@ -209,7 +118,7 @@ export default function ProductPage({ id, nav }: { id: string; nav: NavFn }) {
       {/* اصول مشترک */}
       <section className="border-b border-ink-100 bg-white py-10">
         <div className="mx-auto grid max-w-7xl gap-4 px-4 sm:grid-cols-3 sm:px-6">
-          {commonPrinciples.map((c, i) => (
+          {COMMON.map((c, i) => (
             <div key={c.title} className="reveal flex items-start gap-4 rounded-2xl border border-ink-100 bg-paper p-5" style={{ "--rv-delay": `${i * 90}ms` } as React.CSSProperties}>
               <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-ink-950 text-teal-400"><Icon name={c.icon} className="h-5 w-5" /></span>
               <div>
@@ -221,28 +130,23 @@ export default function ProductPage({ id, nav }: { id: string; nav: NavFn }) {
         </div>
       </section>
 
-      {p.id === "capital" && <CurrencyShowcase />}
-      {p.id === "capital" && <MessengerAvailability />}
+      {isCapital && <CurrencyShowcase />}
 
       {/* معرفی */}
       <section className="py-20 sm:py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <div className="grid gap-12 lg:grid-cols-[0.9fr_1.1fr] lg:gap-20">
             <div className="lg:sticky lg:top-28 lg:self-start">
-              <p className="reveal font-latin text-xs tracking-[0.3em] text-teal-600">ABOUT</p>
-              <h2 className="reveal mt-3">
-                <span className="line-mask"><span className="font-display text-5xl leading-tight text-ink-900">با {p.name} آشنا شوید</span></span>
-              </h2>
+              <p className="reveal eyebrow">ABOUT</p>
+              <h2 className="reveal mt-3"><span className="line-mask"><span className="font-display block text-5xl leading-tight text-ink-900">با {p.name} آشنا شوید</span></span></h2>
               <div className="reveal mt-7 space-y-5">
-                {p.overview.map((o) => (
-                  <p key={o.slice(0, 24)} className="leading-9 text-mist-500">{o}</p>
-                ))}
+                {p.overview.map((o) => <p key={o.slice(0, 24)} className="leading-9 text-mist-500">{o}</p>)}
               </div>
             </div>
             <div className="grid gap-5 sm:grid-cols-2">
               {p.features.map((f, i) => (
-                <div key={f.title} className="reveal card-lift group rounded-3xl border border-ink-100 bg-white p-7" style={{ "--rv-delay": `${(i % 2) * 100}ms` } as React.CSSProperties}>
-                  <span className="flex items-center justify-center rounded-2xl bg-ink-950 text-teal-400 transition-transform duration-300 group-hover:-rotate-6 group-hover:scale-110" style={{ height: 52, width: 52 }}>
+                <div key={f.title} className="reveal card-pro group p-7" style={{ "--rv-delay": `${(i % 2) * 100}ms` } as React.CSSProperties}>
+                  <span className="flex h-13 w-13 items-center justify-center rounded-2xl bg-ink-950 text-teal-400 transition-transform duration-300 group-hover:-rotate-6 group-hover:scale-110" style={{ height: 52, width: 52 }}>
                     <Icon name={f.icon} className="h-6 w-6" />
                   </span>
                   <h3 className="mt-5 font-display text-xl text-ink-900">{f.title}</h3>
@@ -262,18 +166,9 @@ export default function ProductPage({ id, nav }: { id: string; nav: NavFn }) {
             <div className="mt-12 grid gap-6 md:grid-cols-2">
               {p.modules.map((m, i) => (
                 <div key={m.name} className={`reveal card-lift relative overflow-hidden rounded-3xl border-2 p-8 sm:p-10 ${m.featured ? "border-gold-500 bg-ink-950" : "border-ink-100 bg-paper"}`} style={{ "--rv-delay": `${i * 120}ms` } as React.CSSProperties}>
-                  {m.badge && (
-                    <div className="mb-5 text-left">
-                      <span className="inline-flex items-center gap-1.5 rounded-full bg-gold-500 px-4 py-1.5 text-xs font-bold text-ink-950 shadow-[0_6px_16px_-6px_rgba(229,169,61,0.7)]">
-                        <Icon name="spark" className="h-3.5 w-3.5" />
-                        {m.badge}
-                      </span>
-                    </div>
-                  )}
-                  <div className="flex flex-wrap items-center gap-3">
-                    <span className={`flex h-12 w-12 items-center justify-center rounded-2xl ${m.featured ? "bg-gold-500 text-ink-950" : "bg-ink-950 text-teal-400"}`}>
-                      <Icon name={m.featured ? "spark" : "box"} className="h-6 w-6" />
-                    </span>
+                  {m.badge && <span className="absolute left-6 top-6 rounded-full bg-gold-500 px-4 py-1.5 text-xs font-bold text-ink-950">{m.badge}</span>}
+                  <div className="flex items-center gap-3">
+                    <span className={`flex h-12 w-12 items-center justify-center rounded-2xl ${m.featured ? "bg-gold-500 text-ink-950" : "bg-ink-950 text-teal-400"}`}><Icon name={m.featured ? "spark" : "box"} className="h-6 w-6" /></span>
                     <h3 className={`font-display text-3xl ${m.featured ? "text-white" : "text-ink-900"}`}>{m.name}</h3>
                   </div>
                   <ul className="mt-6 space-y-3">
@@ -284,9 +179,7 @@ export default function ProductPage({ id, nav }: { id: string; nav: NavFn }) {
                       </li>
                     ))}
                   </ul>
-                  <button onClick={() => nav({ page: "contact" })} className={`btn-shine mt-8 w-full rounded-xl py-3.5 font-bold transition-transform hover:scale-[1.01] ${m.featured ? "bg-gold-500 text-[#0c1f19]" : "bg-ink-900 text-[#ffffff]"}`}>
-                    استعلام قیمت {m.name}
-                  </button>
+                  <button onClick={() => nav({ page: "contact" })} className={`btn-shine mt-8 w-full rounded-xl py-3.5 font-bold transition-transform hover:scale-[1.01] ${m.featured ? "bg-gold-500 text-ink-950" : "bg-ink-950 text-white"}`}>استعلام قیمت {m.name}</button>
                 </div>
               ))}
             </div>
@@ -309,27 +202,22 @@ export default function ProductPage({ id, nav }: { id: string; nav: NavFn }) {
         </div>
       </section>
 
-      {/* نقل‌قول مشتری */}
+      {isCapital && <MessengerAvailability />}
+
+      {/* نقل‌قول */}
       {p.quote && (
         <section className="border-t border-ink-100 bg-white py-20">
           <div className="mx-auto max-w-4xl px-4 text-center sm:px-6">
-            <span className="reveal mx-auto flex h-12 w-12 items-center justify-center rounded-full font-display text-4xl text-[#ffffff]" style={{ background: p.accent }} aria-hidden>”</span>
+            <span className="reveal mx-auto flex h-12 w-12 items-center justify-center rounded-full font-display text-4xl text-white" style={{ background: p.accent }} aria-hidden>”</span>
             <blockquote className="reveal mt-6 font-display text-3xl leading-[1.7] text-ink-900 sm:text-4xl" style={{ "--rv-delay": "120ms" } as React.CSSProperties}>{p.quote.text}</blockquote>
-            <p className="reveal mt-6 text-sm text-mist-500" style={{ "--rv-delay": "200ms" } as React.CSSProperties}>
-              <b className="text-ink-900">{p.quote.author}</b> — {p.quote.role}
-            </p>
+            <p className="reveal mt-6 text-sm text-mist-500" style={{ "--rv-delay": "200ms" } as React.CSSProperties}><b className="text-ink-900">{p.quote.author}</b> — {p.quote.role}</p>
           </div>
         </section>
       )}
 
-      {/* آموزش جامع — فقط کپیتال */}
-      {p.id === "capital" && <CapitalAcademy />}
-
-      <SupportBand compact />
-
       {/* بقیه خانواده */}
       {others.length > 0 && (
-        <section className="border-t border-ink-100 bg-white py-16">
+        <section className="border-t border-ink-100 bg-paper py-16">
           <div className="mx-auto max-w-7xl px-4 sm:px-6">
             <div className="flex flex-wrap items-center justify-between gap-4">
               <h2 className="reveal font-display text-3xl text-ink-900">محصول دیگر خانواده</h2>
@@ -337,8 +225,8 @@ export default function ProductPage({ id, nav }: { id: string; nav: NavFn }) {
             </div>
             <div className="mt-8 grid max-w-xl gap-4">
               {others.map((o, i) => (
-                <button key={o.id} onClick={() => nav({ page: "product", id: o.id })} className="reveal card-lift group flex items-center gap-6 rounded-3xl border border-ink-100 bg-paper p-6 text-right" style={{ "--rv-delay": `${i * 80}ms` } as React.CSSProperties}>
-                  <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl text-[#ffffff] transition-transform duration-300 group-hover:rotate-6" style={{ background: o.accent }}>
+                <button key={o.id} onClick={() => nav({ page: "product", id: o.id })} className="reveal card-lift group flex items-center gap-6 rounded-3xl border border-ink-100 bg-white p-6 text-right" style={{ "--rv-delay": `${i * 80}ms` } as React.CSSProperties}>
+                  <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl text-ink-950 transition-transform duration-300 group-hover:rotate-6" style={{ background: o.accent }}>
                     <Icon name={o.features[0]?.icon ?? "box"} className="h-7 w-7" />
                   </span>
                   <span>
