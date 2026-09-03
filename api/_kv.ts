@@ -6,15 +6,51 @@
      دستگاه‌ها و همه‌ی کاربران مشترک‌اند و با پاک‌شدن مرورگر از بین نمی‌روند.
    ─ هر دو مجموعه متغیر محیطی را پشتیبانی می‌کند:
        • KV_REST_API_URL / KV_REST_API_TOKEN        (اتصال از نوع Vercel KV)
-       • UPSTASH_REDIS_REST_URL / UPSTASH_REDIS_REST_TOKEN (اتصال از نوع Upstash Redis) */
-import { Redis } from "@upstash/redis";
+        • UPSTASH_REDIS_REST_URL / UPSTASH_REDIS_REST_TOKEN (اتصال از نوع Upstash Redis)
+   ─ از REST API خود Upstash استفاده می‌کند و به هیچ کتابخانه‌ی npm نیازی ندارد؛
+     بنابراین بدون تغییر در package.json روی Vercel build و اجرا می‌شود. */
 import { randomBytes, scryptSync } from "crypto";
 
-/* ── کلاینت Redis ابری — فقط اگر متغیرهای محیطی موجود باشند ساخته می‌شود ── */
+/* ── کلاینت REST برای Upstash Redis (بدون نیاز به کتابخانه) ── */
 const REDIS_URL = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL || "";
 const REDIS_TOKEN = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN || "";
-export const kv: Redis | null =
-  REDIS_URL && REDIS_TOKEN ? new Redis({ url: REDIS_URL, token: REDIS_TOKEN }) : null;
+
+type KvClient = {
+  get: <T = unknown>(key: string) => Promise<T | null>;
+  set: (key: string, value: unknown, opts?: { ex?: number }) => Promise<void>;
+  del: (key: string) => Promise<void>;
+};
+
+/** اجرای یک دستور Redis از طریق REST APIِ آپ‌استش و برگرداندن نتیجه */
+async function upstashCommand<T = unknown>(args: (string | number)[]): Promise<T | null> {
+  const res = await fetch(REDIS_URL, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${REDIS_TOKEN}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(args),
+  });
+  if (!res.ok) throw new Error(`Upstash REST error: HTTP ${res.status}`);
+  const data = (await res.json()) as { result: T | null };
+  return data.result ?? null;
+}
+
+/* ── کلاینت Redis ابری — فقط اگر متغیرهای محیطی موجود باشند ساخته می‌شود ── */
+export const kv: KvClient | null =
+  REDIS_URL && REDIS_TOKEN
+    ? {
+        get: <T = unknown>(key: string) => upstashCommand<T>(["GET", key]),
+        set: (key: string, value: unknown, opts?: { ex?: number }) =>
+          upstashCommand(
+            opts?.ex
+              ? ["SET", key, String(value), "EX", String(opts.ex)]
+              : ["SET", key, String(value)]
+          ).then(() => undefined),
+        del: (key: string) => upstashCommand(["DEL", key]).then(() => undefined),
+      }
+    : null;
+
 /** کدام مجموعه متغیر پیدا شد (برای گزارش /api/status — بدون افشای مقدار) */
 export const redisSource: "kv" | "upstash" | "none" = process.env.KV_REST_API_URL
   ? "kv"
