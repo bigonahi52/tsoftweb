@@ -1,97 +1,57 @@
 <!doctype html>
-<html lang="zh-CN">
+<html lang="fa" dir="rtl">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>coder-app-name</title>
+    <meta
+      name="description"
+      content="کپیتال (Capital) نرم‌افزار حسابداری چندارزی از گروه نرم‌افزاری سرمایه (تیسافت TSOFT) — ارز پایه، نرخ روز، فاکتور و گزارش ارزی برای بازرگانی در ایران و افغانستان. Capital is a multi-currency accounting software by Sarmaye Software Group (TSOFT): base currency, daily exchange rates, multi-currency invoicing and reports."
+    />
+    <meta
+      name="keywords"
+      content="tsoft, تیسافت, کپیتال, capital, capital software, capital accounting, capital software accounting, حسابداری کپیتال, نرم افزار کپیتال, حسابداری چندارزی, multi-currency accounting software, نرم افزار حسابداری فروشگاهی, tisaft, گروه نرم افزاری سرمایه, sarmaye software group, حسابداری افغانستان, afghanistan accounting software, نرخ ارز, exchange rate accounting, افغانی, دلار, درهم"
+    />
+    <meta name="robots" content="index, follow" />
+    <meta name="theme-color" content="#0c1f19" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="گروه نرم‌افزاری سرمایه — TSOFT" />
+    <meta property="og:title" content="تیسافت (TSOFT) | کپیتال Capital — نرم‌افزار حسابداری چندارزی" />
+    <meta
+      property="og:description"
+      content="کپیتال: حسابداری چندارزی با ارز پایه، نرخ روز و گزارش‌های ارزی — محصول گروه نرم‌افزاری سرمایه. Capital: multi-currency accounting software with base currency and daily rates."
+    />
+    <meta property="og:locale" content="fa_IR" />
+    <meta property="og:locale:alternate" content="en_US" />
+    <title>تیسافت و کپیتال (TSOFT · CAPITAL) | نرم‌افزار حسابداری فروشگاهی و چندارزی | گروه نرم‌افزاری سرمایه</title>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "گروه نرم‌افزاری سرمایه",
+        "alternateName": ["تیسافت", "TSOFT", "Sarmaye Software Group", "Sarmaye"],
+        "url": "https://www.tsoft20.ir",
+        "telephone": "+989153133726",
+        "email": "info@tsoft20.ir",
+        "foundingDate": "2006",
+        "areaServed": ["IR", "AF"]
+      }
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&family=Vazirmatn:wght@100..900&display=swap"
+      rel="stylesheet"
+    />
     <link
       rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      href="https://cdn.jsdelivr.net/gh/rastikerdar/yekan-bakh-font@v3.0.0/dist/font-face.css"
     />
-    <style>
-      /* 内联样式确保主题色立即生效，避免闪烁 */
-      html,
-      body {
-        margin: 0;
-        padding: 0;
-        width: 100%;
-        height: 100%;
-      }
-      html.light,
-      html.light body {
-        background-color: #ffffff !important;
-        color: #000000;
-      }
-      html.dark,
-      html.dark body {
-        background-color: #1a1a1a !important;
-        color: #ffffff;
-      }
-    </style>
-    <script>
-      // 在 React 加载前立即设置主题，避免闪烁
-      (function () {
-        const isInIframe = window.self !== window.top;
-
-        function applyThemeToDOM(theme) {
-          document.documentElement.classList.remove("light", "dark");
-          document.documentElement.classList.add(theme);
-          document.documentElement.setAttribute("data-theme", theme);
-        }
-
-        if (isInIframe) {
-          // 监听父窗口主动推送的主题消息
-          window.addEventListener("message", function (event) {
-            if (event.data && typeof event.data.theme === "string") {
-              const theme = event.data.theme;
-              if (theme === "light" || theme === "dark") {
-                applyThemeToDOM(theme);
-              }
-            }
-          });
-        } else {
-          // 非 iframe 环境，使用默认 light 主题
-          applyThemeToDOM("light");
-        }
-      })();
-    </script>
-      <script>
-      (function () {
-        if (window.self === window.top) return;
-        var reported = {};
-        window.addEventListener("error", function (event) {
-          // 资源加载失败的 error 事件没有 message，此处仅上报 JS 运行时错误
-          if (!event || !event.message) return;
-          var key =
-            event.message + "|" + (event.filename || "") + "|" + (event.lineno || 0);
-          if (reported[key]) return; // 相同错误只上报一次，避免渲染循环刷屏
-          reported[key] = true;
-          try {
-            window.parent.postMessage(
-              {
-                type: "sandbox-runtime-error",
-                payload: {
-                  message: String(event.message).slice(0, 500),
-                  filename: event.filename || "",
-                  lineno: event.lineno || 0,
-                  colno: event.colno || 0,
-                  stack:
-                    event.error && event.error.stack
-                      ? String(event.error.stack).slice(0, 2000)
-                      : ""
-                }
-              },
-              "*"
-            );
-          } catch (e) {
-            /* 上报失败不影响页面运行 */
-          }
-        });
-      })();
-    </script>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/favicon.svg" />
+    <link rel="manifest" href="/manifest.webmanifest" />
   </head>
   <body>
     <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
+    <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
