@@ -14,7 +14,6 @@ import AuthPage from "./components/AuthPage";
 import UserPanel from "./components/UserPanel";
 import AdminPanel from "./components/AdminPanel";
 import Footer from "./components/Footer";
-import ChatWidget from "./components/ChatWidget";
 import { Icon } from "./components/Icons";
 
 const SLUG_TO_ID: Record<string, string> = {
@@ -199,7 +198,6 @@ export default function App() {
       <Nav route={route} nav={nav} user={user} onLogout={onLogout} />
       <main>{renderPage()}</main>
       <Footer nav={nav} />
-      <ChatWidget />
       <BackToTop />
     </div>
   );

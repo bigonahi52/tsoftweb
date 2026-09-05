@@ -5,19 +5,32 @@
    ─ همه‌ی داده‌ها در Upstash Redis ابری ذخیره می‌شوند؛ یعنی بین همه‌ی
      دستگاه‌ها و همه‌ی کاربران مشترک‌اند و با پاک‌شدن مرورگر از بین نمی‌روند.
    ─ هر دو مجموعه متغیر محیطی را پشتیبانی می‌کند:
-        • KV_REST_API_URL / KV_REST_API_TOKEN        (اتصال از نوع Vercel KV)
-         • UPSTASH_REDIS_REST_URL / UPSTASH_REDIS_REST_TOKEN (اتصال از نوع Upstash Redis)
+       • KV_REST_API_URL / KV_REST_API_TOKEN        (اتصال از نوع Vercel KV)
+       • UPSTASH_REDIS_REST_URL / UPSTASH_REDIS_REST_TOKEN (اتصال از نوع Upstash Redis)
    ─ از REST API خود Upstash استفاده می‌کند و به هیچ کتابخانه‌ی npm نیازی ندارد؛
      بنابراین بدون تغییر در package.json روی Vercel build و اجرا می‌شود. */
+
 import { randomBytes, scryptSync } from "crypto";
 
 /* ── کلاینت REST برای Upstash Redis (بدون نیاز به کتابخانه) ── */
-const REDIS_URL = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL || "";
-const REDIS_TOKEN = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN || "";
+
+const REDIS_URL =
+  process.env.KV_REST_API_URL ||
+  process.env.UPSTASH_REDIS_REST_URL ||
+  "";
+
+const REDIS_TOKEN =
+  process.env.KV_REST_API_TOKEN ||
+  process.env.UPSTASH_REDIS_REST_TOKEN ||
+  "";
 
 type KvClient = {
   get: <T = unknown>(key: string) => Promise<T | null>;
-  set: (key: string, value: unknown, opts?: { ex?: number }) => Promise<void>;
+  set: (
+    key: string,
+    value: unknown,
+    opts?: { ex?: number }
+  ) => Promise<void>;
   del: (key: string) => Promise<void>;
 };
 
@@ -25,9 +38,13 @@ type KvClient = {
     هر دستور حداکثر ۴ ثانیه مهلت دارد تا فانکشن API هرگز در Vercel معطل نماند
     و به خطای GATEWAY_TIMEOUT (504) نرسد — اگر دیتابیس کند یا قطع باشد،
     خطای واضح برمی‌گردد به‌جای اینکه کل درخواست قفل شود. */
-async function upstashCommand<T = unknown>(args: (string | number)[]): Promise<T | null> {
+
+async function upstashCommand<T = unknown>(
+  args: (string | number)[]
+): Promise<T | null> {
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), 4000);
+
   try {
     const res = await fetch(REDIS_URL, {
       method: "POST",
@@ -38,12 +55,21 @@ async function upstashCommand<T = unknown>(args: (string | number)[]): Promise<T
       body: JSON.stringify(args),
       signal: ctrl.signal,
     });
-    if (!res.ok) throw new Error(`Upstash REST error: HTTP ${res.status}`);
+
+    if (!res.ok) {
+      throw new Error(`Upstash REST error: HTTP ${res.status}`);
+    }
+
     const data = (await res.json()) as { result: T | null };
+
     return data.result ?? null;
   } catch (e) {
-    if (e instanceof Error && e.name === "AbortError")
-      throw new Error("Upstash timeout (4s) — اتصال به دیتابیس کند یا برقرار نیست");
+    if (e instanceof Error && e.name === "AbortError") {
+      throw new Error(
+        "Upstash timeout (4s) — اتصال به دیتابیس کند یا برقرار نیست"
+      );
+    }
+
     throw e;
   } finally {
     clearTimeout(timer);
@@ -51,28 +77,40 @@ async function upstashCommand<T = unknown>(args: (string | number)[]): Promise<T
 }
 
 /* ── کلاینت Redis ابری — فقط اگر متغیرهای محیطی موجود باشند ساخته می‌شود ── */
+
 export const kv: KvClient | null =
   REDIS_URL && REDIS_TOKEN
     ? {
-        get: <T = unknown>(key: string) => upstashCommand<T>(["GET", key]),
-        set: (key: string, value: unknown, opts?: { ex?: number }) =>
+        get: <T = unknown>(key: string) =>
+          upstashCommand<T>(["GET", key]),
+
+        set: (
+          key: string,
+          value: unknown,
+          opts?: { ex?: number }
+        ) =>
           upstashCommand(
             opts?.ex
               ? ["SET", key, String(value), "EX", String(opts.ex)]
               : ["SET", key, String(value)]
           ).then(() => undefined),
-        del: (key: string) => upstashCommand(["DEL", key]).then(() => undefined),
+
+        del: (key: string) =>
+          upstashCommand(["DEL", key]).then(() => undefined),
       }
     : null;
 
 /** کدام مجموعه متغیر پیدا شد (برای گزارش /api/status — بدون افشای مقدار) */
-export const redisSource: "kv" | "upstash" | "none" = process.env.KV_REST_API_URL
-  ? "kv"
-  : process.env.UPSTASH_REDIS_REST_URL
-    ? "upstash"
-    : "none";
+
+export const redisSource: "kv" | "upstash" | "none" =
+  process.env.KV_REST_API_URL
+    ? "kv"
+    : process.env.UPSTASH_REDIS_REST_URL
+      ? "upstash"
+      : "none";
 
 /* ── انواع ── */
+
 export type DbUser = {
   id: string;
   firstName: string;
@@ -84,6 +122,7 @@ export type DbUser = {
   role: "user" | "admin";
   createdAt: number;
 };
+
 export type PubUser = Omit<DbUser, "salt" | "passHash">;
 
 export const pub = (u: DbUser): PubUser => ({
@@ -97,38 +136,70 @@ export const pub = (u: DbUser): PubUser => ({
 });
 
 /* ── پاسخ‌ها ── */
+
 export const ok = (data: unknown) => Response.json(data);
-export const err = (message: string, status = 400) => Response.json({ error: message }, { status });
+
+export const err = (message: string, status = 400) =>
+  Response.json(
+    { error: message },
+    { status }
+  );
 
 /** بررسی فعال بودن دیتابیس ابری (Upstash Redis) */
+
 export const kvOk = () => kv !== null;
 
 /* ── ابزارهای امنیتی ── */
-export const uid = () => randomBytes(6).toString("hex") + Date.now().toString(36);
-export const hashPass = (pass: string, salt: string) => scryptSync(pass, salt, 32).toString("hex");
-export const verifyPass = (pass: string, salt: string, stored: string) => {
+
+export const uid = () =>
+  randomBytes(6).toString("hex") + Date.now().toString(36);
+
+export const hashPass = (pass: string, salt: string) =>
+  scryptSync(pass, salt, 32).toString("hex");
+
+export const verifyPass = (
+  pass: string,
+  salt: string,
+  stored: string
+) => {
   try {
     return hashPass(pass, salt) === stored;
   } catch {
     return false;
   }
 };
+
 /** یکدست‌سازی شماره/نام‌کاربری (ارقام فارسی ← لاتین، حذف فاصله و خط) */
+
 export const normPhone = (p: string) =>
   String(p || "")
-    .replace(/[۰-۹]/g, (d) => String("۰۱۲۳۴۵۶۷۸۹".indexOf(d)))
+    .replace(/[۰-۹]/g, (d) =>
+      String("۰۱۲۳۴۵۶۷۸۹".indexOf(d))
+    )
     .replace(/[\s\-()]/g, "");
 
 /* ── ابزارهای JSON روی Redis ──
    مقادیر به‌صورت صریح JSON.stringify/parse می‌شوند تا:
    ۱) با داده‌های ذخیره‌شده توسط نسخه‌های قبلی (@vercel/kv) سازگار بمانند
    ۲) رفتار در همه‌ی نسخه‌های کلاینت یکسان و قابل‌پیش‌بینی باشد */
-export async function jget<T>(key: string, fallback: T): Promise<T> {
+
+export async function jget<T>(
+  key: string,
+  fallback: T
+): Promise<T> {
   if (!kv) return fallback;
+
   try {
     const raw = await kv.get<string>(key);
-    if (raw === null || raw === undefined) return fallback;
-    if (typeof raw !== "string") return raw as T; /* داده‌های قدیمی که از قبل آبجکت‌اند */
+
+    if (raw === null || raw === undefined) {
+      return fallback;
+    }
+
+    if (typeof raw !== "string") {
+      return raw as T;
+    }
+
     try {
       return JSON.parse(raw) as T;
     } catch {
@@ -138,18 +209,30 @@ export async function jget<T>(key: string, fallback: T): Promise<T> {
     return fallback;
   }
 }
-export async function jset(key: string, value: unknown, ttlSec?: number) {
+
+export async function jset(
+  key: string,
+  value: unknown,
+  ttlSec?: number
+) {
   if (!kv) return;
+
   try {
     const json = JSON.stringify(value);
-    if (ttlSec) await kv.set(key, json, { ex: ttlSec });
-    else await kv.set(key, json);
+
+    if (ttlSec) {
+      await kv.set(key, json, { ex: ttlSec });
+    } else {
+      await kv.set(key, json);
+    }
   } catch {
     /* ignore */
   }
 }
+
 export async function jdel(key: string) {
   if (!kv) return;
+
   try {
     await kv.del(key);
   } catch {
@@ -159,96 +242,201 @@ export async function jdel(key: string) {
 
 /** تست واقعی اتصال — نوشتن/خواندن/حذف یک کلید موقت؛ نتیجه با پیام خطای واقعی
     (بدون افشای توکن) برمی‌گردد تا ریشه‌ی مشکلات اتصال قابل تشخیص باشد. */
-export async function pingRedis(): Promise<{ ok: boolean; ms?: number; error?: string }> {
-  if (!kv) return { ok: false, error: "کلاینت Redis ساخته نشده — متغیرهای محیطی (KV_REST_API_URL / KV_REST_API_TOKEN) در Runtime دیده نمی‌شوند." };
+
+export async function pingRedis(): Promise<{
+  ok: boolean;
+  ms?: number;
+  error?: string;
+}> {
+  if (!kv) {
+    return {
+      ok: false,
+      error:
+        "کلاینت Redis ساخته نشده — متغیرهای محیطی (KV_REST_API_URL / KV_REST_API_TOKEN) در Runtime دیده نمی‌شوند.",
+    };
+  }
+
   const t0 = Date.now();
+
   try {
     const key = "tsoft:ping";
     const val = `ok-${Date.now()}`;
+
     await kv.set(key, val, { ex: 30 });
+
     const back = await kv.get<string>(key);
+
     await kv.del(key);
-    if (back !== val) return { ok: false, error: "داده‌ی خوانده‌شده با داده‌ی نوشته‌شده متفاوت است." };
-    return { ok: true, ms: Date.now() - t0 };
+
+    if (back !== val) {
+      return {
+        ok: false,
+        error:
+          "داده‌ی خوانده‌شده با داده‌ی نوشته‌شده متفاوت است.",
+      };
+    }
+
+    return {
+      ok: true,
+      ms: Date.now() - t0,
+    };
   } catch (e) {
-    return { ok: false, error: e instanceof Error ? e.message : String(e) };
+    return {
+      ok: false,
+      error:
+        e instanceof Error ? e.message : String(e),
+    };
   }
 }
 
 /* ── کاربران ── */
-export const allUserIds = () => jget<string[]>("users", []);
-export const getUser = (id: string) => jget<DbUser | null>(`u:${id}`, null);
-export async function userByPhone(phone: string): Promise<DbUser | null> {
-  /* مسیر سریع: ایندکس phone→id (حداکثر ۲ درخواست به‌جای N+1) */
-  const idx = await jget<string | null>(`byphone:${phone}`, null);
+
+export const allUserIds = () =>
+  jget<string[]>("users", []);
+
+export const getUser = (id: string) =>
+  jget<DbUser | null>(`u:${id}`, null);
+
+export async function userByPhone(
+  phone: string
+): Promise<DbUser | null> {
+  /* مسیر سریع: ایندکس phone→id */
+
+  const idx = await jget<string | null>(
+    `byphone:${phone}`,
+    null
+  );
+
   if (idx) {
     const u = await getUser(idx);
-    if (u && u.phone === phone) return u;
-  }
-  /* fallback برای داده‌های قدیمی که ایندکس ندارند + بازسازی ایندکس برای دفعات بعد */
-  const ids = await allUserIds();
-  for (const id of ids) {
-    const u = await getUser(id);
-    if (u) {
-      await jset(`byphone:${u.phone}`, u.id);
-      if (u.phone === phone) return u;
+
+    if (u && u.phone === phone) {
+      return u;
     }
   }
+
+  /* fallback برای داده‌های قدیمی که ایندکس ندارند */
+
+  const ids = await allUserIds();
+
+  for (const id of ids) {
+    const u = await getUser(id);
+
+    if (u) {
+      await jset(`byphone:${u.phone}`, u.id);
+
+      if (u.phone === phone) {
+        return u;
+      }
+    }
+  }
+
   return null;
 }
+
 export async function saveUser(u: DbUser) {
   const ids = await allUserIds();
-  if (!ids.includes(u.id)) await jset("users", [...ids, u.id]);
+
+  if (!ids.includes(u.id)) {
+    await jset("users", [...ids, u.id]);
+  }
+
   await jset(`u:${u.id}`, u);
-  await jset(`byphone:${u.phone}`, u.id); /* ایندکس phone→id */
+
+  /* ایندکس phone→id */
+
+  await jset(`byphone:${u.phone}`, u.id);
 }
 
-/* ── مدیر ثابت ──
-   نام کاربری و رمز مدیر از متغیرهای محیطی خوانده می‌شود و اگر تنظیم نشده
-   باشد، مقادیر پیش‌فرض زیر استفاده می‌شود. برای تغییر، در داشبورد Vercel
-   متغیرهای ADMIN_PHONE و ADMIN_PASSWORD را تنظیم کنید. */
-export const ADMIN_PHONE = process.env.ADMIN_PHONE || "admin";
-export const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "tsoft20";
-const ADMIN_SALT = "tsoft-admin-fixed-salt"; /* نمک ثابت تا هش مدیر پایدار بماند */
+/* ── مدیر ثابت ── */
+
+export const ADMIN_PHONE =
+  process.env.ADMIN_PHONE || "admin";
+
+export const ADMIN_PASSWORD =
+  process.env.ADMIN_PASSWORD || "tsoft20";
+
+const ADMIN_SALT = "tsoft-admin-fixed-salt";
 
 /** اگر حساب مدیر وجود نداشته باشد، آن را با نام کاربری و رمز ثابت می‌سازد */
+
 export async function ensureAdmin() {
   const existing = await userByPhone(ADMIN_PHONE);
+
   if (existing) return;
+
   const admin: DbUser = {
     id: "admin",
     firstName: "مدیر",
     lastName: "سایت",
     phone: ADMIN_PHONE,
     salt: ADMIN_SALT,
-    passHash: hashPass(ADMIN_PASSWORD, ADMIN_SALT),
+    passHash: hashPass(
+      ADMIN_PASSWORD,
+      ADMIN_SALT
+    ),
     role: "admin",
     createdAt: Date.now(),
   };
+
   await saveUser(admin);
 }
 
 /* ── نشست‌ها (توکن) ── */
-const SESSION_TTL = 60 * 60 * 24 * 30; /* ۳۰ روز */
+
+const SESSION_TTL = 60 * 60 * 24 * 30;
+
+/* ۳۰ روز */
+
 export async function newSession(userId: string) {
   const token =
-    Array.from({ length: 32 }, () => "abcdefghijklmnopqrstuvwxyz0123456789"[Math.floor(Math.random() * 36)]).join("") +
-    Date.now().toString(36);
-  await jset(`s:${token}`, userId, SESSION_TTL);
+    Array.from(
+      { length: 32 },
+      () =>
+        "abcdefghijklmnopqrstuvwxyz0123456789"[
+          Math.floor(Math.random() * 36)
+        ]
+    ).join("") + Date.now().toString(36);
+
+  await jset(
+    `s:${token}`,
+    userId,
+    SESSION_TTL
+  );
+
   return token;
 }
+
 export function tokenOf(req: Request): string {
-  const auth = req.headers.get("authorization") || "";
-  return auth.replace(/^Bearer\s+/i, "").trim();
+  const auth =
+    req.headers.get("authorization") || "";
+
+  return auth
+    .replace(/^Bearer\s+/i, "")
+    .trim();
 }
-export async function sessionUser(req: Request): Promise<DbUser | null> {
+
+export async function sessionUser(
+  req: Request
+): Promise<DbUser | null> {
   const token = tokenOf(req);
+
   if (!token) return null;
-  const userId = await jget<string | null>(`s:${token}`, null);
+
+  const userId = await jget<string | null>(
+    `s:${token}`,
+    null
+  );
+
   if (!userId) return null;
+
   return getUser(userId);
 }
+
 export async function endSession(req: Request) {
   const token = tokenOf(req);
-  if (token) await jdel(`s:${token}`);
+
+  if (token) {
+    await jdel(`s:${token}`);
+  }
 }
