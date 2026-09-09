@@ -354,15 +354,6 @@ function UsersTab() {
 }
 
 /* ───────── بنر وضعیت دیتابیس ───────── */
-function RecheckBtn({ onClick }: { onClick: () => void }) {
-  const [busy, setBusy] = useState(false);
-  return (
-    <button onClick={() => { setBusy(true); onClick(); window.setTimeout(() => setBusy(false), 1500); }} className="flex shrink-0 items-center gap-1.5 rounded-lg border border-ink-100 bg-white px-3 py-2 text-xs font-bold text-mist-500 transition-all hover:border-teal-500/60 hover:text-teal-600">
-      <Icon name="update" className={`h-3.5 w-3.5 ${busy ? "animate-spin" : ""}`} />
-      بررسی مجدد
-    </button>
-  );
-}
 
 
 
