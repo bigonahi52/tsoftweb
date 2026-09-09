@@ -364,14 +364,7 @@ function RecheckBtn({ onClick }: { onClick: () => void }) {
   );
 }
 
-function DbHealthBanner({ health, onRecheck }: { health: HealthReport | null; onRecheck: () => void }) {
-  if (!health)
-    return (
-      <div className="mb-6 flex items-center gap-3 rounded-2xl border border-ink-100 bg-white px-5 py-4">
-        <span className="pulse-dot h-3 w-3 rounded-full bg-teal-500" />
-        <p className="text-sm font-bold text-mist-500">در حال بررسی اتصال به دیتابیس ابری…</p>
-      </div>
-    );
+
 
   /* حالت پیش‌نمایش — در محیط آزمایشی سروری وجود ندارد؛ این خطا نیست */
   if (health.preview)
