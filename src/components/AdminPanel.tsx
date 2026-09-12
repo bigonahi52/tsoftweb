@@ -354,24 +354,8 @@ function UsersTab() {
 }
 
 /* ───────── بنر وضعیت دیتابیس ───────── */
-function RecheckBtn({ onClick }: { onClick: () => void }) {
-  const [busy, setBusy] = useState(false);
-  return (
-    <button onClick={() => { setBusy(true); onClick(); window.setTimeout(() => setBusy(false), 1500); }} className="flex shrink-0 items-center gap-1.5 rounded-lg border border-ink-100 bg-white px-3 py-2 text-xs font-bold text-mist-500 transition-all hover:border-teal-500/60 hover:text-teal-600">
-      <Icon name="update" className={`h-3.5 w-3.5 ${busy ? "animate-spin" : ""}`} />
-      بررسی مجدد
-    </button>
-  );
-}
 
-function DbHealthBanner({ health, onRecheck }: { health: HealthReport | null; onRecheck: () => void }) {
-  if (!health)
-    return (
-      <div className="mb-6 flex items-center gap-3 rounded-2xl border border-ink-100 bg-white px-5 py-4">
-        <span className="pulse-dot h-3 w-3 rounded-full bg-teal-500" />
-        <p className="text-sm font-bold text-mist-500">در حال بررسی اتصال به دیتابیس ابری…</p>
-      </div>
-    );
+
 
   /* حالت پیش‌نمایش — در محیط آزمایشی سروری وجود ندارد؛ این خطا نیست */
   if (health.preview)
