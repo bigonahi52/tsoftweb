@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { api, ApiError } from "../api";
 import { messengers } from "../data";
 import { fa, PHONE_FA, PHONE_TEL, useRevealAll } from "../lib";
 import { Icon } from "./Icons";
@@ -16,10 +15,18 @@ export default function ContactPage() {
     setBusy(true);
     setErr("");
     try {
-      await api.contact(form);
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || "خطا در ارسال پیام");
+      }
       setSent(true);
     } catch (ex) {
-      setErr(ex instanceof ApiError ? ex.message : "خطا در ارسال پیام");
+      setErr(ex instanceof Error ? ex.message : "خطا در ارسال پیام");
     } finally {
       setBusy(false);
     }

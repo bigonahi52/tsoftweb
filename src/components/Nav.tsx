@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import type { PubUser } from "../api";
 import { fa, PHONE_FA, PHONE_TEL } from "../lib";
 import type { NavFn, Route } from "../lib";
 import { Icon, SiteLogo } from "./Icons";
@@ -21,7 +20,7 @@ function useTodayDate() {
   return d;
 }
 
-export default function Nav({ route, nav, user, onLogout }: { route: Route; nav: NavFn; user: PubUser | null; onLogout: () => void }) {
+export default function Nav({ route, nav }: { route: Route; nav: NavFn }) {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const [drop, setDrop] = useState(false);
@@ -150,16 +149,6 @@ export default function Nav({ route, nav, user, onLogout }: { route: Route; nav:
           </nav>
 
           <div className="flex items-center gap-3">
-            {user && user.role === "admin" && (
-              <button onClick={() => nav({ page: "admin" })} className="hidden rounded-xl bg-gold-500 px-5 py-2.5 text-sm font-bold text-ink-950 transition-transform hover:scale-[1.02] sm:block">
-                پنل مدیریت
-              </button>
-            )}
-            {user && (
-              <button onClick={onLogout} className="hidden rounded-xl border border-ink-100 px-4 py-2.5 text-sm font-semibold text-ink-800 transition-colors hover:border-[#E14B4B]/50 hover:text-[#E14B4B] sm:block">
-                خروج
-              </button>
-            )}
             <button onClick={() => setOpen(!open)} className="flex h-10 w-10 items-center justify-center rounded-xl border border-ink-100 bg-white text-ink-900 lg:hidden" aria-label="منو">
               <Icon name={open ? "close" : "menu"} className="h-5 w-5" />
             </button>
@@ -191,16 +180,6 @@ export default function Nav({ route, nav, user, onLogout }: { route: Route; nav:
               ))}
             </div>
           </div>
-          {user && (
-            <div className="mt-8 space-y-3">
-              {user.role === "admin" && (
-                <button onClick={() => { nav({ page: "admin" }); setOpen(false); }} className="w-full rounded-xl bg-gold-500 px-5 py-3.5 font-bold text-ink-950">
-                  پنل مدیریت
-                </button>
-              )}
-              <button onClick={() => { onLogout(); setOpen(false); }} className="w-full rounded-xl border border-ink-600 px-5 py-3.5 font-semibold text-ink-100">خروج</button>
-            </div>
-          )}
           <p className="mt-12 text-center font-display text-lg text-gold-400">۱۳۸۵ — ۱۴۰۵ · دو دهه حسابِ روشن</p>
         </div>
       </div>

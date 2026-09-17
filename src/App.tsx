@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useState } from "react";
-import { api, getToken, setToken, type PubUser } from "./api";
 import { useRevealAll } from "./lib";
 import type { NavFn, Route } from "./lib";
 import Nav from "./components/Nav";
@@ -11,9 +10,6 @@ import TrainingPage from "./components/TrainingPage";
 import CapitalGuide from "./components/CapitalGuide";
 import AboutPage from "./components/AboutPage";
 import ContactPage from "./components/ContactPage";
-import AuthPage from "./components/AuthPage";
-import UserPanel from "./components/UserPanel";
-import AdminPanel from "./components/AdminPanel";
 import Footer from "./components/Footer";
 import { Icon } from "./components/Icons";
 
@@ -104,17 +100,7 @@ function BackToTop() {
 
 export default function App() {
   const [route, setRoute] = useState<Route>(() => pathToRoute(window.location.pathname));
-  const [user, setUser] = useState<PubUser | null>(null);
   const ref = useRevealAll<HTMLDivElement>();
-
-  /* بازیابی نشست */
-  useEffect(() => {
-    if (!getToken()) return;
-    api
-      .me()
-      .then((d) => setUser(d.user))
-      .catch(() => setToken(null));
-  }, []);
 
   /* مسیریابی با History API */
   useEffect(() => {
@@ -146,17 +132,6 @@ export default function App() {
     }
   }, [route]);
 
-  const onAuth = (u: PubUser, token: string) => {
-    setToken(token);
-    setUser(u);
-  };
-  const onLogout = () => {
-    api.logout().catch(() => {});
-    setToken(null);
-    setUser(null);
-    nav({ page: "home" });
-  };
-
   const renderPage = () => {
     switch (route.page) {
       case "home":
@@ -178,18 +153,6 @@ export default function App() {
         return <AboutPage nav={nav} />;
       case "contact":
         return <ContactPage />;
-      case "login":
-        return <AuthPage tab="login" onAuth={onAuth} nav={nav} />;
-      case "register":
-        return <AuthPage tab="register" onAuth={onAuth} nav={nav} />;
-      case "panel":
-        return user ? <UserPanel user={user} onLogout={onLogout} nav={nav} /> : <AuthPage tab="login" onAuth={onAuth} nav={nav} />;
-      case "admin":
-        return user && user.role === "admin" ? (
-          <AdminPanel user={user} onLogout={onLogout} nav={nav} />
-        ) : (
-          <AuthPage tab="login" onAuth={onAuth} nav={nav} />
-        );
       default:
         return null;
     }
@@ -198,7 +161,7 @@ export default function App() {
   return (
     <div ref={ref} className="min-h-screen bg-paper font-body text-ink-900">
       <ScrollProgress />
-      <Nav route={route} nav={nav} user={user} onLogout={onLogout} />
+      <Nav route={route} nav={nav} />
       <main>{renderPage()}</main>
       <Footer nav={nav} />
       <BackToTop />
