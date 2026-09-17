@@ -41,6 +41,7 @@ export default function Nav({ route, nav, user, onLogout }: { route: Route; nav:
     { label: "محصولات", to: { page: "home" }, key: "products" },
     { label: "دانلودها", to: { page: "downloads" }, key: "downloads" },
     { label: "آموزش", to: { page: "training" }, key: "training" },
+    { label: "آموزش کپیتال", to: { page: "capital-guide" }, key: "capital-guide" },
     { label: "درباره ما", to: { page: "about" }, key: "about" },
     { label: "تماس", to: { page: "contact" }, key: "contact" },
   ];

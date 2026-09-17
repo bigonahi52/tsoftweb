@@ -8,6 +8,7 @@ import Home from "./components/Home";
 import ProductPage from "./components/ProductPage";
 import DownloadsPage from "./components/DownloadsPage";
 import TrainingPage from "./components/TrainingPage";
+import CapitalGuide from "./components/CapitalGuide";
 import AboutPage from "./components/AboutPage";
 import ContactPage from "./components/ContactPage";
 import AuthPage from "./components/AuthPage";
@@ -31,7 +32,7 @@ function pathToRoute(path: string): Route {
   } catch {
     /* ignore */
   }
-  if (decoded.includes("آموزش-کپیتال") || decoded.includes("آموزش کپیتال")) return { page: "training" };
+  if (decoded.includes("آموزش-کپیتال") || decoded.includes("آموزش کپیتال") || seg === "capital-guide") return { page: "capital-guide" };
   if (SLUG_TO_ID[seg]) return { page: "product", id: SLUG_TO_ID[seg] };
   const known = ["downloads", "training", "about", "contact", "login", "register", "panel", "admin"];
   if (known.includes(seg)) return { page: seg as Route["page"] } as Route;
@@ -171,6 +172,8 @@ export default function App() {
         return <DownloadsPage />;
       case "training":
         return <TrainingPage />;
+      case "capital-guide":
+        return <CapitalGuide nav={nav} />;
       case "about":
         return <AboutPage nav={nav} />;
       case "contact":
